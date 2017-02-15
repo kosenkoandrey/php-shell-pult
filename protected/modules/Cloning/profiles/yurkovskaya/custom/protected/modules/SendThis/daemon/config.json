@@ -1,0 +1,16 @@
+{
+	"threads":"4",
+	"delay":"1",
+	"retries":"5",
+	"pack_size":"100",
+	"api":{
+		"url":"http://sendthis.ru/api/2.0/sendmail.php",
+		"key":"f68ec4f0c6df90137749af75a929a3eb3049a1f0f1c808cdaa4fbed0e01649b1"
+	},
+	"db":{
+		"host":"localhost",
+		"database":"phpshell_yurkovskaya",
+		"user":"phpshell",
+		"password":"UUY9mPCC5PBVQ7SJ"
+	}
+}
