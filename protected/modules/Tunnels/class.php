@@ -380,6 +380,16 @@ class Tunnels {
         header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
         header('Content-Type: application/json');
         
+        $user_count = [];
+        
+        foreach(APP::Module('DB')->Select(
+            $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            ['object', 'tunnel_id'],'tunnels_users',[['state', '=', 'active', PDO::PARAM_STR],['tunnel_id', '=', $_POST['tunnel_id'], PDO::PARAM_INT]]
+        ) as $v){
+            isset($user_count[$v['object']]['count']) ? $user_count[$v['object']]['count']++ : $user_count[$v['object']]['count'] = 1;
+            $user_count[$v['object']]['url'] = APP::Module('Routing')->root.'admin/users?filters='.APP::Module('Crypt')->Encode(json_encode(["logic"=>"intersect","rules"=> [["method"=>"tunnels_object","settings"=>["object"=>$v['object'],"value"=>$v['tunnel_id']]]]]));
+        }
+        
         echo json_encode([
             'process' => APP::Module('DB')->Select(
                 $this->settings['module_tunnels_db_connection'], ['fetch', PDO::FETCH_ASSOC], 
@@ -405,7 +415,8 @@ class Tunnels {
                 $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
                 ['id', 'tunnel_id', 'comment', 'child_object', 'style'], 'tunnels_comments',
                 [['tunnel_id', '=', $_POST['tunnel_id'], PDO::PARAM_INT]]
-            )
+            ),
+            'user_count' => $user_count
         ]);
     }
     
