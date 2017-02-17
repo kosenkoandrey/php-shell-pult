@@ -104,6 +104,23 @@
                                         default: settings[id] = param_value;
                                     }
                                     break;
+                                case 'about': 
+                                    switch(id) {
+                                        case 'logic': 
+                                            if (settings.logic === undefined) settings.logic = new Object();
+                                            settings.logic = param_value; 
+                                            break;
+                                        case 'value': 
+                                            if (settings.value === undefined) settings.value = new Object();
+                                            settings.value = param_value; 
+                                            break;
+                                        case 'item': 
+                                            if (settings.item === undefined) settings.item = new Object();
+                                            settings.item = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
                                 case 'state': 
                                     switch(id) {
                                         case 'logic': 
@@ -379,6 +396,10 @@
                                             if (settings.date_to === undefined) settings.date_to = new Object();
                                             settings.date_to = param_value; 
                                             break;
+                                        case 'letter': 
+                                            if (settings.letter === undefined) settings.letter = new Object();
+                                            settings.letter = param_value; 
+                                            break;
                                         default: settings[id] = param_value;
                                     }
                                     break;
@@ -485,6 +506,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="reg_date" href="javascript:void(0)">Date registration</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tags" href="javascript:void(0)">Tags</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="source" href="javascript:void(0)">Source</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="about" href="javascript:void(0)">About</a></li>',
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="firstname" href="javascript:void(0)">Firstname</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="lastname" href="javascript:void(0)">Lastname</a></li>',
@@ -684,6 +706,32 @@
 
                     if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    break;
+                case 'about':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>About</tr>',
+                            '<tr>',
+                                '<td style="width: 125px">',
+                                    '<input data-id="item" class="form-control m-l-5" type="text" placeholder="Item">',
+                                '</td>',
+                                '<td style="width: 125px">',
+                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=" />',
+                                    '<input data-id="value" class="form-control m-l-5" type="text" placeholder="Value">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.logic !== undefined) $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
+                    $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
+                    $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    if (rule.settings.item !== undefined) $('.trigger_settings input[data-id="item"]', $trigger_rule_item).val(rule.settings.item);
+                    $('.trigger_settings input[data-id="item"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
                 case 'source':
@@ -1262,32 +1310,49 @@
                         '<table>',
                             '<tr>Letter events</tr>',
                             '<tr>',
-                                '<td style="width: 125px">',
-                                    '<input data-id="date_from" class="form-control date-picker" type="text">',
-                                '</td>',
-                                '<td style="width: 125px">',
-                                    '<input data-id="date_to" class="form-control date-picker" type="text" >',
+                                '<td style="width: 300px">',
+                                    '<div class="col-sm-6">',
+                                        '<div class="form-group fg-line">',
+                                            '<input data-id="date_from" class="form-control date-picker" type="text" placeholder="Date from">',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="form-group fg-line">',
+                                            '<input data-id="date_to" class="form-control date-picker" type="text" placeholder="Date to">',
+                                        '</div>',
+                                    '</div>',
                                 '</td>',
                             '</tr>',
                             '<tr>',
                                 '<td style="width: 100px">',
-                                    '<select class="selectpicker form-control" data-id="logic" >',
-                                        '<option value="=">=</option>',
-                                        '<option value="!=">!=</option>',
-                                    '</select>',
+                                    '<div class="col-sm-4">',
+                                        '<div class="form-group fg-line">',
+                                            '<select class="selectpicker form-control" data-id="logic" >',
+                                                '<option value="=">=</option>',
+                                                '<option value="!=">!=</option>',
+                                            '</select>',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-8">',
+                                        '<div class="form-group fg-line">',
+                                            '<select class="selectpicker form-control" data-id="value">',
+                                                '<option value="open">open</option>',
+                                                '<option value="click">click</option>',
+                                                '<option value="delivered">delivered</option>',
+                                                '<option value="processed">processed</option>',
+                                                '<option value="unsubscribe">unsubscribe</option>',
+                                                '<option value="dropped">dropped</option>',
+                                                '<option value="deferred">deferred</option>',
+                                                '<option value="bounce">bounce</option>',
+                                                '<option value="spamreport">spamreport</option>',
+                                            '</select>',
+                                        '</div>',
+                                    '</div>',
                                 '</td>',
-                                '<td style="width: 125px">',
-                                    '<select class="selectpicker form-control" data-id="value">',
-                                        '<option value="open">open</option>',
-                                        '<option value="click">click</option>',
-                                        '<option value="delivered">delivered</option>',
-                                        '<option value="processed">processed</option>',
-                                        '<option value="unsubscribe">unsubscribe</option>',
-                                        '<option value="dropped">dropped</option>',
-                                        '<option value="deferred">deferred</option>',
-                                        '<option value="bounce">bounce</option>',
-                                        '<option value="spamreport">spamreport</option>',
-                                    '</select>',
+                            '</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<input type="hidden" data-id="letter" />',
                                 '</td>',
                             '</tr>',
                         '</table>'
@@ -1296,7 +1361,7 @@
 
                     $('.date-picker', $trigger_rule_item).datetimepicker({
                         format: 'YYYY-MM-DD',
-                        defaultDate: new Date()
+                        defaultDate: 0
                     }).on('dp.change', function(e){
                         $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
                     });
@@ -1306,7 +1371,12 @@
 
                     if (rule.settings.logic !== undefined) $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).val(rule.settings.mode);
                     $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
-
+                    
+                    $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).MailingLetterSelector({'url':settings.url});
+                    
+                    if (rule.settings.letter !== undefined) $('.trigger_settings select[data-id="letter"]', $trigger_rule_item).val(rule.settings.letter);
+                    $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
                     break;
                 case 'mail_open_pct':
                     $('.trigger_settings', $trigger_rule_item).append([

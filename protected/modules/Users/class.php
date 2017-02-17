@@ -2846,6 +2846,18 @@ class UsersSearch {
         );
     }
     
+    public function about($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['user'], 'users_about',
+            [
+                ['item', '=', $settings['item'], PDO::PARAM_STR],
+                ['value', $settings['logic'], $settings['value'], PDO::PARAM_STR]
+            ]
+        );
+    }
+    
     public function firstname($settings) {
         return APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], 
@@ -3233,22 +3245,24 @@ class UsersSearch {
     }
     
     public function mail_events($settings) {  
-        $where[] = ['mail_log.state', '=', 'success', PDO::PARAM_INT];
+        $where = [];
         
-        if(isset($settings['letter_id']) && count($settings['letter_id'])){
-            $where[] = ['mail_log.letter', 'IN', $settings['letter_id']];
+        if(isset($settings['letter']) && count($settings['letter'])){
+            $where[] = ['mail_log.letter', 'IN', $settings['letter'], PDO::PARAM_INT];
+        }
+        
+        $where[] = ['mail_events.event', $settings['logic'], $settings['value'], PDO::PARAM_STR];
+        $where[] = ['mail_log.state', '=', 'success', PDO::PARAM_STR];
+        
+        if((isset($settings['date_from']) && $settings['date_from']) && (isset($settings['date_to']) && $settings['date_to'])){
+            $where[] = ['mail_log.cr_date', 'BETWEEN', '"' . $settings['date_from'] . ' 00:00:00" AND "' . $settings['date_to'] . ' 23:59:59"', PDO::PARAM_STR];
         }
 
         return APP::Module('DB')->Select(
             APP::Module('Mail')->settings['module_mail_db_connection'], 
             ['fetchAll', PDO::FETCH_COLUMN],
             ['mail_log.user'], 'mail_log',
-            [
-                ['mail_events.event', $settings['logic'], $settings['value'], PDO::PARAM_STR],
-                ['mail_log.state', '=', 'success', PDO::PARAM_STR],
-                ['mail_log.cr_date', 'BETWEEN', '"' . $settings['date_from'] . ' 00:00:00" AND "' . $settings['date_to'] . ' 23:59:59"', PDO::PARAM_STR]
-                
-            ],
+            $where,
             [
                 'join/mail_events' => [
                     ['mail_events.log', '=', 'mail_log.id']
