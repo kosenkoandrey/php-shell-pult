@@ -154,7 +154,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     build : function(action, rules){
                         var modal = $('#user-modal');
                         var form = $('#user-action-form', modal);
-
                         form.append(
                             [
                                 "<input type='hidden' value='"+action+"' name='action' />",
@@ -175,7 +174,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-
                                         '<div class="form-group">',
                                             '<label for="" class="col-sm-4 control-label">Tunnel Action</label>',
                                             '<div class="col-sm-8">',
@@ -188,7 +186,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-
                                         '<div class="form-group">',
                                             '<label for="" class="col-sm-4 control-label">Tunnel Action ID</label>',
                                             '<div class="col-sm-8">',
@@ -197,7 +194,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-
                                         '<div class="form-group">',
                                             '<label for="" class="col-sm-4 control-label">Tunnel Timeout</label>',
                                             '<div class="col-sm-8">',
@@ -215,7 +211,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-
                                         '<div class="form-group">',
                                             '<label for="" class="col-sm-4 control-label">Welcome Tunnel Action</label>',
                                             '<div class="col-sm-8">',
@@ -228,7 +223,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-
                                         '<div class="form-group">',
                                             '<label for="" class="col-sm-4 control-label">Welcome Tunnel Action ID</label>',
                                             '<div class="col-sm-8">',
@@ -237,7 +231,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-
                                         '<div class="form-group">',
                                             '<label for="" class="col-sm-4 control-label">Welcome Tunnel Timeout</label>',
                                             '<div class="col-sm-8">',
@@ -256,7 +249,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                     '</div>',
                                                 '</div>',
                                             '</div>',
-
                                             '<div class="form-group">',
                                                 '<label for="" class="col-sm-4 control-label">Activation Url</label>',
                                                 '<div class="col-sm-8">',
@@ -265,7 +257,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                                     '</div>',
                                                 '</div>',
                                             '</div>',
-
                                             '<div class="form-group">',
                                                 '<label for="" class="col-sm-4 control-label">Queue Timeout</label>',
                                                 '<div class="col-sm-8">',
@@ -464,7 +455,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                 $('#user-modal').on('hide.bs.modal', function (event) {
                     $('#user-action-form', $(this)).html('');
                 });
-
                 var users_table = $("#users-table").bootgrid({
                     requestHandler: function (request) {
                         var model = {
@@ -472,12 +462,10 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                             current: request.current,
                             rows: request.rowCount
                         };
-
                         for (var key in request.sort) {
                             model.sort_by = key;
                             model.sort_direction = request.sort[key];
                         }
-
                         return JSON.stringify(model);
                     },
                     ajax: true,
@@ -523,7 +511,6 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                 }).on('loaded.rs.jquery.bootgrid', function () {
                     users_table.find('.remove-user').on('click', function (e) {
                         var user_id = $(this).data('user-id');
-
                         swal({
                             title: 'Are you sure?',
                             text: 'You will not be able to recover this user',
