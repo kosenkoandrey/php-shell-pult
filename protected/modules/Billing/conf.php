@@ -9,6 +9,7 @@ return [
         ['admin\/billing\/invoices(\?.*)?',                             'Billing', 'ManageInvoices'],
         ['admin\/billing\/invoices\/add(\?.*)?',                        'Billing', 'AddInvoice'],
         ['admin\/billing\/invoices\/edit\/(?P<invoice_id_hash>.*)',     'Billing', 'EditInvoice'],
+        ['admin\/billing\/invoices\/details\/(?P<invoice_id_hash>.*)',  'Billing', 'InvoiceDetails'],
         
         ['admin\/billing\/payments(\?.*)?',                             'Billing', 'ManagePayments'],
         ['billing\/payments\/make\/(?P<invoice_id_hash>.*)',            'Billing', 'PaymentMake'],
@@ -34,6 +35,8 @@ return [
         ['admin\/billing\/payments\/api\/search\.json(\?.*)?',          'Billing', 'APISearchPayments'],
         ['admin\/billing\/payments\/api\/action\.json(\?.*)?',          'Billing', 'APISearchPaymentsAction'],
         
-        ['admin\/billing\/api\/settings\/update\.json(\?.*)?',          'Billing', 'APIUpdateSettings']
+        ['admin\/billing\/api\/settings\/update\.json(\?.*)?',          'Billing', 'APIUpdateSettings'],
+        
+        ['billing\/api\/eautopay\/invoice\.json(\?.*)?',                'Billing', 'APIEAutopayCreateInvoice']
     ]
 ];

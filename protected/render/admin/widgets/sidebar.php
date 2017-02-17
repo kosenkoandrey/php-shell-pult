@@ -110,52 +110,103 @@ foreach (APP::$modules as $key => $value) {
     </ul>
 
     <ul class="main-menu">
-        <li class="sub-menu">
-            <a href="" data-ma-action="submenu-toggle"><i class="zmdi zmdi-caret-right"></i> Система</a>
-            <ul>
-                <li><a href="<?= APP::Module('Routing')->root ?>admin/app">Конфигурация</a></li>
-                <li><a href="<?= APP::Module('Routing')->root ?>admin/modules">Модули</a></li>
-            </ul>
-        </li>
         <?
-        foreach ($modules as $key => $value) {
-            ?>
-            <li class="sub-menu">
-                <a href="" data-ma-action="submenu-toggle"><i class="zmdi zmdi-caret-right"></i> <? 
-                    switch ($key) {
-                        case 'Analytics': echo 'Аналитика'; break;
-                        case 'Billing': echo 'Биллинг'; break;
-                        case 'Blog': echo 'Блог'; break;
-                        case 'Cache': echo 'Кэш'; break;
-                        case 'Comments': echo 'Комментарии'; break;
-                        case 'Costs': echo 'Расходы'; break;
-                        case 'Cron': echo 'Управление Cron'; break;
-                        case 'Crypt': echo 'Шифрование'; break;
-                        case 'Files': echo 'Файлы'; break;
-                        case 'HotOrNot': echo 'Hot or not'; break;
-                        case 'Likes': echo 'Оценки'; break;
-                        case 'Logs': echo 'Журналы'; break;
-                        case 'Mail': echo 'Почта'; break;
-                        case 'Members': echo 'Мемберка'; break;
-                        case 'Rating': echo 'Рейтинг'; break;
-                        case 'Sessions': echo 'Сессии'; break;
-                        case 'SocialNetworks': echo 'Социальные сети'; break;
-                        case 'SSH': echo 'SSH соединения'; break;
-                        case 'TaskManager': echo 'Менеджер задач'; break;
-                        case 'Triggers': echo 'Триггеры'; break;
-                        case 'Tunnels': echo 'Туннели'; break;
-                        case 'Users': echo 'Пользователи'; break;
-                        case 'Quiz': echo 'Викторина'; break;
-                        case 'Groups': echo 'Группы'; break;
-                        case 'Cloning': echo 'Клонирование'; break;
-                        default: echo $key; break;
-                    }
-                ?></a>
-                <ul>
-                    <?= $value ?>
-                </ul>
-            </li>
-            <?
+        switch (APP::Module('Users')->user['role']) {
+            case 'admin': 
+                ?>
+                <li class="sub-menu">
+                    <a href="" data-ma-action="submenu-toggle"><i class="zmdi zmdi-caret-right"></i> Биллинг</a>
+                    <ul>
+                        <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/products">Продукты</a></li>
+                        <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices">Счета</a></li>
+                        <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/payments">Платежи</a></li>
+                    </ul>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/costs"><i class="zmdi zmdi-caret-right"></i> Расходы</a>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/groups"><i class="zmdi zmdi-caret-right"></i> Группы</a>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/hotornot/people"><i class="zmdi zmdi-caret-right"></i> Hot or not</a>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="" data-ma-action="submenu-toggle"><i class="zmdi zmdi-caret-right"></i> Почта</a>
+                        <ul>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/0">Письма</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/senders/0">Отправители</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/shortcodes">Шорт-коды</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/log">Журнал</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/queue">Очередь</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/spam_lists">СПАМ-листы</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/fbl">FBL-отчеты</a></li>
+                        </ul>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/members/pages/0"><i class="zmdi zmdi-caret-right"></i> Мемберка</a>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/quiz/question"><i class="zmdi zmdi-caret-right"></i> Викторина</a>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/tunnels"><i class="zmdi zmdi-caret-right"></i> Туннели</a>
+                    </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/users"><i class="zmdi zmdi-caret-right"></i> Пользователи</a>
+                    </li>
+                <?
+                break;
+            default:
+                ?>
+                <li class="sub-menu">
+                    <a href="" data-ma-action="submenu-toggle"><i class="zmdi zmdi-caret-right"></i> Система</a>
+                    <ul>
+                        <li><a href="<?= APP::Module('Routing')->root ?>admin/app">Конфигурация</a></li>
+                        <li><a href="<?= APP::Module('Routing')->root ?>admin/modules">Модули</a></li>
+                    </ul>
+                </li>
+                <?
+                foreach ($modules as $key => $value) {
+                    ?>
+                    <li class="sub-menu">
+                        <a href="" data-ma-action="submenu-toggle"><i class="zmdi zmdi-caret-right"></i> <? 
+                            switch ($key) {
+                                case 'Analytics': echo 'Аналитика'; break;
+                                case 'Billing': echo 'Биллинг'; break;
+                                case 'Blog': echo 'Блог'; break;
+                                case 'Cache': echo 'Кэш'; break;
+                                case 'Comments': echo 'Комментарии'; break;
+                                case 'Costs': echo 'Расходы'; break;
+                                case 'Cron': echo 'Управление Cron'; break;
+                                case 'Crypt': echo 'Шифрование'; break;
+                                case 'Files': echo 'Файлы'; break;
+                                case 'HotOrNot': echo 'Hot or not'; break;
+                                case 'Likes': echo 'Оценки'; break;
+                                case 'Logs': echo 'Журналы'; break;
+                                case 'Mail': echo 'Почта'; break;
+                                case 'Members': echo 'Мемберка'; break;
+                                case 'Rating': echo 'Рейтинг'; break;
+                                case 'Sessions': echo 'Сессии'; break;
+                                case 'SocialNetworks': echo 'Социальные сети'; break;
+                                case 'SSH': echo 'SSH соединения'; break;
+                                case 'TaskManager': echo 'Менеджер задач'; break;
+                                case 'Triggers': echo 'Триггеры'; break;
+                                case 'Tunnels': echo 'Туннели'; break;
+                                case 'Users': echo 'Пользователи'; break;
+                                case 'Quiz': echo 'Викторина'; break;
+                                case 'Groups': echo 'Группы'; break;
+                                case 'Cloning': echo 'Клонирование'; break;
+                                default: echo $key; break;
+                            }
+                        ?></a>
+                        <ul>
+                            <?= $value ?>
+                        </ul>
+                    </li>
+                    <?
+                }
+                break;
         }
         ?>
     </ul>

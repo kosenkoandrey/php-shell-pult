@@ -35,6 +35,9 @@
             #tab-tunnels .table > tfoot > tr:first-child > td {
                     border-top: none;
             }
+            .table .table {
+                background-color: #f5f5f5;
+            }
         </style>
     </head>
     <body data-ma-header="teal">
@@ -54,6 +57,7 @@
                                 <?
                                 switch ($data['user']['role']) {
                                     case 'admin': echo 'АДМИНИСТРАТОР'; break;
+                                    case 'tech-admin': echo 'ТЕХНИЧЕСКИЙ АДМИНИСТРАТОР'; break;
                                     case 'new': echo 'НЕАКТИВИРОВАННЫЙ ПОДПИСЧИК'; break;
                                     case 'user': echo 'АКТИВИРОВАННЫЙ ПОДПИСЧИК'; break;
                                     default: echo $data['user']['role']; break;
@@ -86,12 +90,15 @@
 
                             <div class="user-nav list-group">
                                 <a href="#tab-about" role="tab" data-toggle="tab" class="list-group-item active">Основное</a>
-                                <? if ($data['mail']) { ?><a href="#tab-mail" aria-controls="tab-mail" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal"><?= count($data['mail']) ?></span>Письма</a><? } ?>
-                                <a href="#tab-tunnels" aria-controls="tab-tunnels" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal"><?= count($data['tunnels']) ?></span>Туннели</a>
-                                <? if ($data['tags']) { ?><a href="#tab-tags" aria-controls="tab-tags" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal"><?= count($data['tags']) ?></span>Теги</a><? } ?>
-                                <? if ($data['comments']) { ?><a href="#tab-comments" aria-controls="tab-comments" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal"><?= count($data['comments']) ?></span>Комментарии</a><? } ?>
-                                <? if ($data['likes']) { ?><a href="#tab-likes" aria-controls="tab-likes" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal"><?= count($data['likes']) ?></span>Оценки</a><? } ?>
+                                <? if ($data['mail']) { ?><a href="#tab-mail" aria-controls="tab-mail" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['mail']) ?></span>Письма</a><? } ?>
+                                <a href="#tab-tunnels" aria-controls="tab-tunnels" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" data-toggle="tooltip" data-placement="top" title="Доступные" style="margin: 0 3px"><?= count($data['tunnels']['allow']) ?></span> <span class="badge bgm-teal" data-toggle="tooltip" data-placement="top" title="Очередь" style="margin: 0 3px"><?= count($data['tunnels']['queue']) ?></span> <span class="badge bgm-teal" data-toggle="tooltip" data-placement="top" title="Подписки" style="margin: 0 3px"><?= count($data['tunnels']['subscriptions']) ?></span> Туннели</a>
+                                <? if ($data['tags']) { ?><a href="#tab-tags" aria-controls="tab-tags" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['tags']) ?></span>Теги</a><? } ?>
+                                <? if ($data['utm']) { ?><a href="#tab-utm" aria-controls="tab-utm" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" data-toggle="tooltip" data-placement="top" title="Серии" style="margin: 0 3px"><?= count($data['utm']) ?></span>UTM-метки</a><? } ?>
+                                <? if ($data['comments']) { ?><a href="#tab-comments" aria-controls="tab-comments" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['comments']) ?></span>Комментарии</a><? } ?>
+                                <? if ($data['likes']) { ?><a href="#tab-likes" aria-controls="tab-likes" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['likes']) ?></span>Оценки</a><? } ?>
                                 <? if ($data['premium']) { ?><a href="#tab-premium" aria-controls="tab-premium" role="tab" data-toggle="tab" class="list-group-item">Платные материалы</a><? } ?>
+                                <? if ($data['invoices']) { ?><a href="#tab-invoices" aria-controls="tab-invoices" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['invoices']) ?></span>Счета</a><? } ?>
+                                <? if ($data['polls']) { ?><a href="#tab-polls" aria-controls="tab-polls" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['polls']) ?></span>Опросы</a><? } ?>
                             </div>
                         </div>
 
@@ -139,6 +146,7 @@
                                                         <?
                                                         switch ($data['user']['role']) {
                                                             case 'admin': echo 'администратор'; break;
+                                                            case 'tech-admin': echo 'технический администратор'; break;
                                                             case 'new': echo 'неактивированный подписчик'; break;
                                                             case 'user': echo 'активированный подписчик'; break;
                                                             default: echo $data['user']['role']; break;
@@ -165,12 +173,7 @@
                                                         ?>
                                                     </dd>
                                                 </dl>
-                                                
-                                                
-                                                
-                                                
                                             </div>
-
                                             <form id="form-basic" class="pmbb-edit">
                                                 <input type="hidden" name="user" value="<?= APP::Module('Crypt')->Encode($data['user']['id']) ?>">
                                                 
@@ -267,8 +270,6 @@
                                             </form>
                                         </div>
                                     </div>
-                                    
-                                    
                                     <?
                                     if (count($data['social-profiles'])) {
                                         ?>
@@ -321,13 +322,7 @@
                                         </div>
                                         <?
                                     }
-                                    ?>
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    <?
+
                                     if (isset(APP::$modules['Comments'])) {
                                         ?>
                                         <div class="p-t-25">
@@ -358,7 +353,6 @@
                                     }
                                     ?>
                                 </div>
-                                
                                 <?
                                 if ($data['mail']) {
                                     ?>
@@ -541,14 +535,98 @@
                                             ?>
                                         </div>
                                         <div role="tabpanel" class="tab-pane" id="tab-tunnels-queue">
-                                            queue
+                                            <?
+                                            if ($data['tunnels']['queue']) {
+                                                ?>
+                                                <table class="table table-hover table-vmiddle">
+                                                    <tbody>
+                                                        <?
+                                                        foreach ($data['tunnels']['queue'] as $item) {
+                                                            ?>
+                                                            <tr>
+                                                                <td style="width: 60px;">
+                                                                    <span style="display: inline-block" class="avatar-char palette-Teal-400 bg"><i class="zmdi zmdi-time"></i></span>
+                                                                </td>
+                                                                <td style="font-size: 16px;">
+                                                                    <a class="tunnel_queue" data-id="<?= $item['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)"><?= $item['tunnel_name'] ?></a>
+                                                                    <div style="font-size: 11px;"><?= $item['object_id'] ?></div>
+                                                                </td>
+                                                            </tr>
+                                                            <?
+                                                        }
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                                <?
+                                            } else {
+                                                ?>
+                                                <table class="table table-vmiddle">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <span style="display: inline-block" class="avatar-char avatar-char palette-Teal-200 bg"><i class="zmdi zmdi-close"></i></span>
+                                                            </td>
+                                                            <td style="font-size: 16px; color: #4C4C4C">
+                                                                Нет туннелей в очереди
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <?
+                                            }
+                                            ?>
                                         </div>
                                         <div role="tabpanel" class="tab-pane" id="tab-tunnels-allow">
-                                            allow
+                                            <?
+                                            if ($data['tunnels']['allow']) {
+                                                ?>
+                                                <table class="table table-hover table-vmiddle">
+                                                    <tbody>
+                                                        <?
+                                                        foreach ($data['tunnels']['allow'] as $item) {
+                                                            ?>
+                                                            <tr>
+                                                                <td style="width: 60px;">
+                                                                    <span style="display: inline-block" class="avatar-char palette-Teal-400 bg"><i class="zmdi zmdi-check"></i></span>
+                                                                </td>
+                                                                <td style="font-size: 16px; color: #4C4C4C">
+                                                                    <?= $item['name'] ?>
+                                                                    <div style="font-size: 11px;">
+                                                                        <?
+                                                                        switch ($item['type']) {
+                                                                            case 'static': echo 'статический'; break;
+                                                                            case 'dynamic': echo 'динамический'; break;
+                                                                        }
+                                                                        ?>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <?
+                                                        }
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                                <?
+                                            } else {
+                                                ?>
+                                                <table class="table table-vmiddle">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <span style="display: inline-block" class="avatar-char avatar-char palette-Teal-200 bg"><i class="zmdi zmdi-close"></i></span>
+                                                            </td>
+                                                            <td style="font-size: 16px; color: #4C4C4C">
+                                                                Нет доступных туннелей
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <?
+                                            }
+                                            ?>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="modal fade" id="tunnel-tags-modal" tabindex="-1" role="dialog" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
@@ -585,6 +663,56 @@
                                                 <h4 class="modal-title">События связанные с туннелем</h4>
                                             </div>
                                             <div class="modal-body tags"></div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="tunnel-queue-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Подробности туннеля в очереди</h4>
+                                            </div>
+                                            <div class="details">
+                                                <table class="table table-hover">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>ID очереди</td>
+                                                            <td class="tunnel_queue_id"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Дата добавления в очередь</td>
+                                                            <td class="tunnel_queue_cr_date"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>ID туннеля</td>
+                                                            <td class="tunnel_queue_tunnel_id"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Тип туннеля</td>
+                                                            <td class="tunnel_queue_tunnel_type"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Наименование туннеля</td>
+                                                            <td class="tunnel_queue_tunnel_name"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Объект туннеля</td>
+                                                            <td class="tunnel_queue_object_id"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Таймаут подписки</td>
+                                                            <td class="tunnel_queue_timeout"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Параметры</td>
+                                                            <td class="tunnel_queue_settings"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
                                             </div>
@@ -663,6 +791,62 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <?
+                                }
+                                
+                                if ($data['utm']) {
+                                    ?>
+                                    <div role="tabpanel" class="tab-pane" id="tab-utm">
+                                        <div class="pmb-block">
+                                            <div class="pmbb-header">
+                                                <h2><i class="zmdi zmdi-labels m-r-5"></i> Всего <?= count($data['utm'][1]) ?> первичных UTM-меток</h2>
+                                            </div>
+                                        </div>
+                                        <table class="table table-hover table-vmiddle">
+                                            <tbody>
+                                                <?
+                                                foreach ($data['utm'][1] as $label => $label_data) {
+                                                    ?>
+                                                    <tr>
+                                                        <td style="width: 30%; font-size: 14px;"><?= $label ?></td>
+                                                        <td style="width: 35%;font-size: 14px;"><?= $label_data[0] ?></td>
+                                                        <td style="width: 35%;font-size: 14px;"><?= $label_data[1] ?></td>
+                                                    </tr>
+                                                    <?
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                        <?
+                                        if (count($data['utm']) > 1) {
+                                            foreach ($data['utm'] as $index => $item) {
+                                                if ($index == 1) continue; 
+                                                ?>
+                                                <div class="pmb-block">
+                                                    <div class="pmbb-header">
+                                                        <h2>Серия #<?= $index ?></h2>
+                                                    </div>
+                                                </div>
+                                                <table class="table table-hover table-vmiddle">
+                                                    <tbody>
+                                                        <?
+                                                        foreach ($item as $label => $label_data) {
+                                                            ?>
+                                                            <tr>
+                                                                <td style="width: 30%; font-size: 14px;"><?= $label ?></td>
+                                                                <td style="width: 35%;font-size: 14px;"><?= $label_data[0] ?></td>
+                                                                <td style="width: 35%;font-size: 14px;"><?= $label_data[1] ?></td>
+                                                            </tr>
+                                                            <?
+                                                        }
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                                <?
+                                            }
+                                        }
+                                        ?>
                                     </div>
                                     <?
                                 }
@@ -748,6 +932,246 @@
                                                 ?>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <?
+                                }
+                                
+                                if ($data['invoices']) {
+                                    ?>
+                                    <div role="tabpanel" class="tab-pane" id="tab-invoices">
+                                        <?
+                                        foreach ($data['invoices'] as $invoice) {
+                                            ?>
+                                            <div class="pmb-block">
+                                                <div class="pmbb-header">
+                                                    <h2><i class="zmdi zmdi-shopping-cart m-r-5"></i> Счет #<?= $invoice['invoice']['id'] ?></h2>
+                                                </div>
+                                            </div>
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="width: 25%;">Сумма</td>
+                                                        <td><?= $invoice['invoice']['amount'] ?> руб.</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Состояние</td>
+                                                        <td>
+                                                            <?
+                                                            switch ($invoice['invoice']['state']) {
+                                                                case 'new': echo 'новый'; break;
+                                                                case 'processed': echo 'в работе'; break;
+                                                                case 'success': echo 'оплачен'; break;
+                                                                case 'revoked': echo 'аннулирован'; break;
+                                                                default: echo 'неизвестно'; break;
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Автор</td>
+                                                        <td><?= $invoice['invoice']['author'] ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Дата обновления</td>
+                                                        <td><?= $invoice['invoice']['up_date'] ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Дата создания</td>
+                                                        <td><?= $invoice['invoice']['cr_date'] ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Продукты</td>
+                                                        <td>
+                                                            <table class="table">
+                                                                <tbody>
+                                                                    <?
+                                                                    foreach ($invoice['products'] as $product) {
+                                                                        ?>
+                                                                        <tr>
+                                                                            <td style="width: 20%">
+                                                                                <?
+                                                                                switch ($product['type']) {
+                                                                                    case 'primary': echo 'первичный'; break;
+                                                                                    case 'secondary': echo 'вторичный'; break;
+                                                                                    default: echo 'неизвестно'; break;
+                                                                                }
+                                                                                ?>
+                                                                            </td>
+                                                                            <td style="width: 30%"><?= $product['name'] ?></td>
+                                                                            <td style="width: 20%"><?= $product['amount'] ?> руб.</td>
+                                                                            <td style="width: 30%"><?= $product['cr_date'] ?></td>
+                                                                        </tr>
+                                                                        <?
+                                                                    }
+                                                                    ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">История</td>
+                                                        <td>
+                                                            <table class="table">
+                                                                <tbody>
+                                                                    <?
+                                                                    foreach ($invoice['tags'] as $tag) {
+                                                                        ?>
+                                                                        <tr>
+                                                                            <td style="width: 35%">
+                                                                                <?
+                                                                                switch ($tag['action']) {
+                                                                                    case 'create_invoice': echo 'создание счета'; break;
+                                                                                    case 'success_open_access': echo 'успешное открытие доступа'; break;
+                                                                                    case 'add_secondary_product': echo 'добавление вторичного продукта'; break;
+                                                                                    default: $tag['action']; break;
+                                                                                }
+                                                                                ?>
+                                                                            </td>
+                                                                            <td style="width: 35%">
+                                                                                <?
+                                                                                $action_data = json_decode($tag['action_data'], true);
+                                                                                
+                                                                                switch ($tag['action']) {
+                                                                                    case 'create_invoice': 
+                                                                                        ?>
+                                                                                        <a href="javascript:void(0)" onclick="$('#invoice_histoty_item_<?= $tag['id'] ?>').toggle()">подробности</a>
+                                                                                        <pre id="invoice_histoty_item_<?= $tag['id'] ?>" style="display: none"><? print_r($action_data) ?></pre>
+                                                                                        <? 
+                                                                                        break;
+                                                                                    case 'success_open_access': 
+                                                                                        switch ($action_data[0]) {
+                                                                                            case 'g': echo 'группа #' . $action_data[1]; break;
+                                                                                            case 'p': echo 'страница #' . $action_data[1]; break;
+                                                                                        }
+                                                                                        break;
+                                                                                    case 'add_secondary_product': 
+                                                                                        echo 'продукт #' . $action_data['product']; 
+                                                                                        break;
+                                                                                }
+                                                                                ?>
+                                                                            </td>
+                                                                            <td style="width: 30%"><?= $tag['cr_date'] ?></td>
+                                                                        </tr>
+                                                                        <?
+                                                                    }
+                                                                    ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Платежи</td>
+                                                        <td>
+                                                            <table class="table">
+                                                                <tbody>
+                                                                    <?
+                                                                    foreach ($invoice['payments'] as $payment) {
+                                                                        ?>
+                                                                        <tr>
+                                                                            <td style="width: 35%">
+                                                                                <?
+                                                                                switch ($payment['method']) {
+                                                                                    case 'admin': echo 'вручную администратором'; break;
+                                                                                    default: echo $payment['method']; break;
+                                                                                }
+                                                                                ?>
+                                                                            </td>
+                                                                            <td style="width: 35%">
+                                                                                <a href="javascript:void(0)" onclick="$('#invoice_payment_details_<?= $payment['id'] ?>').toggle()">подробности</a>
+                                                                                <pre id="invoice_payment_details_<?= $payment['id'] ?>" style="display: none"><? print_r([]) ?></pre>
+                                                                            </td>
+                                                                            <td style="width: 30%"><?= $product['cr_date'] ?></td>
+                                                                        </tr>
+                                                                        <?
+                                                                    }
+                                                                    ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Контактные данные</td>
+                                                        <td>
+                                                            <table class="table">
+                                                                <tbody>
+                                                                    <?
+                                                                    foreach ($invoice['details'] as $details) {
+                                                                        ?>
+                                                                        <tr>
+                                                                            <td style="width: 35%">
+                                                                                <?
+                                                                                switch ($details['item']) {
+                                                                                    case 'name': echo 'имя'; break;
+                                                                                    case 'phone': echo 'телефон'; break;
+                                                                                    default: echo $details['item']; break;
+                                                                                }
+                                                                                ?>
+                                                                            </td>
+                                                                            <td><?= $details['value'] ?></td>
+                                                                        </tr>
+                                                                        <?
+                                                                    }
+                                                                    ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width: 25%;">Комментарии</td>
+                                                        <td>
+                                                            <?
+                                                            $comment_object_type = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "Invoice", PDO::PARAM_STR]]);
+
+                                                            APP::Render('comments/widgets/default/list', 'include', [
+                                                                'type' => $comment_object_type,
+                                                                'id' => $invoice['invoice']['id'],
+                                                                'likes' => false,
+                                                                'reply' => false,
+                                                                'class' => [
+                                                                    'holder' => 'palette-Grey-100 bg p-l-10'
+                                                                ]
+                                                            ]);
+                                                            ?>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <?
+                                        }
+                                        ?>
+                                    </div>
+                                    <?
+                                }
+                                
+                                if ($data['polls']) {
+                                    ?>
+                                    <div role="tabpanel" class="tab-pane" id="tab-polls">
+                                        <?
+                                        foreach ($data['polls'] as $poll) {
+                                            ?>
+                                            <div class="pmb-block">
+                                                <div class="pmbb-header">
+                                                    <h2><i class="zmdi zmdi-check-all m-r-5"></i> <?= $poll['poll']['name'] ?></h2>
+                                                </div>
+                                            </div>
+                                            <table class="table table-hover table-vmiddle">
+                                                <tbody>
+                                                    <?
+                                                    foreach ($poll['answers'] as $answer) {
+                                                        ?>
+                                                        <tr>
+                                                            <td style="width: 40%;"><?= $answer['question'] ?></td>
+                                                            <td style="width: 40%;"><?= $answer['answer'] ?></td>
+                                                            <td style="width: 20%;"><?= $answer['date'] ?></td>
+                                                        </tr>
+                                                        <?
+                                                    }
+                                                    ?>
+                                                </tbody>
+                                            </table>
+                                            <?
+                                        }
+                                        ?>
                                     </div>
                                     <?
                                 }
@@ -949,6 +1373,32 @@
                     
                     $('#tunnel-tags-modal').modal('show');
                 });
+                
+                
+                
+                
+                
+                var tunnel_queue = <?= json_encode($data['tunnels']['queue']) ?>;
+                
+                $('body').on('click', '.tunnel_queue', function() {
+                    var id = $(this).data('id');
+                    
+                    $('#tunnel-queue-modal .details .tunnel_queue_id').html(tunnel_queue[id].id);
+                    $('#tunnel-queue-modal .details .tunnel_queue_tunnel_id').html(tunnel_queue[id].tunnel_id);
+                    $('#tunnel-queue-modal .details .tunnel_queue_object_id').html(tunnel_queue[id].object_id);
+                    $('#tunnel-queue-modal .details .tunnel_queue_timeout').html(tunnel_queue[id].timeout);
+                    $('#tunnel-queue-modal .details .tunnel_queue_settings').html(tunnel_queue[id].settings);
+                    $('#tunnel-queue-modal .details .tunnel_queue_cr_date').html(tunnel_queue[id].cr_date);
+                    $('#tunnel-queue-modal .details .tunnel_queue_tunnel_type').html(tunnel_queue[id].tunnel_type);
+                    $('#tunnel-queue-modal .details .tunnel_queue_tunnel_name').html(tunnel_queue[id].tunnel_name);
+                    
+                    $('#tunnel-queue-modal').modal('show');
+                });
+                
+                
+                
+                
+                
                 
                 var tags = <?= json_encode($data['tags']) ?>;
                 

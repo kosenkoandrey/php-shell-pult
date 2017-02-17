@@ -867,12 +867,17 @@ class Users {
         $user_id = APP::Module('Routing')->get['user_id'];
         
         $about = [];
-        $mail = false;
-        $tunnels_subscriptions = false;
-        $tags = false;
-        $comments = false;
-        $likes = false;
-        $premium = false;
+        $mail = [];
+        $tunnels_subscriptions = [];
+        $tunnels_queue = [];
+        $tunnels_allow = [];
+        $tags = [];
+        $utm = [];
+        $comments = [];
+        $likes = [];
+        $premium = [];
+        $invoices = [];
+        $polls = [];
 
         if ((!APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchColumn', 0],
@@ -889,6 +894,8 @@ class Users {
             }
         }
 
+        // ABOUT
+        
         foreach (APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
             ['item', 'value'], 'users_about',
@@ -896,6 +903,8 @@ class Users {
         ) as $value) {
             $about[$value['item']] = $value['value'];
         }
+        
+        // MAIL
         
         $mail_id = [];
         
@@ -951,7 +960,10 @@ class Users {
             $mail[$value['log']]['tags'][] = $value['event'];
         }
 
+        // TUNNELS SUBSCRIPTIONS
+        
         $tunnels_id = [];
+        $user_tunnel_id = [];
         
         foreach (APP::Module('DB')->Select(
             APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
@@ -972,7 +984,8 @@ class Users {
             false,
             ['tunnels_users.id', 'DESC']
         ) as $value) {
-            $tunnels_id[] = $value['id'];
+            $tunnels_id[] = $value['tunnel_id'];
+            $user_tunnel_id[] = $value['id'];
             $tunnels_subscriptions[$value['id']] = [
                 'info' => $value,
                 'tags' => []
@@ -982,12 +995,51 @@ class Users {
         foreach (APP::Module('DB')->Select(
             APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
             ['id', 'user_tunnel_id', 'label_id', 'info', 'cr_date'], 'tunnels_tags',
-            [['user_tunnel_id', 'IN', $tunnels_id]],
+            [['user_tunnel_id', 'IN', $user_tunnel_id]],
             false, false, false,
             ['id', 'DESC']
         ) as $value) {
             $tunnels_subscriptions[$value['user_tunnel_id']]['tags'][] = $value;
         }
+        
+        // TUNNELS QUEUE
+
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'tunnels_queue.id', 
+                'tunnels_queue.tunnel_id', 
+                'tunnels_queue.object_id', 
+                'tunnels_queue.timeout', 
+                'tunnels_queue.settings', 
+                'tunnels_queue.cr_date', 
+
+                'tunnels.type AS tunnel_type',
+                'tunnels.name AS tunnel_name'
+            ], 
+            'tunnels_queue',
+            [['tunnels_queue.user_id', '=', $user_id, PDO::PARAM_INT]],
+            [
+                'join/tunnels' => [['tunnels.id', '=', 'tunnels_queue.tunnel_id']]
+            ],
+            ['tunnels_queue.id'],
+            false,
+            ['tunnels_queue.cr_date', 'DESC']
+        ) as $value) {
+            $tunnels_queue[$value['id']] = $value;
+        }
+
+        // TUNNELS ALLOW
+
+        $tunnels_allow = APP::Module('DB')->Select(
+            APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            ['id', 'type', 'name'], 'tunnels',
+            [['id', 'NOT IN', $tunnels_id]],
+            false, false, false,
+            ['type', 'DESC']
+        );
+        
+        // TAGS
         
         foreach (APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
@@ -1004,6 +1056,156 @@ class Users {
         ) as $value) {
             $tags[$value['id']] = $value;
         }
+        
+        // UTM
+        
+        foreach (APP::Module('DB')->Select(
+            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'id', 
+                'num', 
+                'item', 
+                'value',
+                'cr_date'
+            ], 
+            'users_utm',
+            [['user', '=', $user_id, PDO::PARAM_INT]]
+        ) as $value) {
+            $utm[$value['num']][$value['item']] = [$value['value'], $value['cr_date']];
+        }
+        
+        // INVOICES
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'id', 
+                'amount', 
+                'state', 
+                'author',
+                'up_date',
+                'cr_date'
+            ], 
+            'billing_invoices',
+            [['user_id', '=', $user_id, PDO::PARAM_INT]]
+        ) as $invoice) {
+            $invoices[] = [
+                'invoice' => $invoice,
+                'details' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'item', 
+                        'value'
+                    ], 
+                    'billing_invoices_details',
+                    [['invoice', '=', $invoice['id'], PDO::PARAM_INT]]
+                ),
+                'products' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'billing_invoices_products.id', 
+                        'billing_invoices_products.type', 
+                        'billing_invoices_products.product',
+                        'billing_invoices_products.amount',
+                        'billing_invoices_products.cr_date',
+                        
+                        'billing_products.name'
+                    ], 
+                    'billing_invoices_products',
+                    [['billing_invoices_products.invoice', '=', $invoice['id'], PDO::PARAM_INT]],
+                    [
+                        'join/billing_products' => [['billing_products.id', '=', 'billing_invoices_products.product']]
+                    ],
+                    ['billing_invoices_products.id'],
+                    false,
+                    ['billing_invoices_products.cr_date', 'ASC']
+                ),
+                'tags' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'action', 
+                        'action_data',
+                        'cr_date'
+                    ], 
+                    'billing_invoices_tag',
+                    [['invoice', '=', $invoice['id'], PDO::PARAM_INT]]
+                ),
+                'payments' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'method',
+                        'cr_date'
+                    ], 
+                    'billing_payments',
+                    [['invoice', '=', $invoice['id'], PDO::PARAM_INT]]
+                )
+            ];
+        }
+        
+        // POLLS
+        
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Polls')->settings['module_polls_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'polls_users.id', 
+                'polls_users.poll', 
+                'polls_users.cr_date',
+
+                'polls.name'
+            ], 
+            'polls_users',
+            [['polls_users.user', '=', $user_id, PDO::PARAM_INT]],
+            [
+                'join/polls' => [['polls.id', '=', 'polls_users.poll']]
+            ],
+            ['polls_users.id'],
+            false,
+            ['polls_users.cr_date', 'ASC']
+        ) as $poll) {
+            $poll_questions = [];
+            $poll_answers = [];
+            
+            foreach (APP::Module('DB')->Select(
+                APP::Module('Polls')->settings['module_polls_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                [
+                    'id', 
+                    'question'
+                ], 
+                'polls_questions',
+                [['poll_id', '=', $poll['poll'], PDO::PARAM_INT]]
+            ) as $value) {
+                $poll_questions[$value['id']] = $value['question'];
+            }
+
+            foreach (APP::Module('DB')->Select(
+                APP::Module('Polls')->settings['module_polls_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                [
+                    'question',
+                    'answer',
+                    'up_date'
+                ], 
+                'polls_answers_users',
+                [
+                    ['user', '=', $user_id, PDO::PARAM_INT],
+                    ['question', 'IN', array_keys($poll_questions), PDO::PARAM_STR]
+                ]
+            ) as $value) {
+                $poll_answers[] = [
+                    'question' => $poll_questions[$value['question']],
+                    'answer' => $value['answer'],
+                    'date' => $value['up_date']
+                ];
+            }
+            
+            $polls[] = [
+                'poll' => $poll,
+                'answers' => $poll_answers
+            ];
+        }
+        
+        // COMMENTS
 
         if (isset(APP::$modules['Comments'])) {
             $comments = APP::Module('DB')->Select(
@@ -1015,6 +1217,8 @@ class Users {
             );
         }
 
+        // LIKES
+        
         if (isset(APP::$modules['Likes'])) {
             $likes = APP::Module('DB')->Select(
                 APP::Module('Likes')->settings['module_likes_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
@@ -1024,6 +1228,8 @@ class Users {
                 ['id', 'desc']
             );
         }
+        
+        // MEMBERS
         
         if (isset(APP::$modules['Members'])) {
             foreach (APP::Module('DB')->Select(
@@ -1073,12 +1279,17 @@ class Users {
                 'about' => $about,
                 'mail' => $mail,
                 'tunnels' => [
-                    'subscriptions' => $tunnels_subscriptions
+                    'subscriptions' => $tunnels_subscriptions,
+                    'queue' => $tunnels_queue,
+                    'allow' => $tunnels_allow
                 ],
                 'tags' => $tags,
+                'utm' => $utm,
                 'comments' => $comments,
                 'likes' => $likes,
-                'premium' => $premium
+                'premium' => $premium,
+                'invoices' => $invoices,
+                'polls' => $polls
             ]
         );
     }

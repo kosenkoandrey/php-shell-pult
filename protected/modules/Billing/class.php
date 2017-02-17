@@ -391,6 +391,81 @@ class Billing {
     }
     
 
+    public function InvoiceDetails() {
+        $invoice_id = APP::Module('Crypt')->Decode(APP::Module('Routing')->get['invoice_id_hash']);
+        
+        APP::Render(
+            'billing/admin/invoices/details',
+            'include', 
+            [
+                'invoice' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'amount', 
+                        'state', 
+                        'author',
+                        'up_date',
+                        'cr_date'
+                    ], 
+                    'billing_invoices',
+                    [['id', '=', $invoice_id, PDO::PARAM_INT]]
+                ),
+                'details' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'item', 
+                        'value'
+                    ], 
+                    'billing_invoices_details',
+                    [['invoice', '=', $invoice_id, PDO::PARAM_INT]]
+                ),
+                'products' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'billing_invoices_products.id', 
+                        'billing_invoices_products.type', 
+                        'billing_invoices_products.product',
+                        'billing_invoices_products.amount',
+                        'billing_invoices_products.cr_date',
+                        
+                        'billing_products.name'
+                    ], 
+                    'billing_invoices_products',
+                    [['billing_invoices_products.invoice', '=', $invoice_id, PDO::PARAM_INT]],
+                    [
+                        'join/billing_products' => [['billing_products.id', '=', 'billing_invoices_products.product']]
+                    ],
+                    ['billing_invoices_products.id'],
+                    false,
+                    ['billing_invoices_products.cr_date', 'ASC']
+                ),
+                'tags' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'action', 
+                        'action_data',
+                        'cr_date'
+                    ], 
+                    'billing_invoices_tag',
+                    [['invoice', '=', $invoice_id, PDO::PARAM_INT]]
+                ),
+                'payments' => APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                    [
+                        'id', 
+                        'method',
+                        'cr_date'
+                    ], 
+                    'billing_payments',
+                    [['invoice', '=', $invoice_id, PDO::PARAM_INT]]
+                )
+            ]
+        );
+    }
+    
     public function EditProduct() {
         $product_id = APP::Module('Crypt')->Decode(APP::Module('Routing')->get['product_id_hash']);
 
@@ -1031,6 +1106,86 @@ class Billing {
         );
 
         APP::Render('billing/payments/make', 'include', $data);
+    }
+    
+    
+    public function APIEAutopayCreateInvoice() {
+        $request = json_encode($_POST);
+
+        $sql = APP::Module('DB')->Open($this->settings['module_billing_db_connection'])->prepare('INSERT INTO billing_eautopay_log VALUES (
+            NULL, 
+            :request, 
+            NOW()
+        )');
+        $sql->bindParam(':request', $request, PDO::PARAM_STR);
+        $sql->execute();
+        
+        if (((!isset($request['status'])) || (!isset($request['email'])) || (!isset($request['product_price'])))) {
+            exit;
+        }
+        
+        if ((int) $_POST['status'] =! 5) {
+            exit;
+        }
+
+        if (!$user_id = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0],
+            ['id'], 'users',
+            [['email', '=', $_POST['email'], PDO::PARAM_STR]]
+        )) {
+            exit;
+        }
+
+        $comment = Array();
+
+        foreach ($_POST as $key => $value) {
+            $comment[] = $key. ' - ' . $value;
+        }
+        
+        $message = implode('<br>', $comment);
+
+        if (!APP::Module('DB')->Select(
+            APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0],
+            ['COUNT(id)'], 'comments_messages',
+            [['MD5(message)', '=', md5($message), PDO::PARAM_STR]]
+        )) {
+            $invoice_id = APP::Module('DB')->Insert(
+                $this->settings['module_billing_db_connection'], 'billing_invoices',
+                [
+                    'id' => 'NULL',
+                    'user_id' => [$user_id, PDO::PARAM_INT],
+                    'amount' => [$_POST['product_price'], PDO::PARAM_INT],
+                    'state' => ['success', PDO::PARAM_STR],
+                    'author' => [0, PDO::PARAM_INT],
+                    'up_date' => 'NOW()',
+                    'cr_date' => 'NOW()'
+                ]
+            );
+            
+            APP::Module('DB')->Insert(
+                APP::Module('Comments')->settings['module_comments_db_connection'], 'comments_messages',
+                [
+                    'id' => 'NULL',
+                    'sub_id' => [0, PDO::PARAM_INT],
+                    'user' => [0, PDO::PARAM_INT],
+                    'object_type' => [3, PDO::PARAM_INT],
+                    'object_id' => [$invoice_id, PDO::PARAM_INT],
+                    'message' => [$message, PDO::PARAM_STR],
+                    'url' => '',
+                    'up_date' => 'NOW()'
+                ]
+            );
+            
+            APP::Module('DB')->Insert(
+                $this->settings['module_billing_db_connection'], 'billing_payments',
+                [
+                    'id' => 'NULL',
+                    'invoice' => [$invoice_id, PDO::PARAM_INT],
+                    'method' => ['admin', PDO::PARAM_STR],
+                    'cr_date' => 'NOW()'
+                ]
+            );
+        }
     }
     
 }
