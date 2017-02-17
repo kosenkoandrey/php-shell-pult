@@ -806,6 +806,8 @@
                                 this.child_object = this.child_object ? this.child_object.split(':') : [],
                                 this.settings = $.evalJSON(this.settings);
                                 this.style = $.evalJSON(this.style);
+                                this.url = (scheme.user_count['actions:'+this.id] == undefined ? '' : scheme.user_count['actions:'+this.id].url);
+                                this.user_count = (scheme.user_count['actions:'+this.id] == undefined ? 0 : scheme.user_count['actions:'+this.id].count);
                                 
                                 TunnelEditor.Objects.Actions[this.id] = this;
                                 TunnelEditor.RenderObject('action', this.id);
@@ -816,6 +818,8 @@
                                 this.child_object_n = this.child_object_n ? this.child_object_n.split(':') : [],
                                 this.rules = $.evalJSON(this.rules);
                                 this.style = $.evalJSON(this.style);
+                                this.url = (scheme.user_count['actions:'+this.id] == undefined ? '' : scheme.user_count['actions:'+this.id].url);
+                                this.user_count = (scheme.user_count['actions:'+this.id] == undefined ? 0 : scheme.user_count['actions:'+this.id].count);
                                 
                                 TunnelEditor.Objects.Conditions[this.id] = this;
                                 TunnelEditor.RenderObject('condition', this.id);
@@ -824,6 +828,8 @@
                             $.each(scheme.timeouts, function() {
                                 this.child_object = this.child_object ? this.child_object.split(':') : [],
                                 this.style = $.evalJSON(this.style);
+                                this.url = (scheme.user_count['actions:'+this.id] == undefined ? '' : scheme.user_count['actions:'+this.id].url);
+                                this.user_count = (scheme.user_count['actions:'+this.id] == undefined ? 0 : scheme.user_count['actions:'+this.id].count);
                                 
                                 TunnelEditor.Objects.Timeouts[this.id] = this;
                                 TunnelEditor.RenderObject('timeout', this.id);
