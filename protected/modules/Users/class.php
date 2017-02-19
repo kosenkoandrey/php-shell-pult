@@ -3272,6 +3272,57 @@ class UsersSearch {
         );
     }
     
+    public function mail_user_inactive($settings) {
+        $active_uid = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['mail_events.user'], 'mail_events',
+            [
+                ['mail_events.event','IN',['open','click'],PDO::PARAM_STR],
+                ['mail_events.cr_date','BETWEEN','"'.$settings['date_from'].' 00:00:00" AND "'.$settings['date_to'].' 23:59:59"',PDO::PARAM_STR]
+            ],false,['mail_events.user']
+        );
+        
+        $target_uid = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['mail_events.user'], 'mail_events',
+            [
+                ['mail_events.event','=','delivered',PDO::PARAM_STR],
+                ['mail_events.cr_date','BETWEEN','"'.$settings['date_from'].' 00:00:00" AND "'.$settings['date_to'].' 23:59:59"',PDO::PARAM_STR]
+            ],false,['mail_events.user'],[['COUNT(mail_events.id)', '>=', $settings['count']]]
+        );
+
+        return array_diff($target_uid, $active_uid);
+    }
+    
+    public function mail_log($settings){
+        $where = [];
+        
+        if(isset($settings['result']) && $settings['result']){
+            $where[] = ['result', 'LIKE', '%' . $settings['result'] . '%',PDO::PARAM_STR];
+        }
+
+        if(isset($settings['state']) && $settings['state']){
+            $where[] = ['state', '=', $settings['state'],PDO::PARAM_STR];
+        }
+
+        if(isset($settings['letter']) && $settings['letter']){
+            $where[] = ['letter', '=', $settings['letter'],PDO::PARAM_INT];
+        }
+
+        if(isset($settings['date_from']) && $settings['date_from']){
+            $where[] = ['cr_date', 'BETWEEN', '"'.$settings['date_from'].' 00:00:00" AND "'.$settings['date_to'].' 23:59:59"',PDO::PARAM_STR];
+        }
+        
+        return APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['user'], 'mail_log',
+            $where
+        );
+    }
+    
     public function mail_open_pct($settings) {
 
         if (($settings['from'] == 0) && ($settings['to'] == 100))  return []; 
@@ -3294,6 +3345,80 @@ class UsersSearch {
             ['user'], 'mail_open_pct30',
             [['pct', 'BETWEEN', '"'.$settings['from'] . '" AND "' . $settings['to'].'"', PDO::PARAM_INT]]
         );
+    }
+    
+    public function product_buy($settings) {        
+        $invoices = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['invoice'], 'billing_invoices_products',
+            [['product', 'IN', $settings['product'], PDO::PARAM_INT]]
+        );
+        
+        return APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['user_id'], 'billing_invoices',
+            [['id', 'IN', $invoices, PDO::PARAM_INT],['state', '=', 'success', PDO::PARAM_STR]]
+        );
+    }
+    
+    public function user_product_availability($settings) {
+        
+        $select_products = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['invoice'], 'billing_products'
+        );
+
+        return false;
+    }
+    
+    public function product_order($settings) {
+        $invoices = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['invoice'], 'billing_invoices_products',
+            [['product', 'IN', $settings['product'], PDO::PARAM_INT]]
+        );
+        
+        return APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['user_id'], 'billing_invoices',
+            [['id', 'IN', $invoices, PDO::PARAM_INT]]
+        );
+    }
+    
+    
+    public function product_order_sum($settings) {
+        
+        $invoices = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['user_id'], 'billing_invoices',
+            [['state', '=', 'success', PDO::PARAM_STR]],false,['user_id'],[['sum(amount)',$settings['mode'],$settings['sum']]]
+        );
+        
+        if($settings['mode'] == '=' && !$settings['sum']){
+            $succes_order = APP::Module('DB')->Select(
+                APP::Module('Billing')->settings['module_billing_db_connection'], 
+                ['fetchAll', PDO::FETCH_COLUMN],
+                ['user_id'], 'billing_invoices',
+                [['state', '=', 'success', PDO::PARAM_STR]],false,['user_id']
+            );
+            
+            $users = APP::Module('DB')->Select(
+                APP::Module('Users')->settings['module_users_db_connection'], 
+                ['fetchAll', PDO::FETCH_COLUMN],
+                ['id'], 'users',
+                [['id', 'NOT IN', $succes_order, PDO::PARAM_INT]]
+            );
+            
+            return array_merge($users, $invoices);
+        }
+       
+        return $invoices;
     }
 }
 
