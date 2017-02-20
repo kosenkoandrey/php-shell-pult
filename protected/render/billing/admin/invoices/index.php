@@ -7,7 +7,7 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Invoices</title>
+        <title>Счета</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
@@ -30,7 +30,7 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
     <body data-ma-header="teal">
         <?
         APP::Render('admin/widgets/header', 'include', [
-            'Invoices' => 'admin/billing/invoices'
+            'Счета' => 'admin/billing/invoices'
         ]);
         ?>
         <section id="main">
@@ -40,14 +40,14 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Invoices</h2>
+                            <h2>Управление счетами</h2>
                             <ul class="actions">
                                 <li class="dropdown">
                                     <a href="javascript:void(0)" data-toggle="dropdown">
                                         <i class="zmdi zmdi-more-vert"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/add">Add invoice</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/add">Создать счет</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -55,14 +55,14 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                         <div class="card-body card-padding">
                             <input type="hidden" name="search" value="<?= $filters ?>" id="search">
                             <div class="btn-group">
-                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Apply</button>
+                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Сделать выборк</button>
 
                                 <div class="btn-group">
                                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
-                                        Actions <span class="caret"></span>
+                                        Выполнить действие <span class="caret"></span>
                                     </button>
                                     <ul id="search_results_actions" class="dropdown-menu" role="menu">
-                                        <li><a data-action="remove" href="javascript:void(0)">Remove</a></li>
+                                        <li><a data-action="remove" href="javascript:void(0)">Удалить</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -72,12 +72,12 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-order="desc">ID</th>
-                                        <th data-column-id="user_id">User</th>
-                                        <th data-column-id="amount">Amount</th>
-                                        <th data-column-id="author">Author</th>
-                                        <th data-column-id="state">State</th>
-                                        <th data-column-id="up_date">UpDate</th>
-                                        <th data-column-id="actions" data-formatter="actions" data-sortable="false">Actions</th>
+                                        <th data-column-id="user_id" data-formatter="user">Пользователь</th>
+                                        <th data-column-id="amount" data-formatter="amount">Сумма</th>
+                                        <th data-column-id="author" data-formatter="author">Автор</th>
+                                        <th data-column-id="state" data-formatter="state">Состояние</th>
+                                        <th data-column-id="up_date">Дата</th>
+                                        <th data-column-id="actions" data-formatter="actions" data-sortable="false">Действия</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -116,13 +116,13 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                     var action = $(this).data('action');
 
                     swal({
-                        title: 'Are you sure?',
-                        text: 'You will not be able to recover this action',
+                        title: 'Вы уверены?',
+                        text: 'Это действие будет невозможно отменить',
                         type: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#DD6B55',
-                        confirmButtonText: 'Yes',
-                        cancelButtonText: 'No',
+                        confirmButtonText: 'Да',
+                        cancelButtonText: 'Нет',
                         closeOnConfirm: false,
                         closeOnCancel: true
                     }, function(isConfirm){
@@ -132,7 +132,7 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                                 rules: $('#search').val()
                             }, function() {
                                 invoices_table.bootgrid('reload', true);
-                                swal('Complete!', 'Action has been completed', 'success');
+                                swal('Готово!', 'Действие было успешно выполнено', 'success');
                             });
                         }
                     });
@@ -175,9 +175,26 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                         search: ""
                     },
                     formatters: {
+                        user: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users/profile/' + row.user_id + '" target="_blank">' + row.user_email + '</a>';
+                        },
+                        author: function(column, row) {
+                            return parseInt(row.author) ? '<a href="<?= APP::Module('Routing')->root ?>admin/users/profile/' + row.author + '" target="_blank">' + row.author_email + '</a>' : '-';
+                        },
+                        amount: function(column, row) {
+                            return row.amount + ' руб.';
+                        },
+                        state: function(column, row) {
+                            switch (row.state) {
+                                case 'new': return 'новый'; break;
+                                case 'processed': return 'в работе'; break;
+                                case 'success': return 'оплачен'; break;
+                                case 'revoked': return 'аннулирован'; break;
+                            }
+                        },
                         actions: function(column, row) {
                             return  '<a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/details/' + row.invoice_id_token + '" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-info-outline"></span></a> ' +
-                                    '<a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/edit/' + row.invoice_id_token + '" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-edit"></span></a> ' +
+                                    //'<a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/edit/' + row.invoice_id_token + '" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-edit"></span></a> ' +
                                     '<a href="javascript:void(0)" class="btn btn-sm btn-default btn-icon waves-effect waves-circle remove-invoice" data-invoice-id="' + row.id + '"><span class="zmdi zmdi-delete"></span></a>';
                         }
                     }
@@ -186,13 +203,13 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                         var invoice_id = $(this).data('invoice-id');
 
                         swal({
-                            title: 'Are you sure?',
-                            text: 'You will not be able to recover this invoice',
+                            title: 'Вы действительно хотите удалить счет?',
+                            text: 'Это действие будет невозможно отменить',
                             type: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#DD6B55',
-                            confirmButtonText: 'Yes',
-                            cancelButtonText: 'No',
+                            confirmButtonText: 'Удалить',
+                            cancelButtonText: 'Отмена',
                             closeOnConfirm: false,
                             closeOnCancel: true
                         }, function(isConfirm){
@@ -202,8 +219,8 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                                 }, function() {
                                     invoices_table.bootgrid('reload', true);
                                     swal({
-                                        title: 'Deleted!',
-                                        text: 'Invoice has been deleted',
+                                        title: 'Готово!',
+                                        text: 'Счет был успешно удален',
                                         type: 'success',
                                         showCancelButton: false,
                                         confirmButtonText: 'Ok',

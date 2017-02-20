@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PHP-shell - Add invoice</title>
+    <title>Создание счета</title>
 
     <!-- Vendor CSS -->
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -19,7 +19,7 @@
 <body data-ma-header="teal">
     <?
     APP::Render('admin/widgets/header', 'include', [
-        'Invoices' => 'admin/billing/invoices'
+        'Счета' => 'admin/billing/invoices'
     ]);
     ?>
     <section id="main">
@@ -30,48 +30,48 @@
                 <div class="card">
                     <form id="add-invoice" class="form-horizontal" role="form">
                         <div class="card-header">
-                            <h2>Add invoice</h2>
+                            <h2>Создание счета</h2>
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="user_id" class="col-sm-2 control-label">User</label>
+                                <label for="user_id" class="col-sm-2 control-label">Пользователь</label>
                                 <div class="col-sm-3">
                                     <input type="text" name="user_id" id="user_id" class="form-control" />
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="state" class="col-md-2 control-label">State</label>
+                                <label for="state" class="col-md-2 control-label">Состояние</label>
                                 <div class="col-md-3">
                                     <select id="state" name="state" class="selectpicker form-control" data-width="100%">
-                                        <option value="new">new</option>
-                                        <option value="processed">processed</option>
-                                        <option value="success">success</option>
-                                        <option value="revoked">revoked</option>
+                                        <option value="new">новый</option>
+                                        <option value="processed">в работе</option>
+                                        <option value="success">оплачен</option>
+                                        <option value="revoked">аннулирован</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-md-2 control-label">Products</label>
+                                <label class="col-md-2 control-label">Продукты</label>
                                 <div class="col-md-8">
                                     <div id="products"></div>
-                                    <button id="add-product" type="button" class="btn btn-default btn-labeled fa fa-plus">Add product</button>
+                                    <button id="add-product" type="button" class="btn btn-default btn-labeled fa fa-plus">Добавить продукт</button>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="comment" class="col-md-2 control-label">Comment</label>
+                                <label for="comment" class="col-md-2 control-label">Комментарий</label>
                                 <div class="col-md-6">
                                     <textarea id="comment" name="comment" class="form-control"></textarea>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">Amount</label>
+                                <label class="col-sm-2 control-label">Сумма</label>
                                 <div class="col-sm-10">
-                                    <p class="form-control-static"><span id="amount">0</span> RUR</p>
+                                    <p class="form-control-static"><span id="amount">0</span> руб.</p>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-5">
-                                    <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Add</button>
+                                    <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Создать</button>
                                 </div>
                             </div>
                         </div>
@@ -110,11 +110,11 @@
                 user_id.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
 
                 if (user_id.val() === '') {
-                    user_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>');
+                    user_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Не введен E-Mail или ID пользователя</small>');
                     return false;
                 }
 
-                $(this).find('[type="submit"]').html('Processing...').attr('disabled', true);
+                $(this).find('[type="submit"]').html('Подождите...').attr('disabled', true);
 
                 $.ajax({
                     type: 'post',
@@ -124,8 +124,8 @@
                         switch (result.status) {
                             case 'success':
                                 swal({
-                                    title: 'Done!',
-                                    text: 'Invoice "' + result.invoice.invoice_id + '" has been added',
+                                    title: 'Готово!',
+                                    text: 'Счет "' + result.invoice.invoice_id + '" был успешно создан',
                                     type: 'success',
                                     showCancelButton: false,
                                     confirmButtonText: 'Ok',
@@ -135,7 +135,11 @@
                                 });
                                 break;
                             case 'error':
-                                $.each(result.errors, function (i, error) {});
+                                $.each(result.errors, function(i, error) {
+                                    switch(error) {
+                                        case 1: user_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Пользователь не найден</small>'); break;
+                                    }
+                                });
                                 break;
                         }
 
@@ -148,12 +152,12 @@
             $('#add-product').click(function () {
                 products_counter ++;
 
-                $('#products').append('<div class="row m-b-10"><div class="col-md-6"><select class="form-control selectpicker" id="inv-prod-id-' + products_counter + '" name="products[' + products_counter + '][id]" data-placeholder="Select product"></select></div><div class="col-md-4"><div class="input-group"><input id="inv-prod-amount-' + products_counter + '" name="products[' + products_counter + '][amount]" type="number" class="inv-prod-amount form-control"><span class="input-group-addon" style="font-size: 14px;">RUR</span></div></div><div class="col-md-2 mar-btm"><button type="button" class="remove-invoice-product btn palette-Teal btn-icon bg waves-effect waves-circle waves-float zmdi zmdi-close"></button></div></div>');
+                $('#products').append('<div class="row m-b-10"><div class="col-md-6"><select class="form-control selectpicker" id="inv-prod-id-' + products_counter + '" name="products[' + products_counter + '][id]" data-placeholder="Select product"></select></div><div class="col-md-4"><div class="input-group"><input id="inv-prod-amount-' + products_counter + '" name="products[' + products_counter + '][amount]" type="number" class="inv-prod-amount form-control"><span class="input-group-addon" style="font-size: 14px;">руб.</span></div></div><div class="col-md-2 mar-btm"><button type="button" class="remove-invoice-product btn palette-Teal btn-icon bg waves-effect waves-circle waves-float zmdi zmdi-close"></button></div></div>');
 
                 var products_options = [];
                 
                 $.each(<?= json_encode($data['products_list']) ?>, function() {
-                    products_options.push('<option data-amount="' + this.amount + '" value="' + this.id + '">' + this.name + ' (' + this.amount + ' RUR)</option>');
+                    products_options.push('<option data-amount="' + this.amount + '" value="' + this.id + '">' + this.name + ' (' + this.amount + ' руб.)</option>');
                 });
 
                 $('#inv-prod-id-' + products_counter).append(products_options.join(''));

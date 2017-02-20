@@ -7,7 +7,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Users</title>
+        <title>Управление пользователями</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Users' => 'admin/users'
+            'Пользователи' => 'admin/users'
         ]);
         ?>
         <section id="main">
@@ -41,21 +41,21 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Users</h2>
+                            <h2>Управление пользователями</h2>
                             <ul class="actions">
                                 <li class="dropdown">
                                     <a href="javascript:void(0)" data-toggle="dropdown">
                                         <i class="zmdi zmdi-more-vert"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/add">Add user</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/roles">Roles</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/oauth/clients">OAuth clients</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/services">Services</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/auth">Authentication</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/passwords">Passwords</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/notifications">Notifications</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/timeouts">Timeouts</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/add">Добавить пользователя</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/roles">Управление ролями</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/oauth/clients">OAuth клиенты</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/services">Сервисы</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/auth">Аутентификация</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/passwords">Пароли</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/notifications">Уведомления</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/timeouts">Таймауты</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -63,11 +63,11 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                         <div class="card-body card-padding">
                             <input type="hidden" name="search" value="<?= $filters ?>" id="search">
                             <div class="btn-group">
-                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Apply</button>
+                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Сделать выборку</button>
                             
                                 <div class="btn-group">
                                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
-                                        Actions <span class="caret"></span>
+                                        Выполнить действие <span class="caret"></span>
                                     </button>
                                     <ul id="search_results_actions" class="dropdown-menu" role="menu">
                                         <li><a data-action="remove" href="javascript:void(0)">Remove</a></li>
@@ -94,7 +94,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <th data-column-id="role">Role</th>
                                         <th data-column-id="reg_date">Reg date</th>
                                         <th data-column-id="last_visit">Last visit</th>
-                                        <th data-column-id="actions" data-formatter="actions" data-sortable="false">Actions</th>
+                                        <th data-column-id="actions" data-formatter="actions" data-sortable="false">Действия</th>
                                     </tr>
                                 </thead>
                             </table>

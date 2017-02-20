@@ -580,9 +580,34 @@ class Billing {
         $rows    = [];
 
         foreach (APP::Module('DB')->Select(
-            $this->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], ['id', 'user_id', 'amount', 'author', 'state', 'up_date'], 'billing_invoices', [['id', 'IN', $out, PDO::PARAM_INT]], false, false, false, [$request['sort_by'], $request['sort_direction']], $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
+            $this->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_ASSOC], 
+            [
+                'billing_invoices.id', 
+                'billing_invoices.user_id', 
+                'billing_invoices.amount', 
+                'billing_invoices.author', 
+                'billing_invoices.state', 
+                'billing_invoices.up_date',
+                
+                'user.email AS user_email',
+                'author.email AS author_email'
+            ], 
+            'billing_invoices', 
+            [['billing_invoices.id', 'IN', $out, PDO::PARAM_INT]], 
+            [
+                'join/users/user' => [['user.id', '=', 'billing_invoices.user_id']],
+                'left join/users/author' => [['author.id', '=', 'billing_invoices.author']]
+            ],
+            ['billing_invoices.id'],
+            false,
+            [$request['sort_by'], $request['sort_direction']], 
+            $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
             $row['invoice_id_token'] = APP::Module('Crypt')->Encode($row['id']);
+            $row['invoice_user_token'] = APP::Module('Crypt')->Encode($row['user_id']);
+            $row['invoice_author_token'] = APP::Module('Crypt')->Encode($row['author']);
+            
             array_push($rows, $row);
         }
 
@@ -711,15 +736,43 @@ class Billing {
             'errors' => []
         ];
 
-        if (!APP::Module('DB')->Select(
-            APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], ['COUNT(id)'], 'users', [['id', '=', $_POST['user_id'], PDO::PARAM_INT]]
-        )) {
-            $out['status'] = 'error';
-            $out['errors'][] = 1;
+        if (is_numeric($_POST['user_id'])) {
+            if (!APP::Module('DB')->Select(
+                APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], ['COUNT(id)'], 'users', [['id', '=', $_POST['user_id'], PDO::PARAM_INT]]
+            )) {
+                $out['status'] = 'error';
+                $out['errors'][] = 1;
+            }
+        } else {
+            if (!APP::Module('DB')->Select(
+                APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], ['COUNT(id)'], 'users', [['email', '=', $_POST['user_id'], PDO::PARAM_STR]]
+            )) {
+                $out['status'] = 'error';
+                $out['errors'][] = 1;
+            }
         }
 
         if ($out['status'] == 'success') {
-            $out['invoice'] = $this->CreateInvoice($_POST['user_id'], APP::Module('Users')->user['id'], $_POST['products'], $_POST['state']);
+            $user_id = 
+            
+            $out['invoice'] = $this->CreateInvoice(
+                is_numeric($_POST['user_id']) ? $_POST['user_id'] : APP::Module('DB')->Select(APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], ['id'], 'users', [['email', '=', $_POST['user_id'], PDO::PARAM_STR]]), 
+                APP::Module('Users')->user['id'], 
+                $_POST['products'], 
+                $_POST['state']
+            );
+            
+            if ($_POST['state'] == 'success') {
+                APP::Module('DB')->Insert(
+                    $this->settings['module_billing_db_connection'], 'billing_payments',
+                    [
+                        'id' => 'NULL',
+                        'invoice' => [$out['invoice']['invoice_id'], PDO::PARAM_INT],
+                        'method' => ['admin', PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+            }
         }
 
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
