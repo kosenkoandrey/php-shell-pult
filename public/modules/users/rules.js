@@ -104,6 +104,23 @@
                                         default: settings[id] = param_value;
                                     }
                                     break;
+                                case 'about': 
+                                    switch(id) {
+                                        case 'logic': 
+                                            if (settings.logic === undefined) settings.logic = new Object();
+                                            settings.logic = param_value; 
+                                            break;
+                                        case 'value': 
+                                            if (settings.value === undefined) settings.value = new Object();
+                                            settings.value = param_value; 
+                                            break;
+                                        case 'item': 
+                                            if (settings.item === undefined) settings.item = new Object();
+                                            settings.item = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
                                 case 'state': 
                                     switch(id) {
                                         case 'logic': 
@@ -379,6 +396,52 @@
                                             if (settings.date_to === undefined) settings.date_to = new Object();
                                             settings.date_to = param_value; 
                                             break;
+                                        case 'letter': 
+                                            if (settings.letter === undefined) settings.letter = new Object();
+                                            settings.letter = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'mail_user_inactive': 
+                                    switch(id) {
+                                        case 'date_from': 
+                                            if (settings.date_from === undefined) settings.date_from = new Object();
+                                            settings.date_from = param_value; 
+                                            break;
+                                        case 'date_to': 
+                                            if (settings.date_to === undefined) settings.date_to = new Object();
+                                            settings.date_to = param_value; 
+                                            break;
+                                        case 'count': 
+                                            if (settings.count === undefined) settings.count = new Object();
+                                            settings.count = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'mail_log': 
+                                    switch(id) {
+                                        case 'date_from': 
+                                            if (settings.date_from === undefined) settings.date_from = new Object();
+                                            settings.date_from = param_value; 
+                                            break;
+                                        case 'date_to': 
+                                            if (settings.date_to === undefined) settings.date_to = new Object();
+                                            settings.date_to = param_value; 
+                                            break;
+                                        case 'letter': 
+                                            if (settings.letter === undefined) settings.letter = new Object();
+                                            settings.letter = param_value; 
+                                            break;
+                                        case 'result': 
+                                            if (settings.result === undefined) settings.result = new Object();
+                                            settings.result = param_value; 
+                                            break;
+                                        case 'state': 
+                                            if (settings.state === undefined) settings.state = new Object();
+                                            settings.state = param_value; 
+                                            break;
                                         default: settings[id] = param_value;
                                     }
                                     break;
@@ -408,7 +471,46 @@
                                         default: settings[id] = param_value;
                                     }
                                     break;
-                                
+                                case 'product_buy': 
+                                    switch(id) {
+                                        case 'product': 
+                                            if (settings.product === undefined) settings.product = new Object();
+                                            settings.product= param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'product_order': 
+                                    switch(id) {
+                                        case 'product': 
+                                            if (settings.product === undefined) settings.product = new Object();
+                                            settings.product= param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'product_availability': 
+                                    switch(id) {
+                                        case 'product': 
+                                            if (settings.product === undefined) settings.product = new Object();
+                                            settings.product= param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'product_order_sum': 
+                                    switch(id) {
+                                        case 'mode': 
+                                            if (settings.mode === undefined) settings.mode = new Object();
+                                            settings.mode = param_value; 
+                                            break;
+                                        case 'sum': 
+                                            if (settings.sum === undefined) settings.sum = new Object();
+                                            settings.sum = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
                                 default: settings[id] = param_value;
                             }
                         }
@@ -485,6 +587,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="reg_date" href="javascript:void(0)">Date registration</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tags" href="javascript:void(0)">Tags</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="source" href="javascript:void(0)">Source</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="about" href="javascript:void(0)">About</a></li>',
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="firstname" href="javascript:void(0)">Firstname</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="lastname" href="javascript:void(0)">Lastname</a></li>',
@@ -504,7 +607,14 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_count" href="javascript:void(0)">Letter count</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_events" href="javascript:void(0)">Letter event</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct" href="javascript:void(0)">Letter open pct</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct30" href="javascript:void(0)">Letter open pct 30</a></li>'
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct30" href="javascript:void(0)">Letter open pct 30</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_log" href="javascript:void(0)">Mail log</a></li>',
+                '<li class="divider"></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_buy" href="javascript:void(0)">Product buy</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order" href="javascript:void(0)">Product order</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order_sum" href="javascript:void(0)">Sum amount</a></li>',
             ].join('');
         },
         render_rules: function(rules, holder) {
@@ -684,6 +794,32 @@
 
                     if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    break;
+                case 'about':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>About</tr>',
+                            '<tr>',
+                                '<td style="width: 125px">',
+                                    '<input data-id="item" class="form-control m-l-5" type="text" placeholder="Item">',
+                                '</td>',
+                                '<td style="width: 125px">',
+                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=" />',
+                                    '<input data-id="value" class="form-control m-l-5" type="text" placeholder="Value">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.logic !== undefined) $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
+                    $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
+                    $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    if (rule.settings.item !== undefined) $('.trigger_settings input[data-id="item"]', $trigger_rule_item).val(rule.settings.item);
+                    $('.trigger_settings input[data-id="item"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
                 case 'source':
@@ -1262,32 +1398,49 @@
                         '<table>',
                             '<tr>Letter events</tr>',
                             '<tr>',
-                                '<td style="width: 125px">',
-                                    '<input data-id="date_from" class="form-control date-picker" type="text">',
-                                '</td>',
-                                '<td style="width: 125px">',
-                                    '<input data-id="date_to" class="form-control date-picker" type="text" >',
+                                '<td style="width: 300px">',
+                                    '<div class="col-sm-6">',
+                                        '<div class="form-group fg-line">',
+                                            '<input data-id="date_from" class="form-control date-picker" type="text" placeholder="Date from">',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="form-group fg-line">',
+                                            '<input data-id="date_to" class="form-control date-picker" type="text" placeholder="Date to">',
+                                        '</div>',
+                                    '</div>',
                                 '</td>',
                             '</tr>',
                             '<tr>',
                                 '<td style="width: 100px">',
-                                    '<select class="selectpicker form-control" data-id="logic" >',
-                                        '<option value="=">=</option>',
-                                        '<option value="!=">!=</option>',
-                                    '</select>',
+                                    '<div class="col-sm-4">',
+                                        '<div class="form-group fg-line">',
+                                            '<select class="selectpicker form-control" data-id="logic" >',
+                                                '<option value="=">=</option>',
+                                                '<option value="!=">!=</option>',
+                                            '</select>',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-8">',
+                                        '<div class="form-group fg-line">',
+                                            '<select class="selectpicker form-control" data-id="value">',
+                                                '<option value="open">open</option>',
+                                                '<option value="click">click</option>',
+                                                '<option value="delivered">delivered</option>',
+                                                '<option value="processed">processed</option>',
+                                                '<option value="unsubscribe">unsubscribe</option>',
+                                                '<option value="dropped">dropped</option>',
+                                                '<option value="deferred">deferred</option>',
+                                                '<option value="bounce">bounce</option>',
+                                                '<option value="spamreport">spamreport</option>',
+                                            '</select>',
+                                        '</div>',
+                                    '</div>',
                                 '</td>',
-                                '<td style="width: 125px">',
-                                    '<select class="selectpicker form-control" data-id="value">',
-                                        '<option value="open">open</option>',
-                                        '<option value="click">click</option>',
-                                        '<option value="delivered">delivered</option>',
-                                        '<option value="processed">processed</option>',
-                                        '<option value="unsubscribe">unsubscribe</option>',
-                                        '<option value="dropped">dropped</option>',
-                                        '<option value="deferred">deferred</option>',
-                                        '<option value="bounce">bounce</option>',
-                                        '<option value="spamreport">spamreport</option>',
-                                    '</select>',
+                            '</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<input type="hidden" data-id="letter" />',
                                 '</td>',
                             '</tr>',
                         '</table>'
@@ -1296,7 +1449,7 @@
 
                     $('.date-picker', $trigger_rule_item).datetimepicker({
                         format: 'YYYY-MM-DD',
-                        defaultDate: new Date()
+                        defaultDate: 0
                     }).on('dp.change', function(e){
                         $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
                     });
@@ -1306,7 +1459,105 @@
 
                     if (rule.settings.logic !== undefined) $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).val(rule.settings.mode);
                     $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
-
+                    
+                    $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).MailingLetterSelector({'url':settings.url});
+                    
+                    if (rule.settings.letter !== undefined) $('.trigger_settings select[data-id="letter"]', $trigger_rule_item).val(rule.settings.letter);
+                    $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    break;
+                case 'mail_user_inactive':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>User inactive</tr>',
+                            '<tr>',
+                                '<td style="width: 100px">',
+                                    '<input data-id="date_from" class="form-control m-l-5 date-picker" type="text" placeholder="date from">',
+                                '</td>',
+                                '<td style="width: 100px">',
+                                    '<input data-id="date_to" class="form-control m-l-5 date-picker" type="text" placeholder="date to">',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 125px">',
+                                    '<input data-id="count" class="form-control m-l-5" type="text" placeholder="count">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+                    
+                    $('.date-picker', $trigger_rule_item).datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        defaultDate: new Date()
+                    }).on('dp.change', function(e){
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    if (rule.settings.count !== undefined) $('.trigger_settings input[data-id="count"]', $trigger_rule_item).val(rule.settings.count);
+                    $('.trigger_settings input[data-id="count"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    break;
+                case 'mail_log':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Mail log</tr>',
+                            '<tr>',
+                                '<td style="width: 125px">',
+                                    '<select data-id="state" class="form-control m-l-5">',
+                                        '<option value="success">success</option>',
+                                        '<option value="error">error</option>',
+                                    '</select>',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 125px">',
+                                    '<div class="form-group fg-line">',
+                                        '<input data-id="result" class="form-control m-l-5" type="text" placeholder="Result">',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<div class="form-group fg-line">',
+                                        '<input type="hidden" data-id="letter" />',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 300px">',
+                                    '<div class="col-sm-6">',
+                                        '<div class="form-group fg-line">',
+                                            '<input data-id="date_from" class="form-control date-picker" type="text" placeholder="Date from">',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="form-group fg-line">',
+                                            '<input data-id="date_to" class="form-control date-picker" type="text" placeholder="Date to">',
+                                        '</div>',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                            
+                        '</table>'
+                    ].join(''));
+                    
+                    $('.date-picker', $trigger_rule_item).datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        defaultDate: new Date()
+                    }).on('dp.change', function(e){
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).MailingLetterSelector({'url':settings.url});
+                    
+                    if (rule.settings.letter !== undefined) $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).val(rule.settings.letter);
+                    $('.trigger_settings input[data-id="letter"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    if (rule.settings.result !== undefined) $('.trigger_settings input[data-id="result"]', $trigger_rule_item).val(rule.settings.result);
+                    $('.trigger_settings input[data-id="result"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    if (rule.settings.state !== undefined) $('.trigger_settings input[data-id="state"]', $trigger_rule_item).val(rule.settings.state);
+                    $('.trigger_settings select[data-id="state"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
                     break;
                 case 'mail_open_pct':
                     $('.trigger_settings', $trigger_rule_item).append([
@@ -1325,14 +1576,14 @@
                         '</table>'
                     ].join(''));
 
-                    if (rule.settings.from !== undefined) $('.trigger_settings select[data-id="from"]', $trigger_rule_item).val(rule.settings.logic);
+                    if (rule.settings.from !== undefined) $('.trigger_settings select[data-id="from"]', $trigger_rule_item).val(rule.settings.from);
                     $('.trigger_settings input[data-id="from"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
-                    if (rule.settings.to !== undefined) $('.trigger_settings input[data-id="to"]', $trigger_rule_item).val(rule.settings.value);
+                    if (rule.settings.to !== undefined) $('.trigger_settings input[data-id="to"]', $trigger_rule_item).val(rule.settings.to);
                     $('.trigger_settings input[data-id="to"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
-                case 'mail_open_pct30 ':
+                case 'mail_open_pct30':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
                             '<tr>Letter open pct 30</tr>',
@@ -1349,12 +1600,84 @@
                         '</table>'
                     ].join(''));
 
-                    if (rule.settings.from !== undefined) $('.trigger_settings select[data-id="from"]', $trigger_rule_item).val(rule.settings.logic);
+                    if (rule.settings.from !== undefined) $('.trigger_settings select[data-id="from"]', $trigger_rule_item).val(rule.settings.from);
                     $('.trigger_settings input[data-id="from"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
-                    if (rule.settings.to !== undefined) $('.trigger_settings input[data-id="to"]', $trigger_rule_item).val(rule.settings.value);
+                    if (rule.settings.to !== undefined) $('.trigger_settings input[data-id="to"]', $trigger_rule_item).val(rule.settings.to);
                     $('.trigger_settings input[data-id="to"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
+                    break;
+                case 'product_buy':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Product buy</tr>',
+                            '<tr>',
+                                '<td style="width: 200px">',
+                                    '<input data-id="product" class="form-control m-l-5" type="text" placeholder="product id">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.product !== undefined) $('.trigger_settings select[data-id="product"]', $trigger_rule_item).val(rule.settings.product);
+                    $('.trigger_settings input[data-id="product"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    break;
+                case 'product_order':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Product order</tr>',
+                            '<tr>',
+                                '<td style="width: 200px">',
+                                    '<input data-id="product" class="form-control m-l-5" type="text" placeholder="product id">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.product !== undefined) $('.trigger_settings select[data-id="product"]', $trigger_rule_item).val(rule.settings.product);
+                    $('.trigger_settings input[data-id="product"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    break;
+                case 'product_availability':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Product availability</tr>',
+                            '<tr>',
+                                '<td style="width: 100px">',
+                                    '<input data-id="product" class="form-control m-l-5" type="text" placeholder="product id">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.product !== undefined) $('.trigger_settings select[data-id="product"]', $trigger_rule_item).val(rule.settings.product);
+                    $('.trigger_settings input[data-id="product"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    break;
+                case 'product_order_sum':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Product order sum</tr>',
+                            '<tr>',
+                                '<td style="width: 100px">',
+                                    '<select class="form-control" data-id="mode" >',
+                                        '<option value="=">=</option>',
+                                        '<option value=">">></option>',
+                                        '<option value="<"><</option>',
+                                        '<option value=">=">=</option>',
+                                        '<option value="<="><=</option>',
+                                    '</select>',
+                                '</td>',
+                                '<td style="width: 100px">',
+                                    '<input data-id="sum" class="form-control m-l-5" type="text" value="0" placeholder="Sum">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+                    
+                    if (rule.settings.mode !== undefined) $('.trigger_settings input[data-id="mode"]', $trigger_rule_item).val(rule.settings.mode);
+                    $('.trigger_settings select[data-id="mode"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    if (rule.settings.sum !== undefined) $('.trigger_settings select[data-id="sum"]', $trigger_rule_item).val(rule.settings.sum);
+                    $('.trigger_settings input[data-id="sum"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     break;
             }
         }
