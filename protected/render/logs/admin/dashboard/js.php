@@ -434,14 +434,14 @@ ob_end_clean();
             $('#error-log-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#logs-errors-period > button').removeAttr('disabled');
             $('#error-log-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#logs-errors-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#logs-errors-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetLogErrors(false);
         });
         $('#error-log-calendar-to-block').on('dp.change', function(e) {
             $('#error-log-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#logs-errors-period > button').removeAttr('disabled');
             $('#error-log-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#logs-errors-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#logs-errors-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetLogErrors(false);
         });
 
