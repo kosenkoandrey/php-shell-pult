@@ -67,6 +67,14 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="module_analytics_memory_limit" class="col-sm-2 control-label">Memory limit</label>
+                                            <div class="col-sm-2">
+                                                <div class="fg-line">
+                                                    <input type="text" class="form-control" name="module_analytics_memory_limit" id="module_analytics_memory_limit">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane animated fadeIn" id="settings-yandex">
                                         <div class="form-group">
@@ -186,6 +194,7 @@
                 $('#module_analytics_yandex_client_secret').val('<?= APP::Module('Analytics')->settings['module_analytics_yandex_client_secret'] ?>');
                 $('#module_analytics_yandex_token').val('<?= APP::Module('Analytics')->settings['module_analytics_yandex_token'] ?>');
                 $('#module_analytics_yandex_counter').val('<?= APP::Module('Analytics')->settings['module_analytics_yandex_counter'] ?>');
+                $('#module_analytics_memory_limit').val('<?= APP::Module('Analytics')->settings['module_analytics_memory_limit'] ?>');
                 
                 $('#update-settings').submit(function(event) {
                     event.preventDefault();
@@ -193,6 +202,7 @@
                     var module_analytics_db_connection = $(this).find('#module_analytics_db_connection');
                     var module_analytics_tmp_dir = $(this).find('#module_analytics_db_connection');
                     var module_analytics_max_execution_time = $(this).find('#module_analytics_max_execution_time');
+                    var module_analytics_memory_limit = $(this).find('#module_analytics_memory_limit');
                     var module_analytics_yandex_client_id = $(this).find('#module_analytics_yandex_client_id');
                     var module_analytics_yandex_client_secret = $(this).find('#module_analytics_yandex_client_secret');
                     var module_analytics_yandex_counter = $(this).find('#module_analytics_yandex_counter');
@@ -200,13 +210,15 @@
                     module_analytics_db_connection.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_analytics_tmp_dir.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_analytics_max_execution_time.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
+                    module_analytics_memory_limit.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();         
                     module_analytics_yandex_client_id.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_analytics_yandex_client_secret.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_analytics_yandex_counter.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     
                     if (module_analytics_db_connection.val() === '') { module_analytics_db_connection.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_analytics_tmp_dir.val() === '') { module_analytics_tmp_dir.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
-                    if (module_analytics_max_execution_time.val() === '') { module_analytics_max_execution_time.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
+                    if (module_analytics_memory_limit.val() === '') { module_analytics_memory_limit.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
+                    if (module_analytics_max_execution_time.val() === '') { module_analytics_max_execution_time.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }           
                     if (module_analytics_yandex_client_id.val() === '') { module_analytics_yandex_client_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_analytics_yandex_client_secret.val() === '') { module_analytics_yandex_client_secret.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_analytics_yandex_counter.val() === '') { module_analytics_yandex_counter.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
