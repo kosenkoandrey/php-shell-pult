@@ -43,25 +43,17 @@
                             <div class="form-group">
                                 <label for="invoice-usr-id" class="col-sm-2 control-label">Пользователь</label>
                                 <div class="col-sm-3">
-                                    <input type="text" name="invoice[user_id]" id="user_id" class="form-control" value="<?= $data['invoice']['main']['user_id'] ?>"/>
+                                    <input type="text" disabled name="invoice[user_id]" id="user_id" class="form-control" value="<?= $data['invoice']['main']['email'] ?>"/>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="invoice-state" class="col-md-2 control-label">Состояние</label>
+                                <label for="state" class="col-md-2 control-label">Состояние</label>
                                 <div class="col-md-3">
-                                    <select id="invoice-state" name="invoice[state]" class="selectpicker form-control" data-width="100%">
-                                        <?
-                                        $invoice_states = Array(
-                                            'new'       => 'не оплачен',
-                                            'processed' => 'в работе'
-                                        );
-
-                                        foreach ($invoice_states as $invoice_state_id => $invoice_state_name) {
-                                            ?><option value="<?= $invoice_state_id ?>" <? if ($data['invoice']['main']['state'] == $invoice_state_id) {
-                                            echo 'selected';
-                                        } ?>><?= $invoice_state_name ?></option><?
-                                    }
-                                        ?>
+                                    <select id="state" name="invoice[state]" class="selectpicker form-control" data-width="100%">
+                                        <option value="new">новый</option>
+                                        <option value="processed">в работе</option>
+                                        <option value="success">оплачен</option>
+                                        <option value="revoked">аннулирован</option>
                                     </select>
                                 </div>
                             </div>
@@ -69,15 +61,16 @@
                                 <label class="col-md-2 control-label">Продукты</label>
                                 <div class="col-md-6">
                                     <div id="invoice-products">
+                                        
                                         <?
                                         foreach ($data['invoice']['products'] as $invoice_product_index => $invoice_product) {
                                             ?>
                                             <div class="row">
                                                 <div class="col-md-6 mar-btm">
-                                                    <select class="selectpicker form-control" id="inv-prod-selector-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]">
+                                                    <select <? if(!in_array($data['invoice']['main']['state'],['new','processed'])){ ?>disabled<? } ?> class="selectpicker form-control" id="inv-prod-selector-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]">
                                                         <?
                                                         foreach ((array) $data['products_list'] as $product_id => $product) {
-                                                            ?><option value="<?= $product_id ?>" <? if ($invoice_product['product_id'] == $product_id) {
+                                                            ?><option value="<?= $product_id ?>" <? if ($invoice_product['product'] == $product_id) {
                                                         echo 'selected';
                                                     } ?>><?= $product['name'] ?> (<?= $product['amount'] ?>)</option><?
                                                 }
@@ -86,19 +79,19 @@
                                                 </div>
                                                 <div class="col-md-4 mar-btm">
                                                     <div class="input-group">
-                                                        <input id="inv-prod-price-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]" type="number" class="inv-prod-price form-control" value="<?= $invoice_product['price'] ?>">
+                                                        <input <? if(!in_array($data['invoice']['main']['state'],['new','processed'])){ ?>disabled<? } ?> id="inv-prod-price-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]" type="number" class="inv-prod-price form-control" value="<?= $invoice_product['amount'] ?>">
                                                         <span class="input-group-addon">руб.</span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2 mar-btm">
-                                                    <button type="button" class="remove-invoice-product btn btn-danger btn-xs bg waves-effect waves-circle waves-float zmdi zmdi-close"></button>
+                                                    <? if(in_array($data['invoice']['main']['state'],['new','processed'])){ ?><button type="button" class="remove-invoice-product btn btn-danger btn-xs bg waves-effect waves-circle waves-float zmdi zmdi-close"></button><? } ?>
                                                 </div>
                                             </div>
-    <?
-}
-?>
+                                            <?
+                                        }
+                                        ?>
                                     </div>
-                                    <button id="invoice-products-add" type="button" class="btn btn-default btn-labeled fa fa-plus">Добавить продукт</button>
+                                    <? if(in_array($data['invoice']['main']['state'],['new','processed'])){ ?><button id="invoice-products-add" type="button" class="btn btn-default btn-labeled fa fa-plus">Добавить продукт</button><? } ?>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -140,17 +133,12 @@
         var counters = <?= json_encode($data['counters']) ?>;
 
         $(document).ready(function () {
+            $('#state').val('<?= $data['invoice']['main']['state'] ?>');
+            
             $('.selectpicker').selectpicker();
 
             $('#edit-invoice').submit(function (event) {
                 event.preventDefault();
-                var user_id = $(this).find('#user_id');
-                user_id.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
-
-                if (user_id.val() === '') {
-                    user_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>');
-                    return false;
-                }
 
                 $(this).find('[type="submit"]').html('Processing...').attr('disabled', true);
 
@@ -163,7 +151,7 @@
                             case 'success':
                                 swal({
                                     title: 'Done!',
-                                    text: 'Invoice "' + result.invoice_id + '" has been updated',
+                                    text: 'Invoice "' + result.invoice + '" has been updated',
                                     type: 'success',
                                     showCancelButton: false,
                                     confirmButtonText: 'Ok',
@@ -238,9 +226,9 @@
                 $('#invoice-amount').html(total.toString());
             }
 
-<?
-foreach ($data['invoice']['products'] as $invoice_product_index => $invoice_product) {
-    ?>
+            <?
+            foreach ($data['invoice']['products'] as $invoice_product_index => $invoice_product) {
+                ?>
                 $('#inv-prod-selector-<?= $invoice_product_index + 1 ?>')
                         .on('change', function (params) {
                             if (params.selected) {
@@ -253,9 +241,9 @@ foreach ($data['invoice']['products'] as $invoice_product_index => $invoice_prod
                                         .trigger('change');
                             }
                         });
-    <?
-}
-?>
+                <?
+            }
+            ?>
         });
     </script>
 </body>

@@ -917,7 +917,7 @@ class Billing {
         }
 
         $products = APP::Module('DB')->Select(
-            $this->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], ['product_id', 'price', 'id'], 'billing_invoices_products', [['invoice_id', '=', $invoice_id, PDO::PARAM_INT]]
+            $this->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], ['product', 'amount', 'id'], 'billing_invoices_products', [['invoice', '=', $invoice_id, PDO::PARAM_INT]]
         );
 
         // Получение кол-ва продуктов в счете
@@ -932,7 +932,9 @@ class Billing {
                 'invoice' => [
                     // Информация о счете
                     'main'     => APP::Module('DB')->Select(
-                        $this->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_ASSOC], ['user_id', 'state', 'amount', 'id', 'UNIX_TIMESTAMP(up_date) as up_date', 'UNIX_TIMESTAMP(cr_date) as cr_date'], 'billing_invoices', [['id', '=', $invoice_id, PDO::PARAM_INT]]
+                        $this->settings['module_billing_db_connection'],['fetch', PDO::FETCH_ASSOC],
+                        ['users.email','billing_invoices.user_id', 'billing_invoices.state', 'billing_invoices.amount', 'billing_invoices.id', 'UNIX_TIMESTAMP(billing_invoices.up_date) as up_date', 'UNIX_TIMESTAMP(billing_invoices.cr_date) as cr_date'],
+                        'billing_invoices', [['billing_invoices.id', '=', $invoice_id, PDO::PARAM_INT]],['join/users'=>[['users.id','=','billing_invoices.user_id']]]
                     ),
                     // Список продуктов счета
                     'products' => $products
@@ -951,7 +953,7 @@ class Billing {
         $out = [
             'status'     => 'success',
             'errors'     => [],
-            'invoice_id' => $_POST['invoice']['id']
+            'invoice'    => $_POST['invoice']['id']
         ];
 
         if (!APP::Module('DB')->Select(
@@ -959,13 +961,6 @@ class Billing {
         )) {
             $out['status']   = 'error';
             $out['errors'][] = 1;
-        }
-
-        if (!APP::Module('DB')->Select(
-            $this->settings['module_users_db_connection'], ['fetchColumn', 0], ['COUNT(id)'], 'users', [['id', '=', $_POST['invoice']['user_id'], PDO::PARAM_INT]]
-        )) {
-            $out['status']   = 'error';
-            $out['errors'][] = 2;
         }
 
         // Calculate invoice amount
@@ -981,7 +976,6 @@ class Billing {
         APP::Module('DB')->Update($this->settings['module_billing_db_connection'],
             'billing_invoices',
             [
-                'user_id' => $_POST['invoice']['user_id'],
                 'amount'  => $amount,
                 'state'   => $_POST['invoice']['state'],
                 'up_date' => date('Y-m-d H:i:s')
@@ -991,34 +985,35 @@ class Billing {
 
         // Remove invoice products
         APP::Module('DB')->Delete(
-            $this->settings['module_billing_db_connection'], 'billing_invoices_products', [['invoice_id', '=', $_POST['invoice']['id'], PDO::PARAM_INT]]
+            $this->settings['module_billing_db_connection'], 'billing_invoices_products', [['invoice', '=', $_POST['invoice']['id'], PDO::PARAM_INT]]
         );
 
         // Insert invoice products
         foreach ($_POST['invoice']['products'] as $product) {
             APP::Module('DB')->Insert(
                 $this->settings['module_billing_db_connection'], 'billing_invoices_products', Array(
-                    'id'         => 'NULL',
-                    'invoice_id' => [$_POST['invoice']['id'], PDO::PARAM_INT],
-                    'product_id' => [$product[0], PDO::PARAM_INT],
-                    'price'      => [$product[1], PDO::PARAM_INT]
+                    'id'            => 'NULL',
+                    'invoice'       => [$_POST['invoice']['id'], PDO::PARAM_INT],
+                    'type'          => ['primary', PDO::PARAM_STR],
+                    'product'       => [$product[0], PDO::PARAM_INT],
+                    'amount'        => [$product[1], PDO::PARAM_INT],
+                    'cr_date'       => 'NOW()'
                 )
             );
         }
 
         // Сохранение истории
         $data = [
-            'user_id'    => $_POST['invoice']['user_id'],
             'state'      => $_POST['invoice']['state'],
             'amount'     => $amount,
             'products'   => $_POST['invoice']['products'],
-            'invoice_id' => $_POST['invoice']['id']
+            'invoice'    => $_POST['invoice']['id']
         ];
 
         APP::Module('DB')->Insert(
             $this->settings['module_billing_db_connection'], 'billing_invoices_tag', Array(
                 'id'          => 'NULL',
-                'invoice_id'  => [$_POST['invoice']['id'], PDO::PARAM_INT],
+                'invoice'     => [$_POST['invoice']['id'], PDO::PARAM_INT],
                 'action'      => ['update_invoice', PDO::PARAM_STR],
                 'action_data' => [json_encode($data), PDO::PARAM_STR],
                 'cr_date'     => 'NOW()'
