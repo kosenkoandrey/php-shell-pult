@@ -3835,4 +3835,48 @@ class UsersActions {
         }
         return $out;
     }
+    
+    public function group_add($id, $settings){
+        $out['status'] = 'success';
+        
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'users',
+            [['id', 'IN', $id, PDO::PARAM_INT]]
+        ) as $user_id) {
+            if (!APP::Module('DB')->Select(
+                APP::Module('Groups')->settings['module_groups_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(id)'], 'groups_users',
+                [
+                    ['group_id', '=', $settings['group_id'], PDO::PARAM_INT],
+                    ['user_id', '=', $user_id, PDO::PARAM_INT]
+                ]
+            )){
+                APP::Module('DB')->Insert(
+                    APP::Module('Groups')->settings['module_groups_db_connection'], 'groups_users',
+                    [
+                        'id' => 'NULL',
+                        'group_id' => [$settings['group_id'], PDO::PARAM_INT],
+                        'user_id' => [$user_id, PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+            }
+        }
+        
+        return $out;
+    }
+    
+    public function group_remove($id, $settings){
+        $out['status'] = 'error';
+        
+        if(APP::Module('DB')->Delete(
+            APP::Module('Groups')->settings['module_groups_db_connection'], 'groups_users',
+            [['group_id', '=', $settings['group_id'], PDO::PARAM_INT], ['user_id', 'IN', $id, PDO::PARAM_INT]]
+        )){
+            $out['status'] = 'success';
+        }
+                
+        return $out;
+    }
 }

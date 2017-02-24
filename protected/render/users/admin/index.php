@@ -73,6 +73,8 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="remove" href="javascript:void(0)">Remove</a></li>
                                         <li><a data-action="add_tag" href="javascript:void(0)">Add Tag</a></li>
                                         <li><a data-action="change_state" href="javascript:void(0)">Change state</a></li>
+                                        <li><a data-action="group_add" href="javascript:void(0)">Добавить в группу</a></li>
+                                        <li><a data-action="group_remove" href="javascript:void(0)">Удалить из группу</a></li>
                                         <li><a data-action="send_mail" href="javascript:void(0)">Send mail</a></li>
                                         
                                         <li><a data-action="tunnel_subscribe" href="javascript:void(0)">Subscribe Tunnel</a></li>
@@ -141,7 +143,8 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
         
         <script src="<?= APP::Module('Routing')->root ?>public/modules/tunnels/scheme/letter-selector/script.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/modules/tunnels/scheme/tunnel-selector/script.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/modules/users/rules.js"></script> 
+        <script src="<?= APP::Module('Routing')->root ?>public/modules/users/rules.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/modules/groups/script.js"></script> 
         <? APP::Render('core/widgets/js') ?>
         <script>
             $(document).ready(function() {
@@ -394,6 +397,40 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                     ].join('')
                                 );
                                 $('#tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
+                                modal.modal('show');
+                                break;
+                            case 'group_add' :
+                                $('.modal-title', modal).html('Добавить в группу');
+                                form.append(
+                                    [
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-2 control-label">Группа</label>',
+                                            '<div class="col-sm-6">',
+                                                '<div class="fg-line">',
+                                                    '<input type="hidden" id="group_id" value="" name="settings[group_id]" class="form-control" />',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>'
+                                    ].join('')
+                                );
+                                $('#group_id', modal).GroupSelector({'url':'<?= APP::Module('Routing')->root ?>'});
+                                modal.modal('show');
+                                break;
+                            case 'group_remove' :
+                                $('.modal-title', modal).html('Удалить из группу');
+                                form.append(
+                                    [
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-2 control-label">Группа</label>',
+                                            '<div class="col-sm-6">',
+                                                '<div class="select">',
+                                                    '<input type="hidden" id="group_id" value="" name="settings[group_id]" class="form-control" />',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>'
+                                    ].join('')
+                                );
+                                $('#group_id', modal).GroupSelector({'url':'<?= APP::Module('Routing')->root ?>'});
                                 modal.modal('show');
                                 break;
                         }

@@ -66,7 +66,7 @@ class Groups {
             ['groups.id'], 
             false,
             [$_POST['sort_by'], $_POST['sort_direction']],
-            $_POST['rows'] === -1 ? false : [($_POST['current'] - 1) * $_POST['rows'], $_POST['rows']]
+            $_POST['rows'] == -1 ? false : [($_POST['current'] - 1) * $_POST['rows'], $_POST['rows']]
         ) as $row) {
             $row['id_token'] = APP::Module('Crypt')->Encode($row['id']);
             array_push($rows, $row);
