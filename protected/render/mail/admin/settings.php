@@ -186,7 +186,6 @@
                     var module_mail_fbl_server = $(this).find('#module_mail_fbl_server');
                     var module_mail_fbl_login = $(this).find('#module_mail_fbl_login');
                     var module_mail_fbl_password = $(this).find('#module_mail_fbl_password');
-                    var module_mail_fbl_prefix = $(this).find('#module_mail_fbl_prefix');
 
                     module_mail_db_connection.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_mail_tmp_dir.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
@@ -196,8 +195,7 @@
                     module_mail_fbl_server.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_mail_fbl_login.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_mail_fbl_password.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
-                    module_mail_fbl_prefix.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
-                    
+
                     if (module_mail_db_connection.val() === '') { module_mail_db_connection.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_tmp_dir.val() === '') { module_mail_tmp_dir.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_x_mailer.val() === '') { module_mail_x_mailer.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
@@ -206,8 +204,7 @@
                     if (module_mail_fbl_server.val() === '') { module_mail_fbl_server.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_fbl_login.val() === '') { module_mail_fbl_login.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_fbl_password.val() === '') { module_mail_fbl_password.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
-                    if (module_mail_fbl_prefix.val() === '') { module_mail_fbl_prefix.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
-                    
+
                     $(this).find('[type="submit"]').html('Processing...').attr('disabled', true);
 
                     $.ajax({

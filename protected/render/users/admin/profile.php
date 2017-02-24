@@ -56,18 +56,20 @@
                             <small>
                                 <?
                                 switch ($data['user']['role']) {
+                                    case 'new':
+                                    case 'user': 
+                                        echo 'ПОДПИСЧИК'; break;
                                     case 'admin': echo 'АДМИНИСТРАТОР'; break;
                                     case 'tech-admin': echo 'ТЕХНИЧЕСКИЙ АДМИНИСТРАТОР'; break;
-                                    case 'new': echo 'НЕАКТИВИРОВАННЫЙ ПОДПИСЧИК'; break;
-                                    case 'user': echo 'АКТИВИРОВАННЫЙ ПОДПИСЧИК'; break;
                                     default: echo $data['user']['role']; break;
                                 }
                                 ?> (<?
                                 if (isset($data['about']['state'])) {
                                     switch ($data['about']['state']) {
-                                        case 'unknown': echo 'СОСТОЯНИЕ НЕ ИЗВЕСТНО'; break;
+                                        case 'inactive': echo 'ОЖИДАЕТ АКТИВАЦИИ'; break;
                                         case 'active': echo 'АКТИВНЫЙ'; break;
-                                        case 'inactive': echo 'НЕАКТИВНЫЙ'; break;
+                                        case 'pause': echo 'ВРЕМЕННО ОТПИСАН'; break;
+                                        case 'unsubscribe': echo 'ОТПИСАН'; break;
                                         case 'blacklist': echo 'В ЧЕРНОМ СПИСКЕ'; break;
                                         case 'dropped': echo 'НЕВОЗМОЖНО ДОСТАВИТЬ ПОЧТУ'; break;
                                         default: echo $data['about']['state']; break;
@@ -145,10 +147,11 @@
                                                     <dd id="about-username-value">
                                                         <?
                                                         switch ($data['user']['role']) {
+                                                            case 'new':
+                                                            case 'user': 
+                                                                echo 'подписчик'; break;
                                                             case 'admin': echo 'администратор'; break;
                                                             case 'tech-admin': echo 'технический администратор'; break;
-                                                            case 'new': echo 'неактивированный подписчик'; break;
-                                                            case 'user': echo 'активированный подписчик'; break;
                                                             default: echo $data['user']['role']; break;
                                                         }
                                                         ?>
@@ -160,11 +163,13 @@
                                                         <?
                                                         if (isset($data['about']['state'])) {
                                                             switch ($data['about']['state']) {
-                                                                case 'unknown': echo 'не изветстно'; break;
+                                                                case 'inactive': echo 'ожидает активации'; break;
                                                                 case 'active': echo 'активный'; break;
-                                                                case 'inactive': echo 'неактивный'; break;
+                                                                case 'pause': echo 'временно отписан'; break;
+                                                                case 'unsubscribe': echo 'отписан'; break;
                                                                 case 'blacklist': echo 'в черном списке'; break;
                                                                 case 'dropped': echo 'невозможно доставить почту'; break;
+                                                                default: echo $data['about']['state']; break;
                                                                 
                                                             }
                                                         } else {

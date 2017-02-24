@@ -110,16 +110,16 @@ class APP {
 
     
     public static function ErrorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
-        self::Error('core/error', 0, [$errno, $errstr, $errfile, $errline, $errcontext, debug_backtrace()]);
+        self::Logging('php-errors', 'core/error', 0, [$errno, $errstr, $errfile, $errline, $errcontext, debug_backtrace()]);
     }
 
     public static function ExceptionHandler($error) {
-        self::Error('core/error', 1, [$error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTrace()]);
+        self::Logging('php-errors', 'core/error', 1, [$error->getMessage(), $error->getCode(), $error->getFile(), $error->getLine(), $error->getTrace()]);
     }
     
     public static function ShutdownHandler() {
         $error = error_get_last();
-        if ($error) self::Error('core/error', 2, $error);
+        if ($error) self::Logging('php-errors', 'core/error', 2, $error);
     }
 
     
@@ -351,17 +351,26 @@ class APP {
         }
     }
     
-    private static function Error($view, $code, $details = null) {
+    public static function Logging($type, $view, $code, $details = null) {
         if (self::$conf['logs']) {
+            $file = self::$conf['logs'] . '/' . $type . '-' . date('d-m-Y', time()) . '.log';
+            
+            if (!file_exists($file)) {
+                touch($file);
+                chmod($file, 0777);
+            }
+            
             file_put_contents(
-                self::$conf['logs'] . '/php-errors-' . date('d-m-Y', time()) . '.log',
+                $file,
                 json_encode([date('H:i:s', time()), $code, $details], JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n",
                 FILE_APPEND | LOCK_EX
             );
         }
         
-        self::Render($view, 'include', [$code, $details]);
-        die();
+        if ($view) {
+            self::Render($view, 'include', [$code, $details]);
+            die();
+        }
     }
     
     private static function Out($buffer) {

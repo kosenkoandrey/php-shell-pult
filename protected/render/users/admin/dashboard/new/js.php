@@ -287,10 +287,23 @@ ob_end_clean();
 
     $(document).on('click', "#new-users-erros-period > button", function () {
         var period = $(this).data('period');
-
-        var to = Math.round(new Date().getTime() / 1000);
-        var from = strtotime("-" + period, to);
-
+        var today = new Date();
+        
+        switch (period) {
+            case 'today':
+                var to = Math.round(today.getTime() / 1000);
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+                break;
+            case 'yesterday':
+                var to = (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000) - 1;
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime() / 1000;
+                break;
+            default:
+                var to = Math.round(today.getTime() / 1000);
+                var from = strtotime("-" + period, to);
+                break;
+        }
+        
         var to_date = new Date(to * 1000);
         var from_date = new Date(from * 1000);
 
@@ -365,7 +378,7 @@ ob_end_clean();
         $('#new-user-calendar-to').data('DateTimePicker').date(moment(to_date));
     });
 
-    function 	GetNewUsers(nav) {
+    function GetNewUsers(nav) {
         $('#new-users-erros-period > button').removeAttr('disabled');
         if (nav) $('#new-users-erros-period > button[data-period="' + nav + '"]').attr('disabled', 'disabled');
         $('#new-users-chart').html('<div class="text-center"><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></div>');
@@ -383,17 +396,29 @@ ob_end_clean();
             success: function (data) {
                 $.plot("#new-users-chart", [
                     {
-                        label: "Wait",
-                        data: data.range.wait
+                        label: "активные",
+                        data: data.range.active
                     },
                     {
-                        label: "Unsubscribe",
+                        label: "ожидают активации",
+                        data: data.range.inactive
+                    },
+                    {
+                        label: "временно неактивные",
+                        data: data.range.pause
+                    },
+                    {
+                        label: "отписанные",
                         data: data.range.unsubscribe
                     },
                     {
-                        label: "Dropped",
-                        data: data.range.dropped
+                        label: "в ченом списке",
+                        data: data.range.blacklist
                     },
+                    {
+                        label: "дропнутые",
+                        data: data.range.dropped
+                    }
                 ], {
                     series: {
                         lines: {
@@ -475,37 +500,51 @@ ob_end_clean();
                             .append(
                                 $('<th/>')
                                 .css({
-                                    width: '20%'
+                                    width: '14%'
                                 })
                                 .append('Дата')
-                                )
+                            )
                             .append(
                                 $('<th/>')
                                 .css({
-                                    width: '20%'
+                                    width: '14%'
                                 })
-                                .append('Активные')
-                                )
+                                .append('активные')
+                            )
                             .append(
                                 $('<th/>')
                                 .css({
-                                    width: '20%'
+                                    width: '14%'
                                 })
-                                .append('Ожидают активации')
-                                )
+                                .append('ожидают активации')
+                            )
                             .append(
                                 $('<th/>')
                                 .css({
-                                    width: '20%'
+                                    width: '14%'
                                 })
-                                .append('Отписанные')
-                                )
+                                .append('временно отписанные')
+                            )
                             .append(
                                 $('<th/>')
                                 .css({
-                                    width: '20%'
+                                    width: '14%'
                                 })
-                                .append('Дропнутые')
+                                .append('отписанные')
+                            )
+                            .append(
+                                $('<th/>')
+                                .css({
+                                    width: '14%'
+                                })
+                                .append('в блэк-листе')
+                            )
+                            .append(
+                                $('<th/>')
+                                .css({
+                                    width: '14%'
+                                })
+                                .append('дропнутые')
                             )
                         )
                     )
@@ -515,16 +554,20 @@ ob_end_clean();
                     );
 
                 var range_total = {
+                    inactive: 0,
                     active: 0,
-                    wait: 0,
+                    pause: 0,
                     unsubscribe: 0,
+                    blacklist: 0,
                     dropped: 0
                 };
 
                 $.each(data.values, function () {
+                    range_total.inactive += parseInt(this.inactive[0]);
                     range_total.active += parseInt(this.active[0]);
-                    range_total.wait += parseInt(this.wait[0]);
+                    range_total.pause += parseInt(this.pause[0]);
                     range_total.unsubscribe += parseInt(this.unsubscribe[0]);
+                    range_total.blacklist += parseInt(this.blacklist[0]);
                     range_total.dropped += parseInt(this.dropped[0]);
 
                     $('#users-table tbody')
@@ -533,14 +576,15 @@ ob_end_clean();
                         .append(
                             $('<td/>')
                             .append(this.dt)
-                            )
+                        )
+                        
                         .append(
                             $('<td/>')
                             .append(
                                 $('<a/>', {
                                     'class': 'alink',
                                     'target': '_blank',
-                                    'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + this.active[1]
+                                    'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + this.active[1]
                                 })
                                 .append(this.active[0].toLocaleString())
                                 )
@@ -557,14 +601,31 @@ ob_end_clean();
                                 $('<a/>', {
                                     'class': 'alink',
                                     'target': '_blank',
-                                    'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + this.wait[1]
+                                    'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + this.inactive[1]
                                 })
-                                .append(this.wait[0].toLocaleString())
+                                .append(this.inactive[0].toLocaleString())
                                 )
                             .append(
                                 $('<sup/>')
                                 .css('margin-left', 5)
-                                .append(this.wait[0] ? (this.wait[0] / (this.total / 100)).toFixed(2) : 0)
+                                .append(this.inactive[0] ? (this.inactive[0] / (this.total / 100)).toFixed(2) : 0)
+                                .append('%')
+                                )
+                        )
+                        .append(
+                            $('<td/>')
+                            .append(
+                                $('<a/>', {
+                                    'class': 'alink',
+                                    'target': '_blank',
+                                    'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + this.pause[1]
+                                })
+                                .append(this.pause[0].toLocaleString())
+                                )
+                            .append(
+                                $('<sup/>')
+                                .css('margin-left', 5)
+                                .append(this.pause[0] ? (this.pause[0] / (this.total / 100)).toFixed(2) : 0)
                                 .append('%')
                                 )
                             )
@@ -574,7 +635,7 @@ ob_end_clean();
                                 $('<a/>', {
                                     'class': 'alink',
                                     'target': '_blank',
-                                    'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + this.unsubscribe[1]
+                                    'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + this.unsubscribe[1]
                                 })
                                 .append(this.unsubscribe[0].toLocaleString())
                                 )
@@ -591,7 +652,24 @@ ob_end_clean();
                                 $('<a/>', {
                                     'class': 'alink',
                                     'target': '_blank',
-                                    'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + this.dropped[1]
+                                    'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + this.blacklist[1]
+                                })
+                                .append(this.blacklist[0].toLocaleString())
+                                )
+                            .append(
+                                $('<sup/>')
+                                .css('margin-left', 5)
+                                .append(this.blacklist[0] ? (this.blacklist[0] / (this.total / 100)).toFixed(2) : 0)
+                                .append('%')
+                                )
+                            )
+                        .append(
+                            $('<td/>')
+                            .append(
+                                $('<a/>', {
+                                    'class': 'alink',
+                                    'target': '_blank',
+                                    'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + this.dropped[1]
                                 })
                                 .append(this.dropped[0].toLocaleString())
                                 )
@@ -620,7 +698,24 @@ ob_end_clean();
                             $('<a/>', {
                                 'class': 'alink',
                                 'target': '_blank',
-                                'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + data.total.hash.active
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.inactive
+                            })
+                            .append(range_total.inactive.toLocaleString())
+                            )
+                        .append(
+                            $('<sup/>')
+                            .css('margin-left', 5)
+                            .append(range_total.inactive ? (range_total.inactive / (data.total.value / 100)).toFixed(2) : 0)
+                            .append('%')
+                            )
+                        )
+                    .append(
+                        $('<td/>')
+                        .append(
+                            $('<a/>', {
+                                'class': 'alink',
+                                'target': '_blank',
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.active
                             })
                             .append(range_total.active.toLocaleString())
                             )
@@ -637,14 +732,14 @@ ob_end_clean();
                             $('<a/>', {
                                 'class': 'alink',
                                 'target': '_blank',
-                                'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + data.total.hash.wait
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.pause
                             })
-                            .append(range_total.wait.toLocaleString())
+                            .append(range_total.pause.toLocaleString())
                             )
                         .append(
                             $('<sup/>')
                             .css('margin-left', 5)
-                            .append(range_total.wait ? (range_total.wait / (data.total.value / 100)).toFixed(2) : 0)
+                            .append(range_total.pause ? (range_total.pause / (data.total.value / 100)).toFixed(2) : 0)
                             .append('%')
                             )
                         )
@@ -654,7 +749,7 @@ ob_end_clean();
                             $('<a/>', {
                                 'class': 'alink',
                                 'target': '_blank',
-                                'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + data.total.hash.unsubscribe
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.unsubscribe
                             })
                             .append(range_total.unsubscribe.toLocaleString())
                             )
@@ -671,7 +766,24 @@ ob_end_clean();
                             $('<a/>', {
                                 'class': 'alink',
                                 'target': '_blank',
-                                'href': '<?= APP::Module('Routing')->root ?>new/admin/users/tbl?filters=' + data.total.hash.dropped
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.blacklist
+                            })
+                            .append(range_total.blacklist.toLocaleString())
+                            )
+                        .append(
+                            $('<sup/>')
+                            .css('margin-left', 5)
+                            .append(range_total.blacklist ? (range_total.blacklist / (data.total.value / 100)).toFixed(2) : 0)
+                            .append('%')
+                            )
+                        )
+                    .append(
+                        $('<td/>')
+                        .append(
+                            $('<a/>', {
+                                'class': 'alink',
+                                'target': '_blank',
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.dropped
                             })
                             .append(range_total.dropped.toLocaleString())
                             )

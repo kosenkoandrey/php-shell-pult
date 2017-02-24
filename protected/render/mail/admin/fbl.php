@@ -368,7 +368,7 @@
                 $('#fbl-log-chart').html('<div class="text-center"><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></div>');
 
                 $.ajax({
-                    url: '<?= APP::Module('Routing')->root ?>admin/mail/api/fbl/get.json',
+                    url: '<?= APP::Module('Routing')->root ?>admin/mail/api/fbl/dashboard.json',
                     data: {
                         date: {
                             from: $('#fbl-log-date-from').val(),

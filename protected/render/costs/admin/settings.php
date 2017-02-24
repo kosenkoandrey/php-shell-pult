@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Costs</title>
+        <title>Настройки расходов</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -19,7 +19,7 @@
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Costs settings' => 'admin/costs/settings'
+            'Расходы' => 'admin/costs/settings'
         ]);
         ?>
         <section id="main">
@@ -30,20 +30,20 @@
                     <div class="card">
                         <form id="update-settings" class="form-horizontal" role="form">
                             <div class="card-header">
-                                <h2>Settings</h2>
+                                <h2>Настройки расходов</h2>
                             </div>
 
                             <div class="card-body card-padding">
                                 <ul class="tab-nav m-b-15" role="tablist" data-tab-color="teal">
-                                    <li class="active"><a href="#settings-main" role="tab" data-toggle="tab">Main</a></li>
-                                    <li role="presentation"><a href="#settings-yandex" role="tab" data-toggle="tab">Yandex.Direct</a></li>
-                                    <li role="presentation"><a href="#settings-facebook" role="tab" data-toggle="tab">Facebook</a></li>
+                                    <li class="active"><a href="#settings-main" role="tab" data-toggle="tab">Основное</a></li>
+                                    <li role="presentation"><a href="#settings-yandex" role="tab" data-toggle="tab">Яндекс.Директ</a></li>
+                                    <!--<li role="presentation"><a href="#settings-facebook" role="tab" data-toggle="tab">Facebook</a></li>-->
                                 </ul>
 
                                 <div class="tab-content">
                                     <div role="tabpanel" class="tab-pane active animated fadeIn in" id="settings-main">
                                         <div class="form-group">
-                                            <label for="module_costs_db_connection" class="col-sm-2 control-label">DB connection</label>
+                                            <label for="module_costs_db_connection" class="col-sm-2 control-label">Соеденение с БД</label>
                                             <div class="col-sm-2">
                                                 <div class="fg-line">
                                                     <select id="module_costs_db_connection" name="module_costs_db_connection" class="selectpicker">
@@ -53,7 +53,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="module_costs_tmp_dir" class="col-sm-2 control-label">Tmp dir</label>
+                                            <label for="module_costs_tmp_dir" class="col-sm-2 control-label">Временный каталог</label>
                                             <div class="col-sm-2">
                                                 <div class="fg-line">
                                                     <input type="text" class="form-control" name="module_costs_tmp_dir" id="module_costs_tmp_dir">
@@ -61,7 +61,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="module_costs_max_execution_time" class="col-sm-2 control-label">Max execution time</label>
+                                            <label for="module_costs_max_execution_time" class="col-sm-2 control-label">Макс. время выполнения</label>
                                             <div class="col-sm-2">
                                                 <div class="fg-line">
                                                     <input type="text" class="form-control" name="module_costs_max_execution_time" id="module_costs_max_execution_time">
@@ -86,9 +86,18 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="module_costs_yandex_logging" class="col-sm-2 control-label">Логгирование</label>
+                                            <div class="col-sm-1">
+                                                <div class="toggle-switch m-t-10">
+                                                    <input id="module_costs_yandex_logging" name="module_costs_yandex_logging" type="checkbox" hidden="hidden">
+                                                    <label for="module_costs_yandex_logging" class="ts-helper"></label>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <hr style="margin: 50px 0 40px 0;">
                                         <div class="form-group">
-                                            <label for="module_costs_yandex_client_id" class="col-sm-2 control-label">Client ID</label>
+                                            <label for="module_costs_yandex_client_id" class="col-sm-2 control-label">ID приложения</label>
                                             <div class="col-sm-3">
                                                 <div class="fg-line">
                                                     <input type="text" class="form-control" name="module_costs_yandex_client_id" id="module_costs_yandex_client_id">
@@ -96,7 +105,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="module_costs_yandex_client_secret" class="col-sm-2 control-label">Client secret</label>
+                                            <label for="module_costs_yandex_client_secret" class="col-sm-2 control-label">Пароль приложения</label>
                                             <div class="col-sm-3">
                                                 <div class="fg-line">
                                                     <input type="text" class="form-control" name="module_costs_yandex_client_secret" id="module_costs_yandex_client_secret">
@@ -104,7 +113,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="module_costs_yandex_token" class="col-sm-2 control-label">Token</label>
+                                            <label for="module_costs_yandex_token" class="col-sm-2 control-label">Токен</label>
                                             <?
                                             if (APP::Module('Costs')->settings['module_costs_yandex_token']) {
                                                 ?>
@@ -117,7 +126,7 @@
                                             }
                                             ?>
                                             <div class="col-sm-3">
-                                                <a class="btn palette-Orange bg waves-effect btn-sm" href="<?= APP::Module('Routing')->root ?>admin/costs/yandex/token"><i class="zmdi zmdi-key"></i> Get access token</a>
+                                                <a class="btn palette-Orange bg waves-effect btn-sm" href="<?= APP::Module('Routing')->root ?>admin/costs/yandex/token"><i class="zmdi zmdi-key"></i> Получить токен</a>
                                             </div>
                                         </div>
                                     </div>
@@ -160,7 +169,7 @@
 
                                 <div class="form-group">
                                     <div class="col-sm-offset-2 col-sm-5">
-                                        <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Save changes</button>
+                                        <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Сохранить</button>
                                     </div>
                                 </div>
                             </div>
@@ -187,6 +196,7 @@
         
         <script>
             $(document).ready(function() {
+                $('#module_costs_yandex_logging').prop('checked', <?= (int) APP::Module('Costs')->settings['module_costs_yandex_logging'] ?>);
                 <?
                 if (isset(APP::Module('Routing')->get['yandex_token'])) {
                     ?>
@@ -247,8 +257,6 @@
                     var module_costs_yandex_utm_medium = $(this).find('#module_costs_yandex_utm_medium');
                     var module_costs_yandex_client_id = $(this).find('#module_costs_yandex_client_id');
                     var module_costs_yandex_client_secret = $(this).find('#module_costs_yandex_client_secret');
-                    var module_costs_facebook_client_id = $(this).find('#module_costs_facebook_client_id');
-                    var module_costs_facebook_client_secret = $(this).find('#module_costs_yandex_client_secret');
 
                     module_costs_db_connection.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_costs_tmp_dir.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
@@ -257,9 +265,7 @@
                     module_costs_yandex_utm_medium.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_costs_yandex_client_id.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_costs_yandex_client_secret.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
-                    module_costs_facebook_client_id.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
-                    module_costs_facebook_client_secret.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
-                    
+
                     if (module_costs_db_connection.val() === '') { module_costs_db_connection.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_costs_tmp_dir.val() === '') { module_costs_tmp_dir.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_costs_max_execution_time.val() === '') { module_costs_max_execution_time.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
@@ -267,10 +273,8 @@
                     if (module_costs_yandex_utm_medium.val() === '') { module_costs_yandex_utm_medium.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_costs_yandex_client_id.val() === '') { module_costs_yandex_client_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_costs_yandex_client_secret.val() === '') { module_costs_yandex_client_secret.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
-                    if (module_costs_facebook_client_id.val() === '') { module_costs_facebook_client_id.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
-                    if (module_costs_facebook_client_secret.val() === '') { module_costs_facebook_client_secret.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
-                    
-                    $(this).find('[type="submit"]').html('Processing...').attr('disabled', true);
+
+                    $(this).find('[type="submit"]').html('Подождите...').attr('disabled', true);
 
                     $.ajax({
                         type: 'post',
@@ -280,8 +284,8 @@
                             switch(result.status) {
                                 case 'success':
                                     swal({
-                                        title: 'Done!',
-                                        text: 'Costs settings has been updated',
+                                        title: 'Готово',
+                                        text: 'Настройки расходов были успешно обновлены',
                                         type: 'success',
                                         showCancelButton: false,
                                         confirmButtonText: 'Ok',
@@ -293,7 +297,7 @@
                                     break;
                             }
 
-                            $('#update-settings').find('[type="submit"]').html('Save changes').attr('disabled', false);
+                            $('#update-settings').find('[type="submit"]').html('Сохранить').attr('disabled', false);
                         }
                     });
                 });

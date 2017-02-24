@@ -8,7 +8,7 @@ return [
     'timezone'          => 'Etc/GMT-3',
     'memory_limit'      => '512M',
     'error_reporting'   => E_ALL,
-    'debug'             => true,
+    'debug'             => false,
     'install'           => false,
-    'logs'              => ROOT . '/logs',
+    'logs'              => '/var/log/phpshell/yurkovskaya',
 ];

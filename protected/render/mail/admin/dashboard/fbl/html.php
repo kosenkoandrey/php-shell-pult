@@ -1,5 +1,6 @@
 <div id="fbl-reports-period" class="btn-group m-b-15 m-r-15">
-    <button data-period="0 days" type="button" class="btn btn-default waves-effect">Сегодня</button>
+    <button data-period="today" type="button" class="btn btn-default waves-effect">Сегодня</button>
+    <button data-period="yesterday" type="button" class="btn btn-default waves-effect">Вчера</button>
     <button data-period="1 weeks" type="button" class="btn btn-default waves-effect">Неделя</button>
     <button data-period="1 months" type="button" class="btn btn-default waves-effect">Месяц</button>
     <button data-period="3 months" type="button" class="btn btn-default waves-effect">Квартал</button>

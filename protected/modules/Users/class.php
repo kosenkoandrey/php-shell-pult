@@ -1,5 +1,6 @@
 <?
 class Users {
+    
     public $settings;
     private $users_search;
     private $users_actions;
@@ -156,6 +157,14 @@ class Users {
         echo json_encode([
             'roles' => $roles,
             'states' => [
+                'inactive' => APP::Module('DB')->Select(
+                    $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['count(distinct user)'], 'users_about', 
+                    [
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'inactive', PDO::PARAM_STR]
+                    ]
+                ),
                 'active' => APP::Module('DB')->Select(
                     $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                     ['count(distinct user)'], 'users_about', 
@@ -164,12 +173,20 @@ class Users {
                         ['value', '=', 'active', PDO::PARAM_STR]
                     ]
                 ),
-                'inactive' => APP::Module('DB')->Select(
+                'pause' => APP::Module('DB')->Select(
                     $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                     ['count(distinct user)'], 'users_about', 
                     [
                         ['item', '=', 'state', PDO::PARAM_STR],
-                        ['value', '=', 'inactive', PDO::PARAM_STR]
+                        ['value', '=', 'pause', PDO::PARAM_STR]
+                    ]
+                ),
+                'unsubscribe' => APP::Module('DB')->Select(
+                    $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['count(distinct user)'], 'users_about', 
+                    [
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'unsubscribe', PDO::PARAM_STR]
                     ]
                 ),
                 'blacklist' => APP::Module('DB')->Select(
@@ -198,66 +215,77 @@ class Users {
 
         for ($x = $_POST['date']['to']; $x >= $_POST['date']['from']; $x = $x - 86400) {
             $range[date('d-m-Y', $x)] = [
-                'total'       => 0,
-                'active'      => 0,
-                'wait'        => 0,
+                'total' => 0,
+                'inactive' => 0,
+                'active' => 0,
+                'pause' => 0,
                 'unsubscribe' => 0,
-                'dropped'     => 0
+                'blacklist' => 0,
+                'dropped' => 0
             ];
         }
 
         foreach (APP::Module('DB')->Select(
-            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], ['users_about.value as state', 'UNIX_TIMESTAMP(reg_date) AS cr_date'], 'users', [
-            ['users_about.item', '=', 'state', PDO::PARAM_STR],
-            ['users.reg_date', 'BETWEEN', '"' . date('Y-m-d', $_POST['date']['from']) . ' 00:00:00" AND "' . date('Y-m-d', $_POST['date']['to']) . ' 23:59:59"', PDO::PARAM_STR]
-            ], [
+            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+            [
+                'users_about.value as state', 
+                'UNIX_TIMESTAMP(reg_date) AS reg_date'
+            ], 
+            'users', 
+            [
+                ['users_about.item', '=', 'state', PDO::PARAM_STR],
+                ['UNIX_TIMESTAMP(users.reg_date)', 'BETWEEN', $_POST['date']['from'] . ' AND ' . $_POST['date']['to']]
+            ], 
+            [
                 'left join/users_about' => [
                     ['users_about.user', '=', 'users.id']
                 ]
-            ], false, false, ['users.id', 'desc']
+            ], 
+            false, 
+            false, 
+            ['users.id', 'desc']
         ) as $user) {
-            $date_index = date('d-m-Y', $user['cr_date']);
+            $date_index = date('d-m-Y', $user['reg_date']);
 
             if (!isset($range[$date_index])) {
                 $range[$date_index] = [
-                    'total'       => 0,
-                    'active'      => 0,
-                    'wait'        => 0,
+                    'total' => 0,
+                    'inactive' => 0,
+                    'active' => 0,
+                    'pause' => 0,
                     'unsubscribe' => 0,
-                    'dropped'     => 0
+                    'blacklist' => 0,
+                    'dropped' => 0
                 ];
             }
 
-            ++$range[$date_index]['total'];
-
-            if ($user['state'] == 'active')
-                ++$range[$date_index]['active'];
-            if ($user['state'] == 'wait')
-                ++$range[$date_index]['wait'];
-            if ($user['state'] == 'unsubscribe')
-                ++$range[$date_index]['unsubscribe'];
-            if ($user['state'] == 'dropped')
-                ++$range[$date_index]['dropped'];
+            ++ $range[$date_index]['total'];
+            ++ $range[$date_index][$user['state']];
         }
 
         $range_values = [];
-        $out          = [];
+        $out_range          = [];
 
         foreach ($range as $date_index => $counters) {
             $date_values = explode('-', $date_index);
 
             $range_values[] = [
-                'dt'          => $date_index,
-                'total'       => (int) $counters['total'],
-                'active'      => Array((int) $counters['active'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"active"}},{"method":"user_cr_date","settings":{"from":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '","to":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '"}}]}')),
-                'wait'        => Array((int) $counters['wait'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"wait"}},{"method":"user_cr_date","settings":{"from":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '","to":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '"}}]}')),
-                'unsubscribe' => Array((int) $counters['unsubscribe'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"unsubscribe"}},{"method":"user_cr_date","settings":{"from":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '","to":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '"}}]}')),
-                'dropped'     => Array((int) $counters['dropped'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"dropped"}},{"method":"user_cr_date","settings":{"from":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '","to":"' . $date_values[2] . '.' . $date_values[1] . '.' . $date_values[0] . '"}}]}')),
+                'dt' => $date_index,
+                'total' => (int) $counters['total'],
+                'inactive' => Array((int) $counters['inactive'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"inactive"}}]}')),
+                'active' => Array((int) $counters['active'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"active"}}]}')),
+                'pause' => Array((int) $counters['pause'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"pause"}}]}')),
+                'unsubscribe' => Array((int) $counters['unsubscribe'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"unsubscribe"}}]}')),
+                'blacklist' => Array((int) $counters['blacklist'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"blacklist"}}]}')),
+                'dropped' => Array((int) $counters['dropped'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"dropped"}}]}')),
             ];
 
-            $out['wait'][$date_index]        = [strtotime($date_index) * 1000, $counters['wait']];
-            $out['unsubscribe'][$date_index] = [strtotime($date_index) * 1000, $counters['unsubscribe']];
-            $out['dropped'][$date_index]     = [strtotime($date_index) * 1000, $counters['dropped']];
+            $out_range['inactive'][$date_index] = [strtotime($date_index) * 1000, $counters['inactive']];
+            $out_range['active'][$date_index] = [strtotime($date_index) * 1000, $counters['active']];
+            $out_range['pause'][$date_index] = [strtotime($date_index) * 1000, $counters['pause']];
+            $out_range['unsubscribe'][$date_index] = [strtotime($date_index) * 1000, $counters['unsubscribe']];
+            $out_range['blacklist'][$date_index] = [strtotime($date_index) * 1000, $counters['blacklist']];
+            $out_range['dropped'][$date_index] = [strtotime($date_index) * 1000, $counters['dropped']];
         }
 
         $date_from_values = explode('-', date('Y-m-d', $_POST['date']['from']));
@@ -271,17 +299,22 @@ class Users {
                     ]
                 ),
                 'hash'  => [
-                    'active'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"active"}},{"method":"user_cr_date","settings":{"from":"' . $date_from_values[2] . '.' . $date_from_values[1] . '.' . $date_from_values[0] . '","to":"' . $date_to_values[2] . '.' . $date_to_values[1] . '.' . $date_to_values[0] . '"}}]}'),
-                    'wait'        => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"wait"}},{"method":"user_cr_date","settings":{"from":"' . $date_from_values[2] . '.' . $date_from_values[1] . '.' . $date_from_values[0] . '","to":"' . $date_to_values[2] . '.' . $date_to_values[1] . '.' . $date_to_values[0] . '"}}]}'),
-                    'unsubscribe' => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"unsubscribe"}},{"method":"user_cr_date","settings":{"from":"' . $date_from_values[2] . '.' . $date_from_values[1] . '.' . $date_from_values[0] . '","to":"' . $date_to_values[2] . '.' . $date_to_values[1] . '.' . $date_to_values[0] . '"}}]}'),
-                    'dropped'     => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_state","settings":{"value":"dropped"}},{"method":"user_cr_date","settings":{"from":"' . $date_from_values[2] . '.' . $date_from_values[1] . '.' . $date_from_values[0] . '","to":"' . $date_to_values[2] . '.' . $date_to_values[1] . '.' . $date_to_values[0] . '"}}]}'),
+                    'inactive'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"inactive"}}]}'),
+                    'active'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"active"}}]}'),
+                    'pause'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"pause"}}]}'),
+                    'unsubscribe'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"unsubscribe"}}]}'),
+                    'blacklist'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"blacklist"}}]}'),
+                    'dropped'      => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"dropped"}}]}'),
                 ]
             ],
             'values' => $range_values,
             'range'  => [
-                'wait'        => array_values($out['wait']),
-                'unsubscribe' => array_values($out['unsubscribe']),
-                'dropped'     => array_values($out['dropped'])
+                'inactive' => array_values($out_range['inactive']),
+                'active' => array_values($out_range['active']),
+                'pause' => array_values($out_range['pause']),
+                'unsubscribe' => array_values($out_range['unsubscribe']),
+                'blacklist' => array_values($out_range['blacklist']),
+                'dropped' => array_values($out_range['dropped'])
             ]
         ];
 
@@ -527,7 +560,7 @@ class Users {
     public function AddUTMLabel($user, $item, $value, $num = 1) {
         if (!empty($value) || $num == 1) {
             return APP::Module('DB')->Insert(
-                $this->settings['module_users_db_connection'], 'users_about',
+                $this->settings['module_users_db_connection'], 'users_utm',
                 [
                     'id' => 'NULL',
                     'user' => [$user, PDO::PARAM_INT],
@@ -1300,14 +1333,30 @@ class Users {
 
         foreach (APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
-            ['users.id', 'users.email', 'users.password', 'users.role', 'users.reg_date', 'users.last_visit', 'users_about.value as tel'], 'users',
+            [
+                'users.id', 
+                'users.email', 
+                'users.password', 
+                'users.role', 
+                'users.reg_date', 
+                'users.last_visit', 
+                
+                'state.value as state',
+                'phone.value as tel'
+            ], 
+            'users',
             [['users.id', 'IN', $out, PDO::PARAM_INT]], 
             [
-                'left join/users_about' => [
-                    ['users_about.user', '=', 'users.id'],
-                    ['users_about.item', '=', '"mobile_phone"']
+                'left join/users_about/state' => [
+                    ['state.user', '=', 'users.id'],
+                    ['state.item', '=', '"state"']
+                ],
+                'left join/users_about/phone' => [
+                    ['phone.user', '=', 'users.id'],
+                    ['phone.item', '=', '"mobile_phone"']
                 ]
-            ], false, false,
+            ], 
+            false, false,
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
@@ -2729,13 +2778,27 @@ class Users {
                 ['user', '=', $mail['user'], PDO::PARAM_INT],
                 ['item', '=', 'state', PDO::PARAM_STR]
             ]
-        ) != 'active') {
+        ) == 'unsubscribe') {
             echo json_encode([
                 'status' => 'success',
                 'errors' => []
             ]);
             exit;
         }
+        
+        APP::Module('DB')->Insert(
+            APP::Module('Mail')->settings['module_mail_db_connection'], 'mail_events',
+            [
+                'id' => 'NULL',
+                'log' => [$mail_log, PDO::PARAM_INT],
+                'user' => [$mail['user'], PDO::PARAM_INT],
+                'letter' => [$mail['letter'], PDO::PARAM_INT],
+                'event' => ['unsubscribe', PDO::PARAM_STR],
+                'details' => 'NULL',
+                'token' => [$mail_log, PDO::PARAM_STR],
+                'cr_date' => 'NOW()'
+            ]
+        );
         
         APP::Module('DB')->Insert(
             $this->settings['module_users_db_connection'], 'users_tags',
@@ -2754,28 +2817,14 @@ class Users {
         APP::Module('DB')->Update(
             $this->settings['module_users_db_connection'], 'users_about', 
             [
-                'value' => 'inactive'
+                'value' => 'unsubscribe'
             ], 
             [
                 ['user', '=', $mail['user'], PDO::PARAM_INT],
                 ['item', '=', 'state', PDO::PARAM_STR]
             ]
         );
-        
-        APP::Module('DB')->Insert(
-            APP::Module('Mail')->settings['module_mail_db_connection'], 'mail_events',
-            [
-                'id' => 'NULL',
-                'log' => [$mail_log, PDO::PARAM_INT],
-                'user' => [$mail['user'], PDO::PARAM_INT],
-                'letter' => [$mail['letter'], PDO::PARAM_INT],
-                'event' => ['unsubscribe', PDO::PARAM_STR],
-                'details' => 'NULL',
-                'token' => [$mail_log, PDO::PARAM_STR],
-                'cr_date' => 'NOW()'
-            ]
-        );
-        
+
         APP::Module('Mail')->Send(
             APP::Module('DB')->Select(
                 $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -2829,7 +2878,7 @@ class Users {
                 ['user', '=', $mail['user'], PDO::PARAM_INT],
                 ['item', '=', 'state', PDO::PARAM_STR]
             ]
-        ) != 'active') {
+        ) == 'pause') {
             echo json_encode([
                 'status' => 'success',
                 'errors' => []
@@ -2841,10 +2890,24 @@ class Users {
             'Users', 'ActivateUserTask', 
             date('Y-m-d H:i:s', strtotime($_POST['timeout'])), 
             json_encode([$mail['user']]), 
-            'activate_user', 
+            'user'. $mail['user'], 
             'wait'
         );
         
+        APP::Module('DB')->Insert(
+            APP::Module('Mail')->settings['module_mail_db_connection'], 'mail_events',
+            [
+                'id' => 'NULL',
+                'log' => [$mail_log, PDO::PARAM_INT],
+                'user' => [$mail['user'], PDO::PARAM_INT],
+                'letter' => [$mail['letter'], PDO::PARAM_INT],
+                'event' => ['pause', PDO::PARAM_STR],
+                'details' => 'NULL',
+                'token' => [$mail_log, PDO::PARAM_STR],
+                'cr_date' => 'NOW()'
+            ]
+        );
+
         APP::Module('DB')->Insert(
             $this->settings['module_users_db_connection'], 'users_tags',
             [
@@ -2863,26 +2926,21 @@ class Users {
         APP::Module('DB')->Update(
             $this->settings['module_users_db_connection'], 'users_about', 
             [
-                'value' => 'inactive'
+                'value' => 'pause'
             ], 
             [
                 ['user', '=', $mail['user'], PDO::PARAM_INT],
                 ['item', '=', 'state', PDO::PARAM_STR]
             ]
         );
-        
-        APP::Module('DB')->Insert(
-            APP::Module('Mail')->settings['module_mail_db_connection'], 'mail_events',
-            [
-                'id' => 'NULL',
-                'log' => [$mail_log, PDO::PARAM_INT],
-                'user' => [$mail['user'], PDO::PARAM_INT],
-                'letter' => [$mail['letter'], PDO::PARAM_INT],
-                'event' => ['pause', PDO::PARAM_STR],
-                'details' => 'NULL',
-                'token' => [$mail_log, PDO::PARAM_STR],
-                'cr_date' => 'NOW()'
-            ]
+
+        APP::Module('Mail')->Send(
+            APP::Module('DB')->Select(
+                $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['email'], 'users',
+                [['id', '=', $mail['user'], PDO::PARAM_INT]]
+            ),
+            $this->settings['module_users_subscription_restore_letter']
         );
 
         APP::Module('Triggers')->Exec('user_pause', [
@@ -3135,7 +3193,7 @@ class UsersSearch {
             ['fetchAll', PDO::FETCH_COLUMN], 
             ['id'], 'users',
             [
-                ['reg_date', 'BETWEEN', '"' . $settings['date_from'] . ' 00:00:00" AND "' . $settings['date_to'] . ' 23:59:59"', PDO::PARAM_STR]
+                ['UNIX_TIMESTAMP(reg_date)', 'BETWEEN', $settings['date_from'] . ' AND ' . $settings['date_to'], PDO::PARAM_STR]
             ]
         );
     }
@@ -3456,17 +3514,17 @@ class UsersSearch {
     }
     
     public function mail_events($settings) {  
-        $where = [];
+        $where = [
+            ['mail_events.event', $settings['logic'], $settings['value'], PDO::PARAM_STR],
+            ['mail_log.state', '=', 'success', PDO::PARAM_STR]
+        ];
         
-        if(isset($settings['letter']) && count($settings['letter'])){
+        if (isset($settings['letter']) && count($settings['letter'])) {
             $where[] = ['mail_log.letter', 'IN', $settings['letter'], PDO::PARAM_INT];
         }
-        
-        $where[] = ['mail_events.event', $settings['logic'], $settings['value'], PDO::PARAM_STR];
-        $where[] = ['mail_log.state', '=', 'success', PDO::PARAM_STR];
-        
-        if((isset($settings['date_from']) && $settings['date_from']) && (isset($settings['date_to']) && $settings['date_to'])){
-            $where[] = ['mail_log.cr_date', 'BETWEEN', '"' . $settings['date_from'] . ' 00:00:00" AND "' . $settings['date_to'] . ' 23:59:59"', PDO::PARAM_STR];
+
+        if ((isset($settings['date_from']) && $settings['date_from']) && (isset($settings['date_to']) && $settings['date_to'])) {
+            $where[] = ['UNIX_TIMESTAMP(mail_log.cr_date)', 'BETWEEN', $settings['date_from'] . ' AND ' . $settings['date_to'], PDO::PARAM_STR];
         }
 
         return APP::Module('DB')->Select(
@@ -3664,6 +3722,8 @@ class UsersActions {
             if (isset($result['status']) && $result['status'] == 'error') {
                 $out['status'] = 'error';
                 $out['code'][] = $result['code'];
+            } else {
+                $out = $result;
             }
         }
         

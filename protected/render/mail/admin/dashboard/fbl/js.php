@@ -356,7 +356,7 @@ ob_end_clean();
                         var date = new Date(item.datapoint[0]);
 
                         $("#card-fbl-tooltip")
-                        .html(item.datapoint[1] + ' ' + item.series.label + ' of ' + date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear())
+                        .html(item.datapoint[1] + ' ' + item.series.label + ' - ' + date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear())
                         .css({
                             top: item.pageY+5, 
                             left: item.pageX+5
@@ -372,10 +372,23 @@ ob_end_clean();
 
     $(document).on('click', "#fbl-reports-period > button",function() {
         var period = $(this).data('period');
-
-        var to = Math.round(new Date().getTime() / 1000);
-        var from = strtotime("-" + period, to);
-
+        var today = new Date();
+        
+        switch (period) {
+            case 'today':
+                var to = Math.round(today.getTime() / 1000);
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+                break;
+            case 'yesterday':
+                var to = (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000) - 1;
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime() / 1000;
+                break;
+            default:
+                var to = Math.round(today.getTime() / 1000);
+                var from = strtotime("-" + period, to);
+                break;
+        }
+        
         var to_date = new Date(to * 1000);
         var from_date = new Date(from * 1000);
 

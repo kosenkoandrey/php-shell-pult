@@ -301,7 +301,7 @@ class SendThis {
                          * 
                          */
 
-                        APP::Module('Triggers')->Exec('click', [
+                        APP::Module('Triggers')->Exec('mail_event_click', [
                             'id' => $mail['id'],
                             'task' => $task
                         ]);
@@ -338,22 +338,11 @@ class SendThis {
         fclose($lock);
     }
     
-    public function ProxyWebhooks($id, $data) {
-        if ($this->conf['proxy_webhooks']) {
-            APP::Module('Utils')->Curl([
-                'url' => $this->conf['proxy_webhooks'],
-                'return_transfer' => true,
-                'post' => $data
-            ]);
-        }
-    }
-    
-    
+
     public function Settings() {
         APP::Render('sendthis/admin/index');
     }
-    
-    
+
     public function APIUpdateSettings() {
         APP::Module('Registry')->Update(['value' => $_POST['module_sendthis_version']], [['item', '=', 'module_sendthis_version', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_sendthis_key']], [['item', '=', 'module_sendthis_key', PDO::PARAM_STR]]);
@@ -374,6 +363,165 @@ class SendThis {
             'errors' => []
         ]);
         exit;
+    }
+    
+    // TRIGGERS
+    
+    public function ProxyWebhooks($id, $data) {
+        if ($this->conf['proxy_webhooks']) {
+            APP::Module('Utils')->Curl([
+                'url' => $this->conf['proxy_webhooks'],
+                'return_transfer' => true,
+                'post' => $data
+            ]);
+        }
+    }
+    
+    public function UnsubscribeMailEvent($id, $data) {
+        $user = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['user'], 'mail_log',
+            [['id', '=', $data['id'], PDO::PARAM_INT]]
+        );
+        
+        if (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['value'], 'users_about',
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        ) == 'unsubscribe') {
+            return;
+        }
+        
+        APP::Module('DB')->Insert(
+            APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
+            [
+                'id' => 'NULL',
+                'user' => [$user, PDO::PARAM_INT],
+                'item' => ['unsubscribe', PDO::PARAM_STR],
+                'value' => [json_encode([
+                    'item' => 'mail',
+                    'id' => $data['id']
+                ]), PDO::PARAM_STR],
+                'cr_date' => 'NOW()'
+            ]
+        );
+        
+        APP::Module('DB')->Update(
+            APP::Module('Users')->settings['module_users_db_connection'], 'users_about', 
+            [
+                'value' => 'unsubscribe'
+            ], 
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        );
+        
+        APP::Module('Triggers')->Exec('user_unsubscribe', [
+            'user' => $user,
+            'label' => 'unsubscribe'
+        ]);
+    }
+    
+    public function SpamreportMailEvent($id, $data) {
+        $user = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['user'], 'mail_log',
+            [['id', '=', $data['id'], PDO::PARAM_INT]]
+        );
+        
+        if (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['value'], 'users_about',
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        ) == 'blacklist') {
+            return;
+        }
+        
+        APP::Module('DB')->Insert(
+            APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
+            [
+                'id' => 'NULL',
+                'user' => [$user, PDO::PARAM_INT],
+                'item' => ['spamreport', PDO::PARAM_STR],
+                'value' => [json_encode([
+                    'item' => 'mail',
+                    'id' => $data['id']
+                ]), PDO::PARAM_STR],
+                'cr_date' => 'NOW()'
+            ]
+        );
+        
+        APP::Module('DB')->Update(
+            APP::Module('Users')->settings['module_users_db_connection'], 'users_about', 
+            [
+                'value' => 'blacklist'
+            ], 
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        );
+        
+        APP::Module('Triggers')->Exec('mail_spamreport', [
+            'user' => $user,
+            'label' => 'spamreport'
+        ]);
+    }
+    
+    public function HardBounceMailEvent($id, $data) {
+        $user = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['user'], 'mail_log',
+            [['id', '=', $data['id'], PDO::PARAM_INT]]
+        );
+        
+        if (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['value'], 'users_about',
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        ) == 'dropped') {
+            return;
+        }
+        
+        APP::Module('DB')->Insert(
+            APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
+            [
+                'id' => 'NULL',
+                'user' => [$user, PDO::PARAM_INT],
+                'item' => ['dropped', PDO::PARAM_STR],
+                'value' => [json_encode([
+                    'item' => 'mail',
+                    'id' => $data['id']
+                ]), PDO::PARAM_STR],
+                'cr_date' => 'NOW()'
+            ]
+        );
+        
+        APP::Module('DB')->Update(
+            APP::Module('Users')->settings['module_users_db_connection'], 'users_about', 
+            [
+                'value' => 'dropped'
+            ], 
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        );
+        
+        APP::Module('Triggers')->Exec('user_dropped', [
+            'user' => $user,
+            'label' => 'dropped'
+        ]);
     }
 
 }

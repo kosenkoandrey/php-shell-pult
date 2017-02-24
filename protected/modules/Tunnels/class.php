@@ -126,7 +126,7 @@ class Tunnels {
                                 ['state', '=', "active", PDO::PARAM_STR]
                             ]
                         ), 
-                        APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_tunnels","settings":{"value":"' . $tunnel['id'] . '","state":"active"}}]}')
+                        APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"tunnels","settings":{"logic":"active","value":"' . $tunnel['id'] . '"}}]}')
                     ],
                     'total' => [
                         APP::Module('DB')->Select(
@@ -136,7 +136,7 @@ class Tunnels {
                                 ['tunnel_id', '=', $tunnel['id'], PDO::PARAM_INT]
                             ]
                         ), 
-                        APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"user_tunnels","settings":{"value":"' . $tunnel['id'] . '","state":"%"}}]}')
+                        APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"tunnels","settings":{"logic":"exist","value":"' . $tunnel['id'] . '"}}]}')
                     ]
                 ]
             ];
@@ -1385,7 +1385,8 @@ class Tunnels {
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
                                     json_encode($activation_settings), 
-                                    $user['id'] . '_tunnel_activation', 'wait'
+                                    'user'. $user['id'], 
+                                    'wait'
                                 );
                             }
 
@@ -1410,7 +1411,8 @@ class Tunnels {
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
                                     json_encode($activation_settings), 
-                                    $user['id'] . '_tunnel_activation', 'wait'
+                                    'user'. $user['id'], 
+                                    'wait'
                                 );
                             }
 
@@ -1435,7 +1437,8 @@ class Tunnels {
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
                                     json_encode($activation_settings), 
-                                    $user['id'] . '_tunnel_activation', 'wait'
+                                    'user'. $user['id'], 
+                                    'wait'
                                 );
                             }
 
@@ -1867,7 +1870,8 @@ class Tunnels {
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
                                     json_encode($activation_settings), 
-                                    $user['id'] . '_tunnel_activation', 'wait'
+                                    'user'. $user['id'], 
+                                    'wait'
                                 );
                             }
 
@@ -1892,7 +1896,8 @@ class Tunnels {
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
                                     json_encode($activation_settings), 
-                                    $user['id'] . '_tunnel_activation', 'wait'
+                                    'user'. $user['id'], 
+                                    'wait'
                                 );
                             }
 
@@ -1917,7 +1922,8 @@ class Tunnels {
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
                                     json_encode($activation_settings), 
-                                    $user['id'] . '_tunnel_activation', 'wait'
+                                    'user'. $user['id'], 
+                                    'wait'
                                 );
                             }
 
@@ -3324,7 +3330,7 @@ class Tunnels {
                     continue;
                 }
                 
-                if ($settings['welcome']) {
+                if (isset($settings['welcome'])) {
                     if ((((time() - $user['reg_date']) <= $this->settings['module_tunnels_indoctrination_lifetime']) && ($user['state'] == 'active') && (!APP::Module('DB')->Select(
                         $this->settings['module_tunnels_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                         ['COUNT(id)'], 'tunnels_users', 
@@ -3346,11 +3352,11 @@ class Tunnels {
                                         'state' => ['active', PDO::PARAM_STR],
                                         'resume_date' => [date('Y-m-d H:i:s', (time() + $settings['welcome'][3])), PDO::PARAM_STR],
                                         'object' => [$settings['welcome'][1] . ':' . $settings['welcome'][2], PDO::PARAM_STR],
-                                        'input_data' => ['{}', PDO::PARAM_STR]
+                                        'input_data' => 'NULL'
                                     ]
                                 ), PDO::PARAM_INT],
                                 'label_id' => ['run', PDO::PARAM_STR],
-                                'token' => '""',
+                                'token' => 'NULL',
                                 'info' => [json_encode($tunnel), PDO::PARAM_STR],
                                 'cr_date' => 'NOW()'
                             ]
@@ -3367,7 +3373,7 @@ class Tunnels {
                         'state' => ['active', PDO::PARAM_STR],
                         'resume_date' => [date('Y-m-d H:i:s', (time() + $tunnel['timeout'])), PDO::PARAM_STR],
                         'object' => [$tunnel['object_id'], PDO::PARAM_STR],
-                        'input_data' => [$settings['input_data'], PDO::PARAM_STR]
+                        'input_data' => isset($settings['input_data']) ? [$settings['input_data'], PDO::PARAM_STR] : 'NULL'
                     ]
                 );
 
@@ -3377,7 +3383,7 @@ class Tunnels {
                         'id' => 'NULL',
                         'user_tunnel_id' => [$user_tunnel_id, PDO::PARAM_INT],
                         'label_id' => ['subscribe', PDO::PARAM_STR],
-                        'token' => '""',
+                        'token' => 'NULL',
                         'info' => [json_encode($tunnel), PDO::PARAM_STR],
                         'cr_date' => 'NOW()'
                     ]
@@ -3388,7 +3394,7 @@ class Tunnels {
                     'input' => $tunnel
                 ]);
 
-                if ($settings['complete_tunnels']) {
+                if (isset($settings['complete_tunnels'])) {
                     foreach (APP::Module('DB')->Select(
                         $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
                         ['id'], 'tunnels_users', 
@@ -3404,8 +3410,8 @@ class Tunnels {
                                 'id' => 'NULL',
                                 'user_tunnel_id' => [$id, PDO::PARAM_INT],
                                 'label_id' => ['complete', PDO::PARAM_STR],
-                                'token' => '""',
-                                'info' => '""',
+                                'token' => 'NULL',
+                                'info' => 'NULL',
                                 'cr_date' => 'NOW()'
                             ]
                         );
@@ -3425,7 +3431,7 @@ class Tunnels {
                     }
                 }
 
-                if ($settings['pause_tunnels']) {
+                if (isset($settings['pause_tunnels'])) {
                     foreach (APP::Module('DB')->Select(
                         $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
                         ['id'], 'tunnels_users', 
@@ -3441,8 +3447,8 @@ class Tunnels {
                                 'id' => 'NULL',
                                 'user_tunnel_id' => [$id, PDO::PARAM_INT],
                                 'label_id' => ['pause', PDO::PARAM_STR],
-                                'token' => '""',
-                                'info' => '""',
+                                'token' => 'NULL',
+                                'info' => 'NULL',
                                 'cr_date' => 'NOW()'
                             ]
                         );
@@ -3541,7 +3547,7 @@ class Tunnels {
         );
     }
     
-    public function UnsubscribeUserTrigger($id, $data) {
+    public function StopUserTunnels($id, $data) {
         foreach (APP::Module('DB')->Select(
             $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
             ['id'], 'tunnels_users',

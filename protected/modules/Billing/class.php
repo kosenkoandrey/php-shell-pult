@@ -109,7 +109,7 @@ class Billing {
     }
     
     
-    public function CreateInvoice($user_id, $author, $products, $state) {
+    public function CreateInvoice($user_id, $author, $products, $state, $comment = false) {
         $amount = 0;
         $invoice_products = [];
 
@@ -162,7 +162,19 @@ class Billing {
             ]
         );
         
-        if ($_POST['comment']) {
+        if ($state == 'success') {
+            APP::Module('DB')->Insert(
+                $this->settings['module_billing_db_connection'], 'billing_payments',
+                [
+                    'id' => 'NULL',
+                    'invoice' => [$invoice_id, PDO::PARAM_INT],
+                    'method' => ['admin', PDO::PARAM_STR],
+                    'cr_date' => 'NOW()'
+                ]
+            );
+        }
+        
+        if ($comment) {
             $comment_object_type = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "Invoice", PDO::PARAM_STR]]);
             
             APP::Module('DB')->Insert(
@@ -173,7 +185,7 @@ class Billing {
                     'user' => [APP::Module('Users')->user['id'], PDO::PARAM_INT],
                     'object_type' => [$comment_object_type, PDO::PARAM_INT],
                     'object_id' => [$invoice_id, PDO::PARAM_INT],
-                    'message' => [$_POST['comment'], PDO::PARAM_STR],
+                    'message' => [$comment, PDO::PARAM_STR],
                     'url' => [APP::Module('Routing')->root . 'admin/billing/invoices/details/' . $invoice_id, PDO::PARAM_STR],
                     'up_date' => 'NOW()'
                 ]
@@ -240,7 +252,7 @@ class Billing {
                             'Billing', 'ExecMembersAccessTask', 
                             date('Y-m-d H:i:s', strtotime($item['timeout'])), 
                             json_encode([$invoice_id, $user_id, $item_data['type'], $item_data['id']]), 
-                            'members_access', 
+                            'user' . $user_id, 
                             'wait'
                         );
                     }
@@ -283,7 +295,11 @@ class Billing {
                     'Billing', 'ExecSecondaryProductsTask', 
                     date('Y-m-d H:i:s', strtotime($product['timeout'])), 
                     json_encode([$invoice_id, $product['id']]), 
-                    'secondary_products', 
+                    'user' . APP::Module('DB')->Select(
+                        $this->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['user_id'], 'billing_invoices', 
+                        [['id', '=', $invoice_id, PDO::PARAM_INT]]
+                    ), 
                     'wait'
                 );
             }
@@ -753,26 +769,13 @@ class Billing {
         }
 
         if ($out['status'] == 'success') {
-            $user_id = 
-            
             $out['invoice'] = $this->CreateInvoice(
                 is_numeric($_POST['user_id']) ? $_POST['user_id'] : APP::Module('DB')->Select(APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], ['id'], 'users', [['email', '=', $_POST['user_id'], PDO::PARAM_STR]]), 
                 APP::Module('Users')->user['id'], 
                 $_POST['products'], 
-                $_POST['state']
+                $_POST['state'],
+                $_POST['comment']
             );
-            
-            if ($_POST['state'] == 'success') {
-                APP::Module('DB')->Insert(
-                    $this->settings['module_billing_db_connection'], 'billing_payments',
-                    [
-                        'id' => 'NULL',
-                        'invoice' => [$out['invoice']['invoice_id'], PDO::PARAM_INT],
-                        'method' => ['admin', PDO::PARAM_STR],
-                        'cr_date' => 'NOW()'
-                    ]
-                );
-            }
         }
 
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
@@ -1172,8 +1175,8 @@ class Billing {
         )');
         $sql->bindParam(':request', $request, PDO::PARAM_STR);
         $sql->execute();
-        
-        if (((!isset($request['status'])) || (!isset($request['email'])) || (!isset($request['product_price'])))) {
+
+        if (((!isset($_POST['status'])) || (!isset($_POST['email'])) || (!isset($_POST['product_price'])))) {
             exit;
         }
         
@@ -1202,41 +1205,17 @@ class Billing {
             ['COUNT(id)'], 'comments_messages',
             [['MD5(message)', '=', md5($message), PDO::PARAM_STR]]
         )) {
-            $invoice_id = APP::Module('DB')->Insert(
-                $this->settings['module_billing_db_connection'], 'billing_invoices',
+            $this->CreateInvoice(
+                $user_id, 
+                0, 
                 [
-                    'id' => 'NULL',
-                    'user_id' => [$user_id, PDO::PARAM_INT],
-                    'amount' => [$_POST['product_price'], PDO::PARAM_INT],
-                    'state' => ['success', PDO::PARAM_STR],
-                    'author' => [0, PDO::PARAM_INT],
-                    'up_date' => 'NOW()',
-                    'cr_date' => 'NOW()'
-                ]
-            );
-            
-            APP::Module('DB')->Insert(
-                APP::Module('Comments')->settings['module_comments_db_connection'], 'comments_messages',
-                [
-                    'id' => 'NULL',
-                    'sub_id' => [0, PDO::PARAM_INT],
-                    'user' => [0, PDO::PARAM_INT],
-                    'object_type' => [3, PDO::PARAM_INT],
-                    'object_id' => [$invoice_id, PDO::PARAM_INT],
-                    'message' => [$message, PDO::PARAM_STR],
-                    'url' => '',
-                    'up_date' => 'NOW()'
-                ]
-            );
-            
-            APP::Module('DB')->Insert(
-                $this->settings['module_billing_db_connection'], 'billing_payments',
-                [
-                    'id' => 'NULL',
-                    'invoice' => [$invoice_id, PDO::PARAM_INT],
-                    'method' => ['admin', PDO::PARAM_STR],
-                    'cr_date' => 'NOW()'
-                ]
+                    [
+                        'id' => 9,
+                        'amount' => $_POST['product_price']
+                    ]
+                ], 
+                'success',
+                $message
             );
         }
     }

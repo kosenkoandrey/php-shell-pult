@@ -20,7 +20,8 @@ class Logs {
     
     public function View() {
         $file = APP::Module('Crypt')->Decode(APP::Module('Routing')->get['filename_hash']);
-        APP::Render('logs/admin/view', 'include', [$file, file($file, FILE_SKIP_EMPTY_LINES)]);
+        preg_match('/(.*)\-[0-9]+\-[0-9]+\-[0-9]+\.log/', basename($file), $matches);
+        APP::Render('logs/admin/view/' . $matches[1], 'include', [$file, file($file, FILE_SKIP_EMPTY_LINES)]);
     }
     
     

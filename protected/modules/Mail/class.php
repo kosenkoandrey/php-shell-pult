@@ -498,45 +498,48 @@ class Mail {
     
     public function FBLReports() {
         foreach ($this->fbl_folders as $folder) {
-            $out = Array();
+            $out = [];
         
             $mbox = imap_open('{' . $this->settings['module_mail_fbl_server'] . '/imap/ssl}' . $this->settings['module_mail_fbl_prefix'] . $folder, $this->settings['module_mail_fbl_login'], $this->settings['module_mail_fbl_password']);
             $mc = imap_check($mbox);
-            $result = imap_fetch_overview($mbox, '1:' . $mc->Nmsgs, 0);
+            
+            if ($mc->Nmsgs !== 0) {
+                $result = imap_fetch_overview($mbox, '1:' . $mc->Nmsgs, 0);
 
-            foreach ($result as $email) {
-                $body = imap_qprint(imap_body($mbox, $email->msgno)); 
-                
-                switch ($folder) {
-                    case 'yandex':
-                        preg_match("/bounce\-(.*)\@/", $body, $mtch);
-                        
-                        if (isset($mtch[1])) {
-                            if (array_key_exists($mtch[1], $out) === false) {
-                                $out[$mtch[1]] = APP::Module('DB')->Select(
-                                    APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
-                                    ['id'], 'users', [['MD5(email)', '=', $mtch[1], PDO::PARAM_STR]]
-                                );
+                foreach ($result as $email) {
+                    $body = imap_qprint(imap_body($mbox, $email->msgno)); 
+
+                    switch ($folder) {
+                        case 'yandex':
+                            preg_match("/bounce\-(.*)\@/", $body, $mtch);
+
+                            if (isset($mtch[1])) {
+                                if (array_key_exists($mtch[1], $out) === false) {
+                                    $out[$mtch[1]] = APP::Module('DB')->Select(
+                                        APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
+                                        ['id'], 'users', [['MD5(email)', '=', $mtch[1], PDO::PARAM_STR]]
+                                    );
+                                }
                             }
-                        }
-                        break;
-                    case 'mail':
-                        preg_match("/To\: ([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)\r\n/", $body, $mtch);
-                        
-                        if (isset($mtch[1])) {
-                            if (array_key_exists($mtch[1], $out) === false) {
-                                $out[$mtch[1]] = APP::Module('DB')->Select(
-                                    APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
-                                    ['id'], 'users', [['email', '=', $mtch[1], PDO::PARAM_STR]]
-                                );
+                            break;
+                        case 'mail':
+                            preg_match("/To\: ([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)\r\n/", $body, $mtch);
+
+                            if (isset($mtch[1])) {
+                                if (array_key_exists($mtch[1], $out) === false) {
+                                    $out[$mtch[1]] = APP::Module('DB')->Select(
+                                        APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
+                                        ['id'], 'users', [['email', '=', $mtch[1], PDO::PARAM_STR]]
+                                    );
+                                }
                             }
-                        }
-                        break;
+                            break;
+                    }
+
+                    imap_mail_move($mbox, $email->msgno, $this->settings['module_mail_fbl_prefix'] . 'archive');
                 }
-
-                imap_mail_move($mbox, $email->msgno, $this->settings['module_mail_fbl_prefix'] . 'archive');
             }
-
+            
             imap_expunge($mbox);
             imap_close($mbox);
 
@@ -560,6 +563,11 @@ class Mail {
                         ['item', '=', 'state', PDO::PARAM_STR]
                     ]
                 );
+                
+                APP::Module('Triggers')->Exec('mail_spamreport', [
+                    'user' => $user_id,
+                    'label' => 'spamreport'
+                ]);
             }
             
             APP::Module('DB')->Insert(
@@ -877,8 +885,7 @@ class Mail {
             [['id', '=', $transport_id, PDO::PARAM_INT]]
         ));
     }
-    
-    
+
     
     public function ManageShortcodes() {
         APP::Render('mail/admin/shortcodes/index');
@@ -908,8 +915,7 @@ class Mail {
             )
         );
     }
-    
-    
+
     
     public function ManageLog() {
         APP::Render('mail/admin/log');
@@ -1810,9 +1816,7 @@ class Mail {
         echo json_encode($out);
         exit;
     }
-    
-    
-    
+
     
     public function APIListShortcodes() {
         $rows = [];
@@ -1959,9 +1963,7 @@ class Mail {
         echo json_encode($out);
         exit;
     }
-    
-    
-    
+
     
     public function APIListLog() {
         $rows = [];
@@ -2421,30 +2423,31 @@ class Mail {
     }
     
     public function APIStatDashboard() {
-        $form = Array(
+        $form = [
             'mode' => 'extend',
-            'sender' => Array(),
-            'mailing' => Array(),
-            'letter' => Array()
-        );
+            'sender' => [],
+            'mailing' => [],
+            'letter' => []
+        ];
         
         if (isset($_POST['form']['mode'])) $form['mode'] = $_POST['form']['mode'];
         if (isset($_POST['form']['date'])) $form['date'] = $_POST['form']['date'];
         if ((isset($_POST['form']['sender'])) && ($_POST['form']['sender'] != '')) $form['sender'] = $_POST['form']['sender'];
         if ((isset($_POST['form']['letter'])) && ($_POST['form']['letter'] != '')) $form['letter'] = $_POST['form']['letter'];
         
-        $where = Array('UNIX_TIMESTAMP(cr_date) BETWEEN ' . $_POST['date']['from'] . ' AND ' . $_POST['date']['to']);
+        $where = ['UNIX_TIMESTAMP(mail_log.cr_date) BETWEEN ' . $_POST['date']['from'] . ' AND ' . $_POST['date']['to']];
         
-        if (count($form['sender'])) $where[] = 'sender IN (' . implode(',', $form['sender']) . ')';
-        if (count($form['letter'])) $where[] = 'letter IN (' . implode(',', $form['letter']) . ')';
+        if (count($form['sender'])) $where[] = 'mail_log.sender IN (' . implode(',', $form['sender']) . ')';
+        if (count($form['letter'])) $where[] = 'mail_log.letter IN (' . implode(',', $form['letter']) . ')';
         
-        $select = Array(
-            'mail_events.letter',
-            'mail_events.event'
-        );
+        $select = [
+            'mail_events.log AS event_log',
+            'mail_events.letter AS event_letter',
+            'mail_events.event AS event'
+        ];
         
         if ($form['mode'] == 'extend') {
-            $select[] = 'mail_events.token';
+            $select[] = 'mail_events.token AS event_token';
         }
 
         $read = APP::Module('DB')->Open($this->settings['module_mail_db_connection'])->prepare('
@@ -2463,7 +2466,7 @@ class Mail {
         $read->execute();
         $events_list = $read->fetchAll(PDO::FETCH_ASSOC);
 
-        $letters = Array();
+        $letters = [];
 
         foreach ($events_list as $event) {
             switch ($event['event']) {
@@ -2473,19 +2476,19 @@ class Mail {
                 case 'click':
                 case 'unsubscribe':
                 case 'spamreport':
-                    $letters[$event['event']][] = $event['letter'];
+                    $letters[$event['event']][] = $event['event_log'];
                     break;
                 case 'dropped':
                 case 'bounce':
                     switch ($form['mode']) {
-                        case 'default': $letters[$event['event']][] = $event['letter']; break;
-                        case 'extend': $letters[$event['event']][$event['token']][] = $event['letter']; break;
+                        case 'default': $letters[$event['event']][] = $event['event_log']; break;
+                        case 'extend': $letters[$event['event']][$event['event_token']][] = $event['event_log']; break;
                     }
                     break;
             }
         }
 
-        $stat = Array();
+        $stat = [];
         
         foreach ($letters as $event => $letters_id) {
             switch ($event) {
@@ -2627,7 +2630,6 @@ class Mail {
                             }
                             break;
                     }
-
                     break;
             }
         }
@@ -2664,14 +2666,118 @@ class Mail {
             'count_events' => count($events_list),
             'form' => $form,
             'hash' => Array(
-                'bounce' => '',
-                'click' => '',
-                'delivered' => '',
-                'dropped' => '',
-                'open' => '',
-                'processed' => '',
-                'spamreport' => '',
-                'unsubscribe' => ''
+                'bounce' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'bounce'
+                            ]
+                        ]
+                    ]
+                ])),
+                'click' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'click'
+                            ]
+                        ]
+                    ]
+                ])),
+                'delivered' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'delivered'
+                            ]
+                        ]
+                    ]
+                ])),
+                'dropped' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'dropped'
+                            ]
+                        ]
+                    ]
+                ])),
+                'open' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'open'
+                            ]
+                        ]
+                    ]
+                ])),
+                'processed' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'processed'
+                            ]
+                        ]
+                    ]
+                ])),
+                'spamreport' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'spamreport'
+                            ]
+                        ]
+                    ]
+                ])),
+                'unsubscribe' => APP::Module('Crypt')->Encode(json_encode([
+                    'logic' => 'intersect',
+                    'rules' => [
+                        [
+                            'method' => 'mail_events',
+                            'settings' => [
+                                'date_from' => $_POST['date']['from'],
+                                'date_to' => $_POST['date']['to'],
+                                'logic' => '=',
+                                'value' => 'unsubscribe'
+                            ]
+                        ]
+                    ]
+                ]))
             )
         ]);
     }
@@ -2718,6 +2824,20 @@ class Mail {
         }
         
         APP::Module('DB')->Insert(
+            $this->settings['module_mail_db_connection'], 'mail_events',
+            [
+                'id' => 'NULL',
+                'log' => [$mail_log, PDO::PARAM_INT],
+                'user' => [$mail['user'], PDO::PARAM_INT],
+                'letter' => [$mail['letter'], PDO::PARAM_INT],
+                'event' => ['spamreport', PDO::PARAM_STR],
+                'details' => 'NULL',
+                'token' => [$mail_log, PDO::PARAM_STR],
+                'cr_date' => 'NOW()'
+            ]
+        );
+        
+        APP::Module('DB')->Insert(
             APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
             [
                 'id' => 'NULL',
@@ -2741,21 +2861,7 @@ class Mail {
                 ['item', '=', 'state', PDO::PARAM_STR]
             ]
         );
-        
-        APP::Module('DB')->Insert(
-            $this->settings['module_mail_db_connection'], 'mail_events',
-            [
-                'id' => 'NULL',
-                'log' => [$mail_log, PDO::PARAM_INT],
-                'user' => [$mail['user'], PDO::PARAM_INT],
-                'letter' => [$mail['letter'], PDO::PARAM_INT],
-                'event' => ['spamreport', PDO::PARAM_STR],
-                'details' => 'NULL',
-                'token' => [$mail_log, PDO::PARAM_STR],
-                'cr_date' => 'NOW()'
-            ]
-        );
-        
+
         $this->Send(
             APP::Module('DB')->Select(
                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -2764,7 +2870,7 @@ class Mail {
             ),
             APP::Module('Users')->settings['module_users_subscription_restore_letter']
         );
-        
+
         APP::Module('Triggers')->Exec('mail_spamreport', [
             'user' => $mail['user'],
             'label' => 'spamreport'

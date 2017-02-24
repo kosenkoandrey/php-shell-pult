@@ -55,7 +55,7 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                         <div class="card-body card-padding">
                             <input type="hidden" name="search" value="<?= $filters ?>" id="search">
                             <div class="btn-group">
-                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Сделать выборк</button>
+                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Сделать выборку</button>
 
                                 <div class="btn-group">
                                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">

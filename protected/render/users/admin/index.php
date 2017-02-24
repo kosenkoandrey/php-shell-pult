@@ -70,15 +70,16 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         Выполнить действие <span class="caret"></span>
                                     </button>
                                     <ul id="search_results_actions" class="dropdown-menu" role="menu">
-                                        <li><a data-action="remove" href="javascript:void(0)">Remove</a></li>
-                                        <li><a data-action="add_tag" href="javascript:void(0)">Add Tag</a></li>
-                                        <li><a data-action="change_state" href="javascript:void(0)">Change state</a></li>
-                                        <li><a data-action="send_mail" href="javascript:void(0)">Send mail</a></li>
-                                        
-                                        <li><a data-action="tunnel_subscribe" href="javascript:void(0)">Subscribe Tunnel</a></li>
-                                        <li><a data-action="tunnel_pause" href="javascript:void(0)">Tunnel pause</a></li>
-                                        <li><a data-action="tunnel_complete" href="javascript:void(0)">Tunnel complete</a></li>
-                                        <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Subscribe tunnel and complete</a></li>
+                                        <li><a data-action="change_state" href="javascript:void(0)">Изменить состояние</a></li>
+                                        <li><a data-action="add_tag" href="javascript:void(0)">Добавить метку</a></li>
+                                        <li><a data-action="remove" href="javascript:void(0)">Удалить</a></li>
+                                        <li class="divider"></li>
+                                        <li><a data-action="send_mail" href="javascript:void(0)">Отправить письмо</a></li>
+                                        <li class="divider"></li>
+                                        <li><a data-action="tunnel_subscribe" href="javascript:void(0)">Подписать на туннель</a></li>
+                                        <li><a data-action="tunnel_pause" href="javascript:void(0)">Поставить туннель на паузу</a></li>
+                                        <li><a data-action="tunnel_complete" href="javascript:void(0)">Завершить туннель</a></li>
+                                        <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Подписать и завершить туннель</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -89,11 +90,12 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-order="desc">ID</th>
                                         <th data-column-id="email" data-formatter="email">E-Mail</th>
-                                        <th data-column-id="tel">Phone</th>
-                                        <th data-column-id="social" data-formatter="social">Social</th>
-                                        <th data-column-id="role">Role</th>
-                                        <th data-column-id="reg_date">Reg date</th>
-                                        <th data-column-id="last_visit">Last visit</th>
+                                        <th data-column-id="tel" data-visible="false">Телефон</th>
+                                        <th data-column-id="social" data-formatter="social" data-visible="false">Social</th>
+                                        <th data-column-id="role" data-formatter="role">Роль</th>
+                                        <th data-column-id="state" data-formatter="state">Состояние</th>
+                                        <th data-column-id="reg_date">Дата регистрации</th>
+                                        <th data-column-id="last_visit">Последний визит</th>
                                         <th data-column-id="actions" data-formatter="actions" data-sortable="false">Действия</th>
                                     </tr>
                                 </thead>
@@ -113,8 +115,8 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                             <form id="user-action-form" method="post" class="form-horizontal"></form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn palette-Teal bg waves-effect" id="send_action">Done</button>
-                            <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-link" id="exec_action">Done</button>
+                            <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
                         </div>
                     </div>
                 </div>
@@ -154,130 +156,138 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     build : function(action, rules){
                         var modal = $('#user-modal');
                         var form = $('#user-action-form', modal);
+                        
                         form.append(
                             [
-                                "<input type='hidden' value='"+action+"' name='action' />",
-                                "<input type='hidden' value='"+rules+"' name='rules' />"
+                                "<input type='hidden' value='" + action + "' name='action'>",
+                                "<input type='hidden' value='" + rules + "' name='rules'>"
                             ].join('')
                         );
                 
-                        switch(action){
+                        switch (action) {
                             case 'tunnel_subscribe' :
-                                $('.modal-title', modal).html('Subscribe Tunnel');
+                                $('.modal-title', modal).html('Подписка на туннель');
+                                $('#exec_action').html('Подписать');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Tunnel ID</label>',
+                                            '<label for="" class="col-sm-4 control-label">Туннель</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[tunnel][0]" class="form-control" />',
+                                                    '<input id="tunnel_id" type="text" value="" name="settings[tunnel][0]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Tunnel Action</label>',
+                                            '<label for="" class="col-sm-4 control-label">Тип объекта</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="select">',
                                                     '<select name="settings[tunnel][1]"  class="form-control">',
-                                                        '<option value="actions">actions</option>',
-                                                        '<option value="conditions">conditions</option>',
-                                                        '<option value="timeouts">timeouts</option>',
+                                                        '<option value="actions">действие</option>',
+                                                        '<option value="conditions">условие</option>',
+                                                        '<option value="timeouts">таймаут</option>',
                                                     '</select>',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Tunnel Action ID</label>',
+                                            '<label for="" class="col-sm-4 control-label">ID объекта</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[tunnel][2]" class="form-control" />',
+                                                    '<input type="text" value="" name="settings[tunnel][2]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Tunnel Timeout</label>',
+                                            '<label for="" class="col-sm-4 control-label">Таймаут</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[tunnel][3]" class="form-control" />',
+                                                    '<input type="text" value="" name="settings[tunnel][3]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-                                        
+                                        /*
+                                        '<h4 class="modal-title m-b-20">Индоктринация</h4>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Welcome Tunnel ID</label>',
+                                            '<label for="" class="col-sm-4 control-label">Туннель</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[welcome][0]" class="form-control" />',
+                                                    '<input id="welcome_tunnel_id" type="text" value="" name="settings[welcome][0]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Welcome Tunnel Action</label>',
+                                            '<label for="" class="col-sm-4 control-label">Тип объекта</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="select">',
                                                     '<select name="settings[welcome][1]"  class="form-control">',
-                                                        '<option value="actions">actions</option>',
-                                                        '<option value="conditions">conditions</option>',
-                                                        '<option value="timeouts">timeouts</option>',
+                                                        '<option value="actions">действие</option>',
+                                                        '<option value="conditions">условие</option>',
+                                                        '<option value="timeouts">таймаут</option>',
                                                     '</select>',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Welcome Tunnel Action ID</label>',
+                                            '<label for="" class="col-sm-4 control-label">ID объекта</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[welcome][2]" class="form-control" />',
+                                                    '<input type="text" value="" name="settings[welcome][2]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Welcome Tunnel Timeout</label>',
+                                            '<label for="" class="col-sm-4 control-label">Таймаут</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[welcome][3]" class="form-control" />',
+                                                    '<input type="text" value="" name="settings[welcome][3]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
-                                        
-                                        '<div class="panel-body">',
-                                            '<div class="form-group">',
-                                                '<label for="" class="col-sm-4 control-label">Activation ID</label>',
-                                                '<div class="col-sm-8">',
-                                                    '<div class="fg-line">',
-                                                        '<input type="text" value="" name="settings[activation][0]" class="form-control" />',
-                                                    '</div>',
-                                                '</div>',
-                                            '</div>',
-                                            '<div class="form-group">',
-                                                '<label for="" class="col-sm-4 control-label">Activation Url</label>',
-                                                '<div class="col-sm-8">',
-                                                    '<div class="fg-line">',
-                                                        '<input type="text" value="" name="settings[activation][1]" class="form-control" />',
-                                                    '</div>',
-                                                '</div>',
-                                            '</div>',
-                                            '<div class="form-group">',
-                                                '<label for="" class="col-sm-4 control-label">Queue Timeout</label>',
-                                                '<div class="col-sm-8">',
-                                                    '<div class="fg-line">',
-                                                        '<input type="text" value="" name="settings[queue_timeout]" class="form-control" />',
-                                                    '</div>',
-                                                '</div>',
-                                            '</div>',
-                                        '</div>',
-                                        
+                                        */
+                                        '<h4 class="modal-title m-b-20">Активация</h4>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-4 control-label">Source</label>',
+                                            '<label for="" class="col-sm-4 control-label">Письмо</label>',
                                             '<div class="col-sm-8">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[source]" class="form-control" />',
+                                                    '<input id="tunnel_activation_letter_id" type="hidden" value="" name="settings[activation][0]" class="form-control">',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-4 control-label">URL для переадресации</label>',
+                                            '<div class="col-sm-8">',
+                                                '<div class="fg-line">',
+                                                    '<input type="text" value="" name="settings[activation][1]" class="form-control">',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>',
+                                        '<h4 class="modal-title m-b-20">Разное</h4>',
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-4 control-label">Таймаут очереди</label>',
+                                            '<div class="col-sm-8">',
+                                                '<div class="fg-line">',
+                                                    '<input type="text" value="" name="settings[queue_timeout]" class="form-control">',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-4 control-label">Источник</label>',
+                                            '<div class="col-sm-8">',
+                                                '<div class="fg-line">',
+                                                    '<input type="text" value="" name="settings[source]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                         
                                     ].join('')
                                 );
+                        
+                                $('#tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
+                                $('#welcome_tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
+                                $('#tunnel_activation_letter_id', modal).MailingLetterSelector({'url':'<?= APP::Module('Routing')->root ?>'});
+                                
                                 modal.modal('show');
                                 break;
                             case 'remove' :
@@ -285,114 +295,131 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 user_modal.send(data);
                                 break;
                             case 'add_tag' :
-                                $('.modal-title', modal).html('Add Tag');
+                                $('.modal-title', modal).html('Добавление метки');
+                                $('#exec_action').html('Добавить');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">Item</label>',
-                                            '<div class="col-sm-4">',
+                                            '<label for="" class="col-sm-3 control-label">Наименование</label>',
+                                            '<div class="col-sm-9">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[item]" class="form-control" />',
+                                                    '<input type="text" value="" name="settings[item]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>',
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">Value</label>',
-                                            '<div class="col-sm-4">',
+                                            '<label for="" class="col-sm-3 control-label">Значение</label>',
+                                            '<div class="col-sm-9">',
                                                 '<div class="fg-line">',
-                                                    '<input type="text" value="" name="settings[value]" class="form-control" />',
+                                                    '<input type="text" value="" name="settings[value]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                     ].join('')
                                 );
+                        
                                 modal.modal('show');
                                 break;
                             case 'change_state' :
-                                $('.modal-title', modal).html('Change state');
+                                $('.modal-title', modal).html('Изменение состояния');
+                                $('#exec_action').html('Выполнить');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">State</label>',
-                                            '<div class="col-sm-4">',
+                                            '<div class="col-sm-12">',
                                                 '<div class="select">',
                                                     '<select name="settings[value]"  class="form-control">',
-                                                        '<option value="active">Активный</option>',
-                                                        '<option value="inactive">Неактивный</option>',
-                                                        '<option value="blacklist">В черном списке</option>',
+                                                        '<option value="active">активный</option>',
+                                                        '<option value="inactive">неактивный</option>',
+                                                        '<option value="blacklist">в черном списке</option>',
+                                                        '<option value="dropped">невозможно доставить почту</option>',
                                                     '</select>',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                     ].join('')
                                 );
+                        
                                 modal.modal('show');
                                 break;
                             case 'send_mail' :
-                                $('.modal-title', modal).html('Send mail');
+                                $('.modal-title', modal).html('Отправка письма');
+                                $('#exec_action').html('Отправить');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">Letter</label>',
-                                            '<div class="col-sm-6">',
+                                            '<div class="col-sm-12">',
                                                 '<div class="fg-line">',
-                                                    '<input type="hidden" id="in_letter" value="" name="settings[letter]" class="form-control" />',
+                                                    '<input type="hidden" id="in_letter" value="" name="settings[letter]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                     ].join('')
                                 );
+                        
                                 $('#in_letter', modal).MailingLetterSelector({'url':'<?= APP::Module('Routing')->root ?>'});
                                 modal.modal('show');
                                 break;
                             case 'tunnel_pause' :
-                                $('.modal-title', modal).html('Tunnel pause');
+                                $('.modal-title', modal).html('Поставить туннель на паузу');
+                                $('#exec_action').html('Выполнить');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">Tunnel</label>',
-                                            '<div class="col-sm-6">',
+                                            '<label for="" class="col-sm-3 control-label">Туннель</label>',
+                                            '<div class="col-sm-9">',
                                                 '<div class="fg-line">',
-                                                    '<input type="hidden" id="tunnel_id" value="" name="settings[tunnel_id]" class="form-control" />',
+                                                    '<input type="hidden" id="tunnel_id" value="" name="settings[tunnel_id]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                     ].join('')
                                 );
+                        
                                 $('#tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
                                 modal.modal('show');
                                 break;
                             case 'tunnel_complete' :
-                                $('.modal-title', modal).html('Tunnel complete');
+                                $('.modal-title', modal).html('Завершить туннель');
+                                $('#exec_action').html('Выполнить');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">Tunnel</label>',
-                                            '<div class="col-sm-6">',
+                                            '<label for="" class="col-sm-3 control-label">Туннель</label>',
+                                            '<div class="col-sm-9">',
                                                 '<div class="fg-line">',
-                                                    '<input type="hidden" id="tunnel_id" value="" name="settings[tunnel_id]" class="form-control" />',
+                                                    '<input type="hidden" id="tunnel_id" value="" name="settings[tunnel_id]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                     ].join('')
                                 );
+                        
                                 $('#tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
                                 modal.modal('show');
                                 break;
                             case 'tunnel_manually_complete' :
-                                $('.modal-title', modal).html('Subscribe tunnel and complete');
+                                $('.modal-title', modal).html('Подписать и завершить туннель');
+                                $('#exec_action').html('Выполнить');
+                                
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<label for="" class="col-sm-2 control-label">Tunnel</label>',
-                                            '<div class="col-sm-6">',
+                                            '<label for="" class="col-sm-3 control-label">Туннель</label>',
+                                            '<div class="col-sm-9">',
                                                 '<div class="fg-line">',
-                                                    '<input type="hidden" id="tunnel_id" value="" name="settings[tunnel_id]" class="form-control" />',
+                                                    '<input type="hidden" id="tunnel_id" value="" name="settings[tunnel_id]" class="form-control">',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
                                     ].join('')
                                 );
+                        
                                 $('#tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
                                 modal.modal('show');
                                 break;
@@ -402,20 +429,17 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     send : function(data){
                         var modal = $('#user-modal');
                         $.post('<?= APP::Module('Routing')->root ?>admin/users/api/action.json', data, function(res) { 
-                            if(res.status == 'success'){
-                                modal.modal('hide');
-                                $("#users-table").bootgrid('reload', true);
-                                swal({
-                                    title: 'Done!',
-                                    text: 'Action has been completed',
-                                    type: 'success',
-                                    showCancelButton: false,
-                                    confirmButtonText: 'Ok',
-                                    closeOnConfirm: false
-                                });
-                            }else{
-                                swal('Error!', 'Action has been error', 'error');
-                            }
+                            modal.modal('hide');
+                            $('#users-table').bootgrid('reload', true);
+
+                            swal({
+                                title: 'Готово',
+                                text: 'Действие было выполнено',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonText: 'Ok',
+                                closeOnConfirm: false
+                            });
                         });
                         return false;
                     }
@@ -429,12 +453,12 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     var action = $(this).data('action');
                     
                     swal({
-                        title: 'Are you sure?',
+                        title: 'Вы уверены?',
                         type: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#DD6B55',
-                        confirmButtonText: 'Yes',
-                        cancelButtonText: 'No',
+                        confirmButtonText: 'Да',
+                        cancelButtonText: 'Отменить',
                         closeOnConfirm: true,
                         closeOnCancel: true
                     }, function(isConfirm){
@@ -444,7 +468,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     });
                 });
                 
-                $(document).on('click', '#send_action', function(){
+                $(document).on('click', '#exec_action', function(){
                     var modal = $('#user-modal');
                     var form = $('#user-action-form', modal);
                     var data = form.serialize();
@@ -455,6 +479,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                 $('#user-modal').on('hide.bs.modal', function (event) {
                     $('#user-action-form', $(this)).html('');
                 });
+                
                 var users_table = $("#users-table").bootgrid({
                     requestHandler: function (request) {
                         var model = {
@@ -486,6 +511,37 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                         search: ""
                     },
                     formatters: {
+                        role: function(column, row) {
+                            switch (row.role) {
+                                case 'new':
+                                case 'user': 
+                                    return 'подписчик'; break;
+                                case 'admin': 
+                                    return 'администратор'; break;
+                                case 'tech-admin': 
+                                    return 'технический администратор'; break;
+                                default: 
+                                    return row.role; break;
+                            }
+                        },
+                        state: function(column, row) {
+                            switch (row.state) {
+                                case 'inactive': 
+                                    return 'ожидает активации'; break;
+                                case 'active': 
+                                    return 'активный'; break;
+                                case 'pause': 
+                                    return 'временно отписан'; break;
+                                case 'unsubscribe': 
+                                    return 'отписан'; break;
+                                case 'blacklist': 
+                                    return 'в блэк-листе'; break;
+                                case 'dropped': 
+                                    return 'невозможно доставить почту'; break;
+                                default: 
+                                    return row.state; break;
+                            }
+                        },
                         email: function(column, row) {
                             return  '<a href="<?= APP::Module('Routing')->root ?>admin/users/profile/' + row.id + '" target="_blank">' + row.email + '</a>';
                         },
@@ -512,13 +568,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     users_table.find('.remove-user').on('click', function (e) {
                         var user_id = $(this).data('user-id');
                         swal({
-                            title: 'Are you sure?',
-                            text: 'You will not be able to recover this user',
+                            title: 'Вы действительно хотите удалить пользователя?',
+                            text: 'Это действие будет невозможно отменить',
                             type: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#DD6B55',
-                            confirmButtonText: 'Yes',
-                            cancelButtonText: 'No',
+                            confirmButtonText: 'Да',
+                            cancelButtonText: 'Отмена',
                             closeOnConfirm: false,
                             closeOnCancel: true
                         }, function(isConfirm){
@@ -527,7 +583,15 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                     id: user_id
                                 }, function() { 
                                     users_table.bootgrid('reload', true);
-                                    swal('Deleted!', 'User has been deleted', 'success');
+                                    
+                                    swal({
+                                        title: 'Готово!',
+                                        text: 'Пользователь был успешно удален',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonText: 'Ok',
+                                        closeOnConfirm: false
+                                    });
                                 });
                             }
                         });

@@ -8,6 +8,7 @@
 
 (function($) {
     var settings;
+    var objects = {};
     
     var methods = {
         init: function(options) { 
@@ -201,13 +202,14 @@
                                     break;
                                 case 'reg_date': 
                                     switch(id) {
+                                        
                                         case 'date_from': 
                                             if (settings.date_from === undefined) settings.date_from = new Object();
-                                            settings.date_from = param_value; 
+                                            settings.date_from = Math.round(objects['reg_date_from'].date._d.setHours(0,0,0,0) / 1000); 
                                             break;
                                         case 'date_to': 
                                             if (settings.date_to === undefined) settings.date_to = new Object();
-                                            settings.date_to = param_value; 
+                                            settings.date_to = Math.round(objects['reg_date_to'].date._d.setHours(0,0,0,0) / 1000); 
                                             break;
                                         default: settings[id] = param_value;
                                     }
@@ -390,11 +392,11 @@
                                             break;
                                         case 'date_from': 
                                             if (settings.date_from === undefined) settings.date_from = new Object();
-                                            settings.date_from = param_value; 
+                                            settings.date_from = Math.round(objects['mail_events_date_from'].date._d.setHours(0,0,0,0) / 1000); 
                                             break;
                                         case 'date_to': 
                                             if (settings.date_to === undefined) settings.date_to = new Object();
-                                            settings.date_to = param_value; 
+                                            settings.date_to = Math.round(objects['mail_events_date_to'].date._d.setHours(0,0,0,0) / 1000); 
                                             break;
                                         case 'letter': 
                                             if (settings.letter === undefined) settings.letter = new Object();
@@ -580,41 +582,44 @@
         },
         getRulesListByLogic: function(logic) {
             return [
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="email" href="javascript:void(0)">Email</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="role" href="javascript:void(0)">Role</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="id" href="javascript:void(0)">ID</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">State</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="reg_date" href="javascript:void(0)">Date registration</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tags" href="javascript:void(0)">Tags</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="source" href="javascript:void(0)">Source</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="about" href="javascript:void(0)">About</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="email" href="javascript:void(0)">E-Mail</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="role" href="javascript:void(0)">Роль</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">Состояние</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="reg_date" href="javascript:void(0)">Дата регистрации</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tags" href="javascript:void(0)">Метка</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="source" href="javascript:void(0)">Источник</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="about" href="javascript:void(0)">Доп. информация</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="utm" href="javascript:void(0)">UTM-метка</a></li>',
                 '<li class="divider"></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="firstname" href="javascript:void(0)">Firstname</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="lastname" href="javascript:void(0)">Lastname</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tel" href="javascript:void(0)">Telephone</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="city" href="javascript:void(0)">City</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="country" href="javascript:void(0)">Country</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="social_id" href="javascript:void(0)">Social ID</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="utm" href="javascript:void(0)">Utm</a></li>',
+                /*
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="firstname" href="javascript:void(0)">Имя</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="lastname" href="javascript:void(0)">Фамилия</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tel" href="javascript:void(0)">Телефон</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="city" href="javascript:void(0)">Город</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="country" href="javascript:void(0)">Страна</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="social_id" href="javascript:void(0)">Социальная сеть</a></li>',
                 '<li class="divider"></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels" href="javascript:void(0)">Tunnels</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_type" href="javascript:void(0)">Tunnels type</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_tags" href="javascript:void(0)">Tunnels tags</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_queue" href="javascript:void(0)">Tunnels queue</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_object" href="javascript:void(0)">Tunnels object</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_label" href="javascript:void(0)">Tunnels label</a></li>',
+                */
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels" href="javascript:void(0)">Туннель</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_type" href="javascript:void(0)">Тип туннеля</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_tags" href="javascript:void(0)">Метка туннеля</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_queue" href="javascript:void(0)">Очередь туннелей</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tunnels_object" href="javascript:void(0)">Объект туннеля</a></li>',
                 '<li class="divider"></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_count" href="javascript:void(0)">Letter count</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_events" href="javascript:void(0)">Letter event</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct" href="javascript:void(0)">Letter open pct</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct30" href="javascript:void(0)">Letter open pct 30</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_log" href="javascript:void(0)">Mail log</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_log" href="javascript:void(0)">Отправка письма</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_count" href="javascript:void(0)">Кол-во писем</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_events" href="javascript:void(0)">Событие в письме</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct" href="javascript:void(0)">Процент открытия писем</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct30" href="javascript:void(0)">Процент открытия писем за 30 дней</a></li>',
+                //'<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
+                /*
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_buy" href="javascript:void(0)">Product buy</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order" href="javascript:void(0)">Product order</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order_sum" href="javascript:void(0)">Sum amount</a></li>',
+                */
             ].join('');
         },
         render_rules: function(rules, holder) {
@@ -631,8 +636,8 @@
                         '<td class="trigger_logic_holder" style="width: 100px; vertical-align: middle;">',
                             '<div class="trigger_logic">',
                                 '<select class="selectpicker" data-width="85px">',
-                                    '<option value="intersect">AND</option>',
-                                    '<option value="merge">OR</option>',
+                                    '<option value="intersect">И</option>',
+                                    '<option value="merge">ИЛИ</option>',
                                 '</select>',
                             '</div>',
                         '</td>', 
@@ -641,13 +646,13 @@
                             '<div class="trigger_children"></div>',
                             '<div class="btn-group trigger_holder_controls_several">',
                                 '<div class="btn-group">',
-                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">AND</button>',
+                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">И</button>',
                                     '<ul class="dropdown-menu scrollable-menu scrollbar" role="menu">',                                  
                                         self.getRulesListByLogic('intersect'),
                                     '</ul>',
                                 '</div>',
                                 '<div class="btn-group">',
-                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">OR</button>',
+                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">ИЛИ</button>',
                                     '<ul class="dropdown-menu scrollable-menu scrollbar" role="menu">',
                                         self.getRulesListByLogic('merge'),
                                     '</ul>',
@@ -655,7 +660,7 @@
                             '</div>',
                             '<div class="btn-group trigger_holder_controls_single">',
                                 '<div class="btn-group">',
-                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Add condition</button>',
+                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Добавить условие</button>',
                                     '<ul class="dropdown-menu scrollable-menu scrollbar" role="menu">',                                  
                                         self.getRulesListByLogic('intersect'),
                                     '</ul>',
@@ -725,20 +730,20 @@
                 case 'email':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Email</tr>',
+                            '<tr>E-Mail</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
                                     '<select class="selectpicker" data-id="logic">',
-                                        '<option value="=">equal</option>',
-                                        '<option value="!=">not equal</option>',
-                                        '<option value="IN">in</option>',
-                                        '<optgroup label="mask">',
-                                            '<option value="LIKE">equal</option>',
-                                            '<option value="NOT LIKE">not equal</option>',
+                                        '<option value="=">=</option>',
+                                        '<option value="!=">!=</option>',
+                                        '<option value="IN">один из</option>',
+                                        '<optgroup label="по маске">',
+                                            '<option value="LIKE">=</option>',
+                                            '<option value="NOT LIKE">!=</option>',
                                         '</optgroup>',
-                                        '<optgroup label="regexp">',
-                                            '<option value="REGEXP">equal</option>',
-                                            '<option value="NOT REGEXP">not equal</option>',
+                                        '<optgroup label="регулярное выражение">',
+                                            '<option value="REGEXP">=</option>',
+                                            '<option value="NOT REGEXP">!=</option>',
                                         '</optgroup>',
                                     '</select>',
                                 '</td>',
@@ -759,10 +764,10 @@
                 case 'role':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Role</tr>',
+                            '<tr>Роль</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
-                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=" />',
+                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=">',
                                     '<input data-id="value" class="form-control m-l-5" type="text">',
                                 '</td>',
                             '</tr>',
@@ -782,7 +787,7 @@
                             '<tr>ID</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
-                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=" />',
+                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=">',
                                     '<input data-id="value" class="form-control m-l-5" type="text">',
                                 '</td>',
                             '</tr>',
@@ -799,14 +804,14 @@
                 case 'about':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>About</tr>',
+                            '<tr>Доп. информация</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
-                                    '<input data-id="item" class="form-control m-l-5" type="text" placeholder="Item">',
+                                    '<input data-id="item" class="form-control m-l-5" type="text" placeholder="Метка">',
                                 '</td>',
                                 '<td style="width: 125px">',
-                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=" />',
-                                    '<input data-id="value" class="form-control m-l-5" type="text" placeholder="Value">',
+                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=">',
+                                    '<input data-id="value" class="form-control m-l-5" type="text" placeholder="Значение">',
                                 '</td>',
                             '</tr>',
                         '</table>'
@@ -825,13 +830,13 @@
                 case 'source':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Source</tr>',
+                            '<tr>Источник</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
                                     '<select class="selectpicker form-control" data-id="logic">',
-                                        '<option value="=">equal</option>',
-                                        '<option value="!=">not equal</option>',
-                                        '<option value="IN">in</option>',
+                                        '<option value="=">=</option>',
+                                        '<option value="!=">!=</option>',
+                                        '<option value="IN">один из</option>',
                                     '</select>',
                                 '</td>',
                                 '<td>',
@@ -851,24 +856,20 @@
                 case 'state':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>State</tr>',
+                            '<tr>Состояние</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
                                     '<select class="selectpicker form-control" data-id="logic">',
-                                        '<option value="=">equal</option>',
-                                        '<option value="!=">not equal</option>',
-                                        '<option value="IN">in</option>',
+                                        '<option value="=">=</option>',
+                                        '<option value="!=">!=</option>',
                                     '</select>',
                                 '</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td>state</td>',
                                 '<td style="width: 125px">',
                                     '<select data-id="value" class="form-control selectpicker">',
-                                        '<option value="active">active</option>',
-                                        '<option value="inactive">inactive</option>',
-                                        '<option value="blacklist">blacklist</option>',
-                                        '<option value="dropped">dropped</option>',
+                                        '<option value="active">активный</option>',
+                                        '<option value="inactive">неактивный</option>',
+                                        '<option value="blacklist">в черном списке</option>',
+                                        '<option value="dropped">невозможно доставить почту</option>',
                                     '</select>',
                                 '</td>',
                             '</tr>',
@@ -1047,20 +1048,29 @@
                 case 'reg_date':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Date registration</tr>',
+                            '<tr>Дата регистрации</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
-                                    '<input data-id="date_from" class="form-control m-l-5 date-picker" type="text" placeholder="date from">',
-                                    '<input data-id="date_to" class="form-control m-l-5 date-picker" type="text" placeholder="date to">',
+                                    '<input data-id="date_from" class="form-control m-l-5 date-picker-from" type="text" placeholder="Начало">',
+                                    '<input data-id="date_to" class="form-control m-l-5 date-picker-to" type="text" placeholder="Конец">',
                                 '</td>',
                             '</tr>',
                         '</table>'
                     ].join(''));
                     
-                    $('.date-picker', $trigger_rule_item).datetimepicker({
+                    $('.date-picker-from', $trigger_rule_item).datetimepicker({
                         format: 'YYYY-MM-DD',
-                        defaultDate: new Date()
-                    }).on('dp.change', function(e){
+                        defaultDate: 0
+                    }).on('dp.change', function(e) {
+                        objects['reg_date_from'] = e;
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    $('.date-picker-to', $trigger_rule_item).datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        defaultDate: 0
+                    }).on('dp.change', function(e) {
+                        objects['reg_date_to'] = e;
                         $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
                     });
                     break;
@@ -1080,7 +1090,7 @@
                             '</tr>',
                             '<tr>',
                                 '<td style="width: 220px">',
-                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=" />',
+                                    '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=">',
                                     '<input data-id="value" class="form-control m-l-5" type="text" placeholder="ID">',
                                 '</td>',
                             '</tr>',
@@ -1102,7 +1112,7 @@
                         '<table>',
                             '<tr>',
                                 '<td style="width: 100px">',
-                                    'UTM<br>',
+                                    'UTM-метка<br>',
                                     '<select data-id="num">',
                                         '<option value="1">Первичная</option>',
                                         '<option value="0">Все</option>',
@@ -1137,12 +1147,12 @@
                 case 'tags':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Tags</tr>',
+                            '<tr>Метка</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
                                     '<select class="selectpicker" data-id="logic">',
-                                        '<option value="exist">exist</option>',
-                                        '<option value="not_exist">not_exist</option>',
+                                        '<option value="exist">есть</option>',
+                                        '<option value="not_exist">нет</option>',
                                     '</select>',
                                 '</td>',
                                 '<td style="width: 125px">',
@@ -1151,10 +1161,10 @@
                             '</tr>',
                             '<tr>',
                                 '<td style="width: 100px">',
-                                    '<input data-id="date_from" class="form-control m-l-5 date-picker" type="text" placeholder="date from">',
+                                    '<input data-id="date_from" class="form-control m-l-5 date-picker" type="text" placeholder="Начало">',
                                 '</td>',
                                 '<td style="width: 100px">',
-                                    '<input data-id="date_to" class="form-control m-l-5 date-picker" type="text" placeholder="date to">',
+                                    '<input data-id="date_to" class="form-control m-l-5 date-picker" type="text" placeholder="Конец">',
                                 '</td>',
                             '</tr>',
                         '</table>'
@@ -1216,8 +1226,8 @@
                                 '</td>',
                                 '<td style="width: 125px">',
                                     '<select class="selectpicker" data-id="value">',
-                                        '<option value="static">static</option>',
-                                        '<option value="dynamic">dynamic</option>',
+                                        '<option value="static">статический</option>',
+                                        '<option value="dynamic">динамический</option>',
                                     '</select>',
                                 '</td>',
                             '</tr>',
@@ -1396,17 +1406,17 @@
                 case 'mail_events':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Letter events</tr>',
+                            '<tr>События в письмах</tr>',
                             '<tr>',
                                 '<td style="width: 300px">',
                                     '<div class="col-sm-6">',
                                         '<div class="form-group fg-line">',
-                                            '<input data-id="date_from" class="form-control date-picker" type="text" placeholder="Date from">',
+                                            '<input data-id="date_from" class="form-control date-picker-from" type="text" placeholder="дата (начало)">',
                                         '</div>',
                                     '</div>',
                                     '<div class="col-sm-6">',
                                         '<div class="form-group fg-line">',
-                                            '<input data-id="date_to" class="form-control date-picker" type="text" placeholder="Date to">',
+                                            '<input data-id="date_to" class="form-control date-picker-to" type="text" placeholder="дата (конец)">',
                                         '</div>',
                                     '</div>',
                                 '</td>',
@@ -1424,11 +1434,11 @@
                                     '<div class="col-sm-8">',
                                         '<div class="form-group fg-line">',
                                             '<select class="selectpicker form-control" data-id="value">',
-                                                '<option value="open">open</option>',
-                                                '<option value="click">click</option>',
-                                                '<option value="delivered">delivered</option>',
-                                                '<option value="processed">processed</option>',
-                                                '<option value="unsubscribe">unsubscribe</option>',
+                                                '<option value="open">открытие</option>',
+                                                '<option value="click">клик</option>',
+                                                '<option value="delivered">доставка</option>',
+                                                '<option value="processed">отправка</option>',
+                                                '<option value="unsubscribe">отписка</option>',
                                                 '<option value="dropped">dropped</option>',
                                                 '<option value="deferred">deferred</option>',
                                                 '<option value="bounce">bounce</option>',
@@ -1440,17 +1450,26 @@
                             '</tr>',
                             '<tr>',
                                 '<td>',
-                                    '<input type="hidden" data-id="letter" />',
+                                    '<input type="hidden" data-id="letter">',
                                 '</td>',
                             '</tr>',
                         '</table>'
                     ].join(''));
 
 
-                    $('.date-picker', $trigger_rule_item).datetimepicker({
+                    $('.date-picker-from', $trigger_rule_item).datetimepicker({
                         format: 'YYYY-MM-DD',
                         defaultDate: 0
-                    }).on('dp.change', function(e){
+                    }).on('dp.change', function(e) {
+                        objects['mail_events_date_from'] = e;
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    $('.date-picker-to', $trigger_rule_item).datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        defaultDate: 0
+                    }).on('dp.change', function(e) {
+                        objects['mail_events_date_to'] = e;
                         $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
                     });
 
@@ -1518,7 +1537,7 @@
                             '<tr>',
                                 '<td>',
                                     '<div class="form-group fg-line">',
-                                        '<input type="hidden" data-id="letter" />',
+                                        '<input type="hidden" data-id="letter">',
                                     '</div>',
                                 '</td>',
                             '</tr>',

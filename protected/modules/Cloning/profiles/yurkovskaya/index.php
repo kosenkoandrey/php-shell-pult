@@ -1,6 +1,4 @@
 <?
-exec('mkdir -m 755 ' . $dist . '/logs');
-
 exec('cp -R ' . ROOT . '/protected ' . $dist . '/protected');
 exec('cp -R ' . ROOT . '/public ' . $dist . '/public');
 

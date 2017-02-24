@@ -343,7 +343,7 @@ ob_end_clean();
                                     $('<a/>', {
                                         'class': 'alink',
                                         'target': '_blank',
-                                        'href': '#'
+                                        'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.processed
                                     })
                                     .append(data.details.processed)
                                 )
@@ -374,7 +374,7 @@ ob_end_clean();
                                     $('<a/>', {
                                         'class': 'alink',
                                         'target': '_blank',
-                                        'href': '#'
+                                        'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.delivered
                                     })
                                     .append(data.details.delivered)
                                 )
@@ -405,7 +405,7 @@ ob_end_clean();
                                     $('<a/>', {
                                         'class': 'alink',
                                         'target': '_blank',
-                                        'href': '#'
+                                        'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.open
                                     })
                                     .append(data.details.open)
                                 )
@@ -436,7 +436,7 @@ ob_end_clean();
                                     $('<a/>', {
                                         'class': 'alink',
                                         'target': '_blank',
-                                        'href': '#'
+                                        'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.click
                                     })
                                     .append(data.details.click)
                                 )
@@ -467,7 +467,7 @@ ob_end_clean();
                                     $('<a/>', {
                                         'class': 'alink',
                                         'target': '_blank',
-                                        'href': '#'
+                                        'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.spamreport
                                     })
                                     .append(data.details.spamreport)
                                 )
@@ -498,7 +498,7 @@ ob_end_clean();
                                     $('<a/>', {
                                         'class': 'alink',
                                         'target': '_blank',
-                                        'href': '#'
+                                        'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.unsubscribe
                                     })
                                     .append(data.details.unsubscribe)
                                 )
@@ -593,7 +593,7 @@ ob_end_clean();
                                         $('<a/>', {
                                             'class': 'alink',
                                             'target': '_blank',
-                                            'href': '#'
+                                            'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.dropped
                                         })
                                         .append(data.dropped)
                                     )
@@ -669,7 +669,7 @@ ob_end_clean();
                                         $('<a/>', {
                                             'class': 'alink',
                                             'target': '_blank',
-                                            'href': '#'
+                                            'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.hash.bounce
                                         })
                                         .append(data.bounce)
                                     )
@@ -724,10 +724,23 @@ ob_end_clean();
 
     $(document).on('click', "#mail-stat-period > button",function() {
         var period = $(this).data('period');
-
-        var to = Math.round(new Date().getTime() / 1000);
-        var from = strtotime("-" + period, to);
-
+        var today = new Date();
+        
+        switch (period) {
+            case 'today':
+                var to = Math.round(today.getTime() / 1000);
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+                break;
+            case 'yesterday':
+                var to = (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000) - 1;
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime() / 1000;
+                break;
+            default:
+                var to = Math.round(today.getTime() / 1000);
+                var from = strtotime("-" + period, to);
+                break;
+        }
+        
         var to_date = new Date(to * 1000);
         var from_date = new Date(from * 1000);
 

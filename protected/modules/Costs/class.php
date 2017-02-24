@@ -19,6 +19,7 @@ class Costs {
             'module_costs_yandex_client_secret',
             'module_costs_yandex_utm_source',
             'module_costs_yandex_utm_medium',
+            'module_costs_yandex_logging',
             'module_costs_facebook_token',
             'module_costs_facebook_client_id',
             'module_costs_facebook_client_secret'
@@ -63,6 +64,7 @@ class Costs {
         set_time_limit($this->settings['module_costs_max_execution_time']);
         
         $out = [];
+        $log = [];
         $total_amt = 0;
         $date = isset(APP::Module('Routing')->get['date']) ? APP::Module('Routing')->get['date'] : date('Y-m-d', strtotime('-1 day'));
         
@@ -95,6 +97,8 @@ class Costs {
             ]
         ])), true);
         
+        $log['campaigns'] = $campaigns;
+        
         if (!empty($campaigns)) {
             $campaigns_id = [];
             
@@ -121,6 +125,8 @@ class Costs {
                         'token' => $this->settings['module_costs_yandex_token']
                     ])
                 ]), true);
+                
+                $log['banners_stat'][$campaign['Id']] = $banners_stat;
 
                 foreach ((array) $banners_stat['data']['Stat'] as $banner_stat) {
                     if ($banner_stat['Sum'] != 0) {
@@ -167,11 +173,15 @@ class Costs {
                     }
                 }
             }
+            
+            $log['banners'] = $banners;
 
             foreach ($out as $key => $value) {
                 $out[$key]['utm_content_desc'] = isset($banners[$value['utm_content']]) ? $banners[$value['utm_content']] : '';
             }
         }
+        
+        $log['out'] = $out;
 
         foreach ($out as $key => $value) {
             if (!APP::Module('DB')->Select(
@@ -209,6 +219,8 @@ class Costs {
             }
         }
         
+        $log['total_amt'] = $total_amt;
+        
         APP::Module('Triggers')->Exec(
             'download_yandex_costs', 
             [
@@ -217,9 +229,8 @@ class Costs {
             ]
         );
         
-        if (isset(APP::Module('Routing')->get['debug'])) {
-            echo 'TOTAL AMT: ' . $total_amt;
-            print_r($out);
+        if ($this->settings['module_costs_yandex_logging']) {
+            APP::Logging('costs', false, 0, $log);
         }
     }
     
@@ -500,6 +511,7 @@ class Costs {
         APP::Module('Registry')->Update(['value' => $_POST['module_costs_max_execution_time']], [['item', '=', 'module_costs_max_execution_time', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_costs_yandex_utm_source']], [['item', '=', 'module_costs_yandex_utm_source', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_costs_yandex_utm_medium']], [['item', '=', 'module_costs_yandex_utm_medium', PDO::PARAM_STR]]);
+        APP::Module('Registry')->Update(['value' => isset($_POST['module_costs_yandex_logging'])], [['item', '=', 'module_costs_yandex_logging', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_costs_yandex_client_id']], [['item', '=', 'module_costs_yandex_client_id', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_costs_yandex_client_secret']], [['item', '=', 'module_costs_yandex_client_secret', PDO::PARAM_STR]]);
 
@@ -509,6 +521,7 @@ class Costs {
             'max_execution_time' => $_POST['module_costs_max_execution_time'],
             'yandex_utm_source' => $_POST['module_costs_yandex_utm_source'],
             'yandex_utm_medium' => $_POST['module_costs_yandex_utm_medium'],
+            'yandex_logging' => isset($_POST['module_costs_yandex_logging']),
             'yandex_client_id' => $_POST['module_costs_yandex_client_id'],
             'yandex_client_secret' => $_POST['module_costs_yandex_client_secret']
         ]);

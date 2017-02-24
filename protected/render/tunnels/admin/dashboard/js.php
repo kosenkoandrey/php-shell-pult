@@ -31,8 +31,8 @@
                             '<tbody>',
                                 '<tr class="total">',
                                     '<td>Итого</td>',
-                                    '<td class="static_tunnels_active_total"><a href="#"></a></td>',
-                                    '<td class="static_tunnels_total"><a href="#"></a></td>',
+                                    '<td class="static_tunnels_active_total"></td>',
+                                    '<td class="static_tunnels_total"></td>',
                                 '</tr>',
                             '</tbody>',
                         '</table>',
@@ -49,8 +49,8 @@
                             '<tbody>',
                                 '<tr class="total">',
                                     '<td>Итого</td>',
-                                    '<td class="dynamic_tunnels_active_total"><a href="#"></a></td>',
-                                    '<td class="dynamic_tunnels_total"><a href="#"></a></td>',
+                                    '<td class="dynamic_tunnels_active_total"></td>',
+                                    '<td class="dynamic_tunnels_total"></td>',
                                 '</tr>',
                             '</tbody>',
                         '</table>',
@@ -65,8 +65,8 @@
                     $('#static-tunnels-table > tbody').prepend([
                         '<tr>',
                             '<td><i class="zmdi zmdi-circle palette-' + s_color + '-700 text"></i> &nbsp; <a href="<?= APP::Module('Routing')->root ?>admin/tunnels/scheme/' + tunnel.hash + '" target="_blank">' + tunnel.name + '</a></td>',
-                            '<td><a href="<?= APP::Module('Routing')->root ?>?filters=' + tunnel.subscribers.active[1] + '" target="_blank">' + tunnel.subscribers.active[0] + '</a></td>',
-                            '<td><a href="<?= APP::Module('Routing')->root ?>?filters=' + tunnel.subscribers.total[1] + '" target="_blank">' + tunnel.subscribers.total[0] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + tunnel.subscribers.active[1] + '" target="_blank">' + tunnel.subscribers.active[0] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + tunnel.subscribers.total[1] + '" target="_blank">' + tunnel.subscribers.total[0] + '</a></td>',
                         '</tr>'
                     ].join(''));
                     
@@ -74,8 +74,8 @@
                     c_static[1] += parseInt(tunnel.subscribers.total[0]);
                 });
                 
-                $('.static_tunnels_active_total a').html(c_static[0]);
-                $('.static_tunnels_total a').html(c_static[1]);
+                $('.static_tunnels_active_total').html(c_static[0]);
+                $('.static_tunnels_total').html(c_static[1]);
                 
                 $.each(data.tunnels.dynamic, function(id, tunnel) {
                     var s_color = tunnel.state === 'active' ? 'Teal' : 'Red';
@@ -83,8 +83,8 @@
                     $('#dynamic-tunnels-table > tbody').prepend([
                         '<tr>',
                             '<td><i class="zmdi zmdi-circle palette-' + s_color + '-700 text"></i> &nbsp; <a href="<?= APP::Module('Routing')->root ?>admin/tunnels/scheme/' + tunnel.hash + '" target="_blank">' + tunnel.name + '</a></td>',
-                            '<td><a href="<?= APP::Module('Routing')->root ?>?filters=' + tunnel.subscribers.active[1] + '" target="_blank">' + tunnel.subscribers.active[0] + '</a></td>',
-                            '<td><a href="<?= APP::Module('Routing')->root ?>?filters=' + tunnel.subscribers.total[1] + '" target="_blank">' + tunnel.subscribers.total[0] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + tunnel.subscribers.active[1] + '" target="_blank">' + tunnel.subscribers.active[0] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + tunnel.subscribers.total[1] + '" target="_blank">' + tunnel.subscribers.total[0] + '</a></td>',
                         '</tr>'
                     ].join(''));
                     
@@ -92,8 +92,8 @@
                     c_dynamic[1] += parseInt(tunnel.subscribers.total[0]);
                 });
                 
-                $('.dynamic_tunnels_active_total a').html(c_dynamic[0]);
-                $('.dynamic_tunnels_total a').html(c_dynamic[1]);
+                $('.dynamic_tunnels_active_total').html(c_dynamic[0]);
+                $('.dynamic_tunnels_total').html(c_dynamic[1]);
             }
         });
     });
