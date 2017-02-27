@@ -80,7 +80,9 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="tunnel_complete" href="javascript:void(0)">Tunnel complete</a></li>
                                         <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Subscribe tunnel and complete</a></li>
                                         <li><a data-action="utm_roi" href="javascript:void(0)">UTM-анализ ROI</a></li>
-                                        
+                                        <li><a data-action="open_letter_pct" href="javascript:void(0)">Анализ по % открытия</a></li>
+                                        <li><a data-action="open_letter_time" href="javascript:void(0)">Анализ по времени открытия</a></li>
+                                        <li><a data-action="rfm" href="javascript:void(0)">RFM анализ</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -402,6 +404,39 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
+                                break;
+                            case 'open_letter_pct' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/pct');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'open_letter_time' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/time');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'rfm' :
+                                form.append(
+                                    [
+                                        '<div class="form-group">',
+                                            '<div class="col-sm-12">',
+                                                '<a class="rfm-button btn btn-lg btn-default btn-block" href="<?= APP::Module('Routing')->root ?>admin/analytics/rfm/billing">Покупки</a>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<div class="col-sm-12">',
+                                                '<a class="rfm-button btn btn-lg btn-default btn-block" href="<?= APP::Module('Routing')->root ?>admin/analytics/rfm/mail/open">Открытия писем</a>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<div class="col-sm-12">',
+                                                '<a class="rfm-button btn btn-lg btn-default btn-block" href="<?= APP::Module('Routing')->root ?>admin/analytics/rfm/mail/click">Клики в письмах</a>',
+                                            '</div>',
+                                        '</div>',
+                                    ].join('')
+                                );
+                                $('#send_action').hide();
+                                modal.modal('show');
                                 break;
                         }
                         

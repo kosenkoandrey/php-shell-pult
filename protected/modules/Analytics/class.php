@@ -2,10 +2,14 @@
 class Analytics {
 
     public $settings;
+    public $config;
 
     function __construct($conf) {
         foreach ($conf['routes'] as $route)
             APP::Module('Routing')->Add($route[0], $route[1], $route[2]);
+        
+        $this->config['rfm'] = $conf['rfm'];
+        $this->config['rfm_mail'] = $conf['rfm_mail'];
     }
 
     public function Init() {
@@ -1583,7 +1587,554 @@ class Analytics {
         APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
     }
     
+    public function OpenLettersPct(){
+        $pct = [];
 
+        if(isset($_POST['rules'])){
+            $rules = json_decode($_POST['rules'], true);
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }else{
+            $rules = [
+                "logic" => "intersect",
+                "rules" => [
+                    [
+                        "method" => "email",
+                        "settings" => [
+                            "logic" => "LIKE",
+                            "value" => "%"
+                        ]
+                    ]
+                ]
+            ];
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }
+
+        for ($x = 0; $x <= 100; $x ++) $pct[$x] = 0;
+        
+        $users =  APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetchAll', PDO::FETCH_ASSOC], ['pct'] , 'mail_open_pct',
+            [['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $avg =  APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch', PDO::FETCH_COLUMN], ['ROUND(AVG(pct),2) AS avg'] , 'mail_open_pct',
+            [['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+
+        foreach ($users as $user){
+            $url_rule = [];
+            $url_rule = $rules;
+            $pct[$user['pct']] = $pct[$user['pct']] + 1;
+            $url_rule['rules'][] = [
+                "method" => "mail_open_pct",
+                "settings" => [
+                    "from" => $user['pct'],
+                    "to" => $user['pct']
+                ]
+            ];
+
+            $url[$user['pct']] = APP::Module('Crypt')->Encode(json_encode($url_rule));
+        }
+
+        $out = compact('pct','avg');
+        $out['url'] = $url;
+
+        APP::Render('analytics/admin/open_letter_pct', 'include', $out);
+    }
+    
+    public function LetterOpenTime(){
+        $users = [];
+        
+        if(isset($_POST['rules'])){
+            $rules = json_decode($_POST['rules'], true);
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }else{
+            $rules = [
+                "logic" => "intersect",
+                "rules" => [
+                    [
+                        "method" => "email",
+                        "settings" => [
+                            "logic" => "LIKE",
+                            "value" => "%"
+                        ]
+                    ]
+                ]
+            ];
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }
+
+        $sort_time = 'asc';
+        if(isset($_POST['sort_time'])){
+            $sort_time = $_POST['sort_time'];
+        }
+
+        $data = [];
+        foreach(APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetchAll', PDO::FETCH_ASSOC],
+            ['HOUR(cr_date) as cr_date','COUNT(id) as count'], 'mail_events',
+            [['user', 'IN', $uid, PDO::PARAM_INT], ['event', '=', 'open', PDO::PARAM_STR]],
+            false,['HOUR(cr_date)'],false,['cr_date', $sort_time]
+        ) as $item){
+            isset($data[$item['cr_date']]) ? $data[$item['cr_date']] += $item['count'] : $data[$item['cr_date']] = $item['count'] ;
+            
+        }
+
+        $time_list = [];
+        $chart = [];
+        foreach ($data as $key => $value) {
+            $filter = [];
+            $filter = $rules;
+
+            $filter['rules'][] = [
+                'method'    =>  'mail_open_time',
+                'settings'  => [
+                    'value' => $key
+                ]
+            ];
+
+            $time_list[] = [
+                'time'      => $key,
+                'count'     => $value,
+                'filter'    => APP::Module('Crypt')->Encode(json_encode($filter))
+            ];
+
+            $chart[] = [
+                'label' => $key . ' час.',
+                'data'  => $value,
+                'color' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT)
+            ];
+        }
+
+        APP::Render(
+            'analytics/admin/open_time',
+            'include',
+            [
+                'data'      => $time_list,
+                'rules'     => json_encode($rules),
+                'sort_time' => $sort_time,
+                'chart'     => json_encode($chart)
+            ]
+        );
+    }
+    
+    public function RfmBilling() {
+        
+        if(isset($_POST['rules'])){
+            $rules = json_decode($_POST['rules'], true);
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }else{
+            $rules = [
+                "logic" => "intersect",
+                "rules" => [
+                    [
+                        "method" => "email",
+                        "settings" => [
+                            "logic" => "LIKE",
+                            "value" => "%"
+                        ]
+                    ]
+                ]
+            ];
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }
+        
+        if(isset($_POST['dates_from']) && $_POST['dates_from']){
+            $this->config['rfm']['dates'] = [
+                '≤30' => [
+                    strtotime($_POST['dates_from'] . ' 23:59:59') - 2592000,
+                    strtotime($_POST['dates_from'] . ' 23:59:59')
+                ],
+                '31-60' => [
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 5184000,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 2592000,
+                ],
+                '61-120' => [
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 10368000,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 5184000,
+                ],
+                '121-365' => [
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 31536000,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 10368000,
+                ],
+                '365+' => [
+                    0,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 31536000,
+                ]
+            ];
+        }
+
+
+        // Сохранение целевых пользователей во временную таблицу
+        APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_rfm_tmp (user) VALUES (' . implode('),(', $uid) . ')');
+
+        $orders = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'],
+            ['fetchAll',PDO::FETCH_ASSOC], ['user_id','UNIX_TIMESTAMP(cr_date) as cr_date'],
+            'billing_invoices',
+            [
+                ['state', '=', 'success', PDO::PARAM_STR],
+                ['amount', '!=', '0', PDO::PARAM_INT],
+                ['user_id', 'IN', 'SELECT user FROM analytics_rfm_tmp', PDO::PARAM_INT]
+            ]
+        );
+
+        $orders2 = $orders;
+
+        // Удаление целевых пользователей из временной таблицы
+        APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_rfm_tmp');
+        
+        $clients = [];
+
+        foreach ($orders as $order) {
+            $clients[$order['user_id']][] = $order['cr_date'];
+        }
+
+        $raw_date = [];
+
+        foreach ($clients as $client => $orders) {
+            foreach ($this->config['rfm']['dates'] as $group_id => $group_range) {
+                $max_orders = max($orders);
+                if (($group_range[0] <= $max_orders) && ($group_range[1] >= $max_orders)){
+                    $raw_date[$group_id][$client] = $orders;
+                }else{
+                    $raw_date[$group_id][$client] = [];
+                }
+            }
+        }
+
+        $out = [];
+
+        foreach ($raw_date as $date_group_id => $clients) {
+            foreach ($clients as $client_id => $orders) {
+                foreach ($this->config['rfm']['units'] as $unit_group_id => $unit_group_range) {
+                    $count_orders = count($orders);
+                    if (($unit_group_range[0] <= $count_orders) && ($unit_group_range[1] >= $count_orders)){
+                        $out[$unit_group_id][$date_group_id] = isset($out[$unit_group_id][$date_group_id]) ? $out[$unit_group_id][$date_group_id]+1 : 1;
+                    }else{
+                        $out[$unit_group_id][$date_group_id] = isset($out[$unit_group_id][$date_group_id]) ? $out[$unit_group_id][$date_group_id] : 0;
+                    }
+                }
+            }
+        }
+
+        $totals['units'] = [];
+
+        foreach ($out as $unit_id => $unit_data) {
+            $totals['units'][$unit_id] =  !isset($totals['units'][$unit_id]) ? array_sum($unit_data) : $totals['units'][$unit_id] + array_sum($unit_data);
+            foreach ($unit_data as $date_id => $date_data) {
+                !isset($totals['dates'][$date_id]) ? $totals['dates'][$date_id] = $date_data : $totals['dates'][$date_id] + $date_data;
+            }
+        }
+
+        $totals['summary'] = array_sum($totals['units']);
+
+        $result = [
+            'table1' => $this->config['rfm']['dates'],
+            'report' => $out,
+            'report2' => 0,
+            'method' => 'rfm_billing',
+            'totals' => $totals,
+            'totals2'=>0,
+            'filter' => $rules,
+            'dates_from' => isset($_POST['dates_from']) && $_POST['dates_from'] ? $_POST['dates_from'].' 23:59:59' : date('Y-m-d', time()),
+            'dates_two_from'=>0,
+            'table2' => []
+        ];
+
+
+        //ДОПОЛНИТЕЛЬНАЯ ТАБЛИЦА СРАВНЕНИЯ
+        if(isset($_POST['dates_two_from']) && $_POST['dates_two_from']){
+
+            $this->config['rfm']['dates'] = [
+                '≤30' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 2592000,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59')
+                ],
+                '31-60' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 5184000,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 2592000,
+                ],
+                '61-120' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 10368000,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 5184000,
+                ],
+                '121-365' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 31536000,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 10368000,
+                ],
+                '365+' => [
+                    0,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 31536000,
+                ]
+            ];
+
+            $result['table2'] = $this->config['rfm']['dates'];
+
+
+            $clients2 = [];
+            foreach ($orders2 as $order2) {
+                $clients2[$order2['user_id']][] = $order2['cr_date'];
+            }
+
+            $raw_date2 = [];
+
+            foreach ($clients2 as $client2 => $orders2) {
+                foreach ($this->config['rfm']['dates'] as $group_id2 => $group_range2) {
+                    $max_orders2 = max($orders2);
+                    if (($group_range2[0] <= $max_orders2) && ($group_range2[1] >= $max_orders2)){
+                        $raw_date2[$group_id2][$client2] = $orders2;
+                    }else{
+                        $raw_date2[$group_id2][$client2] = [];
+                    }
+                }
+            }
+
+            $out2 = [];
+
+            foreach ($raw_date2 as $date_group_id2 => $clients2) {
+                foreach ($clients2 as $client_id2 => $orders2) {
+                    foreach ($this->config['rfm']['units'] as $unit_group_id2 => $unit_group_range2) {
+                        $count_orders2 = count($orders2);
+                        if (($unit_group_range2[0] <= $count_orders2) && ($unit_group_range2[1] >= $count_orders2)){
+                            $out2[$unit_group_id2][$date_group_id2] = isset($out2[$unit_group_id2][$date_group_id2]) ? $out2[$unit_group_id2][$date_group_id2] + 1 : 1;
+                        }else{
+                            $out2[$unit_group_id2][$date_group_id2] = isset($out2[$unit_group_id2][$date_group_id2]) ? $out2[$unit_group_id2][$date_group_id2]:0;
+                        }
+                    }
+                }
+            }
+
+            $totals2['units'] = [];
+
+            foreach ($out2 as $unit_id2 => $unit_data2) {
+                $totals2['units'][$unit_id2] = !isset($totals2['units'][$unit_id2]) ? array_sum($unit_data2) : $totals2['units'][$unit_id2] + array_sum($unit_data2);
+                foreach ($unit_data2 as $date_id2 => $date_data2) {
+                    $totals2['dates'][$date_id2] = !isset($totals2['dates'][$date_id2]) ?  $date_data2 : $totals2['dates'][$date_id2] + $date_data2;
+                }
+            }
+
+            $totals2['summary'] = (array_sum($totals2['units']) ? array_sum($totals2['units']) : 1);
+            $result['report2'] = $out2;
+            $result['totals2'] = $totals2;
+            $result['dates_two_from'] = $_POST['dates_two_from'].' 23:59:59';
+        }
+
+        APP::Render('analytics/admin/rfm/index', 'include', $result);
+    }
+
+    public function RfmMail(){
+    	if(isset($_POST['rules'])){
+            $rules = json_decode($_POST['rules'], true);
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }else{
+            $rules = [
+                "logic" => "intersect",
+                "rules" => [
+                    [
+                        "method" => "email",
+                        "settings" => [
+                            "logic" => "LIKE",
+                            "value" => "%"
+                        ]
+                    ]
+                ]
+            ];
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }
+        
+        $event = APP::Module('Routing')->get['event'];
+        $title = [
+           'open'  => 'открытие писем',
+           'click' => 'клики в письмах'
+        ];
+
+        if(isset($_POST['dates_from']) && $_POST['dates_from']){
+            $this->config['rfm_mail']['dates'] = [
+                '≤7' => [
+                    strtotime($_POST['dates_from'] . ' 23:59:59') - 604800,
+                    strtotime($_POST['dates_from'] . ' 23:59:59')
+                ],
+                '8-14' => [
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 1209600,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 604800,
+                ],
+                '15-30' => [
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 2592000,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 1209600,
+                ],
+                '31-60' => [
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 5184000,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 2592000,
+                ],
+                '61+' => [
+                    0,
+                    strtotime($_POST['dates_from']. ' 23:59:59') - 5184000,
+                ]
+            ];
+        }
+
+         // Сохранение целевых пользователей во временную таблицу
+        APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_rfm_tmp (user) VALUES (' . implode('),(', $uid) . ')');
+        
+        $users = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetchAll',PDO::FETCH_ASSOC], ['mail_events.user','UNIX_TIMESTAMP(mail_events.cr_date) as cr_date'],
+            'mail_events',
+            [
+                ['mail_log.state', '=', 'success', PDO::PARAM_STR],
+                ['mail_events.event', '=', $event, PDO::PARAM_STR],
+                ['mail_events.user', 'IN', 'SELECT user FROM analytics_rfm_tmp', PDO::PARAM_INT]
+            ],
+            [
+                'join/mail_log'=>[
+                    ['mail_log.id', '=', 'mail_events.log']
+                ]
+            ]
+        );
+
+        // Удаление целевых пользователей из временной таблицы
+        APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_rfm_tmp');
+
+        $clients = [];
+        foreach ($users as $user) {
+            $clients[$user['user']][] = $user['cr_date'];
+        }
+
+        $raw_date = [];
+
+        foreach ($clients as $client => $cr_date) {
+            foreach ($this->config['rfm_mail']['dates'] as $group_id => $group_range) {
+                $max = max($cr_date);
+                if (($group_range[0] <= $max) && ($group_range[1] >= $max)){
+                    $raw_date[$group_id][$client] = $cr_date;
+                }else{
+                    $raw_date[$group_id][$client] = [];
+                }
+            }
+        }
+
+        $out = [];
+
+        foreach ($raw_date as $date_group_id => $raw_clients) {
+            foreach ($raw_clients as $client_id => $cr_date) {
+                foreach ($this->config['rfm_mail']['units'] as $unit_group_id => $unit_group_range) {
+                    $count = count($cr_date);
+                    if (($unit_group_range[0] <= $count) && ($unit_group_range[1] >= $count)){
+                        $out[$unit_group_id][$date_group_id] =  isset($out[$unit_group_id][$date_group_id]) ? $out[$unit_group_id][$date_group_id] + 1 : 1;
+                    }else{
+                        $out[$unit_group_id][$date_group_id] =  isset($out[$unit_group_id][$date_group_id]) ? $out[$unit_group_id][$date_group_id] : 0;
+                    }
+                }
+            }
+        }
+
+        $totals = [
+            'units' => [],
+            'dates' => []
+        ];
+
+        foreach ($out as $unit_id => $unit_data) {
+            $totals['units'][$unit_id] = isset($totals['units'][$unit_id]) ? $totals['units'][$unit_id] + array_sum($unit_data) : array_sum($unit_data);
+            foreach ($unit_data as $date_id => $date_data) {
+                $totals['dates'][$date_id] = isset($totals['dates'][$date_id]) ? $totals['dates'][$date_id] + $date_data : $date_data;
+            }
+        }
+
+        $totals['summary'] = array_sum($totals['units']);
+
+        $result = [
+            'table1' => $this->config['rfm_mail']['dates'],
+            'report' => $out,
+            'report2' => 0,
+            'totals2' => 0,
+            'title'  => $title[$event],
+            'method' => 'rfm_mail',
+            'event'  => $event,
+            'totals' => $totals,
+            'filter' => $rules,
+            'table2' => [],
+            'dates_from' => isset($_POST['dates_from']) && $_POST['dates_from'] ? $_POST['dates_from'].' 23:59:59' : date('Y-m-d H:i:s', time()),
+            'dates_two_from'=>0
+        ];
+
+        //ДОПОЛНИТЕЛЬНАЯ ТАБЛИЦА СРАВНЕНИЯ
+        if(isset($_POST['dates_two_from']) && $_POST['dates_two_from']){
+
+            $this->config['rfm_mail']['dates'] = [
+                '≤7' => [
+                    strtotime($_POST['dates_two_from'] . ' 23:59:59') - 604800,
+                    strtotime($_POST['dates_two_from'] . ' 23:59:59')
+                ],
+                '8-14' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 1209600,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 604800,
+                ],
+                '15-30' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 2592000,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 1209600,
+                ],
+                '31-60' => [
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 5184000,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 2592000,
+                ],
+                '61+' => [
+                    0,
+                    strtotime($_POST['dates_two_from']. ' 23:59:59') - 5184000,
+                ]
+            ];
+
+            $result['table2'] = $this->conf['rfm_mail']['dates'];
+
+            $raw_date2 = [];
+
+            foreach ($clients as $client2 => $cr_date) {
+                foreach ($this->config['rfm_mail']['dates'] as $group_id2 => $group_range2) {
+                    $max = max($cr_date);
+                    if (($group_range2[0] <= $max) && ($group_range2[1] >= $max)){
+                        $raw_date2[$group_id2][$client2] = $cr_date;
+                    }else{
+                        $raw_date2[$group_id2][$client2] = [];
+                    }
+                }
+            }
+
+            $out2 = [];
+
+            foreach ($raw_date2 as $date_group_id2 => $clients2) {
+                foreach ($clients2 as $client_id2 => $cr_date) {
+                    foreach ($this->config['rfm_mail']['units'] as $unit_group_id2 => $unit_group_range2) {
+                        $count = count($cr_date);
+                        if (($unit_group_range2[0] <= $count) && ($unit_group_range2[1] >= $count)){
+                            $out2[$unit_group_id2][$date_group_id2] = isset($out2[$unit_group_id2][$date_group_id2]) ? $out2[$unit_group_id2][$date_group_id2] + 1 : 1;
+                        }else{
+                            $out2[$unit_group_id2][$date_group_id2] = isset($out2[$unit_group_id2][$date_group_id2]) ? $out2[$unit_group_id2][$date_group_id2] : 0;
+                        }
+                    }
+                }
+            }
+
+            $totals2 = Array();
+
+            foreach ($out2 as $unit_id2 => $unit_data2) {
+                $totals2['units'][$unit_id2] = isset($totals2['units'][$unit_id2]) ? $totals2['units'][$unit_id2] + array_sum($unit_data2) : array_sum($unit_data2);
+                foreach ($unit_data2 as $date_id2 => $date_data2) {
+                    $totals2['dates'][$date_id2] =  isset($totals2['dates'][$date_id2]) ? $totals2['dates'][$date_id2] + $date_data2 : $date_data2;
+                }
+            }
+
+            $totals2['summary'] = array_sum($totals2['units']);
+            $result['report2'] = $out2;
+            $result['totals2'] = $totals2;
+            $result['dates_two_from'] = $_POST['dates_two_from'].' 23:59:59';
+        }
+
+        APP::Render('analytics/admin/rfm/mail', 'include', $result);
+    }
+    
     public function Settings() {
         APP::Render('analytics/admin/settings');
     }

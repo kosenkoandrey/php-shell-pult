@@ -3589,6 +3589,16 @@ class UsersSearch {
         );
     }
     
+    public function mail_open_time($settings) {
+
+        return APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetchAll', PDO::FETCH_COLUMN],
+            ['user'],'mail_events',
+            [['HOUR(cr_date)', '=', $settings['value'], PDO::PARAM_INT],['event', '=', 'open', PDO::PARAM_STR]]
+        );
+    }
+    
     public function product_buy($settings) {        
         $invoices = APP::Module('DB')->Select(
             APP::Module('Billing')->settings['module_billing_db_connection'], 
@@ -3661,6 +3671,142 @@ class UsersSearch {
         }
        
         return $invoices;
+    }
+    
+    public function rfm_billing($settings){
+        $users = Array();
+
+        $dates_from = strtotime($settings['dates_from']);
+        $dates_to = strtotime($settings['dates_to']);
+
+
+        $conf = Array(
+            'dates' => Array(
+                'date' => Array(
+                    $dates_from,
+                    $dates_to
+                )
+            ),
+            'units' => Array(
+                'period' => Array(
+                    $settings['units_from'],
+                    $settings['units_to']
+                )
+            )
+        );
+
+        $orders = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+            ['users.email','users.id','UNIX_TIMESTAMP(billing_invoices.cr_date) as cr_date'], 
+            'billing_invoices',
+            [
+                ['billing_invoices.state', '=', 'success', PDO::PARAM_STR],
+                ['billing_invoices.amount', '!=', '0', PDO::PARAM_INT],
+            ],
+            [
+                'join/users' => [
+                    ['users.id', '=', 'billing_invoices.user_id']
+                ]
+            ]
+        );
+
+        $clients = [];
+        
+        foreach ($orders as $order) {
+            $clients[$order['id']][] = $order['cr_date'];
+        }
+
+        $raw_date = [];
+        
+        foreach ($clients as $client => $orders) {
+            foreach ($conf['dates'] as $group_id => $group_range) {
+                $max_orders = max($orders);
+                if (($group_range[0] <= $max_orders) && ($group_range[1] >= $max_orders)){
+                    $raw_date[$group_id][$client] = $orders;
+                }
+            }
+        }
+
+        $out = [];   
+        foreach ($raw_date as $date_group_id => $clients) {
+            foreach ($clients as $client_id => $orders) {
+                foreach ($conf['units'] as $unit_group_id => $unit_group_range) {
+                    $count_orders = count($orders);
+                    if (($unit_group_range[0] <= $count_orders) && ($unit_group_range[1] >= $count_orders)){
+                        $users[] = $client_id;
+                    }
+                }
+            }
+        }
+        return $users;    
+    }
+    
+    public function rfm_mail($settings){
+        $users = [];
+
+        $dates_from = strtotime($settings['dates_from']);
+        $dates_to = strtotime($settings['dates_to']);
+
+        $conf = Array(
+            'dates' => Array(
+                'date' => Array(
+                    $dates_from,
+                    $dates_to
+                )
+            ),
+            'units' => Array(
+                'period' => Array(
+                    $settings['units_from'],
+                    $settings['units_to']
+                )
+            )
+        );
+
+        $mail_users = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetchAll',PDO::FETCH_ASSOC], ['mail_events.user','UNIX_TIMESTAMP(mail_events.cr_date) as cr_date'],
+            'mail_events',
+            [
+                ['mail_log.state', '=', 'success', PDO::PARAM_STR],
+                ['mail_events.event', '=', $settings['event'], PDO::PARAM_STR]
+            ],
+            [
+                'join/mail_log'=>[
+                    ['mail_log.id', '=', 'mail_events.log']
+                ]
+            ]
+        );
+        
+
+        $clients = [];
+        
+        foreach ($mail_users as $user) {
+            $clients[$user['user']][] = $user['cr_date'];
+        }
+        
+        $raw_date = [];
+        
+        foreach ($clients as $client => $cr_date) {
+            foreach ($conf['dates'] as $group_id => $group_range) {
+                $max_date = max($cr_date);
+                if (($group_range[0] <= $max_date) && ($group_range[1] >= $max_date)){
+                    $raw_date[$group_id][$client] = $cr_date;
+                }
+            }
+        }
+
+        $out = [];   
+        foreach ($raw_date as $date_group_id => $clients) {
+            foreach ($clients as $client_id => $orders) {
+                foreach ($conf['units'] as $unit_group_id => $unit_group_range) {
+                    $count_orders = count($orders);
+                    if (($unit_group_range[0] <= $count_orders) && ($unit_group_range[1] >= $count_orders)){
+                        $users[] = $client_id;
+                    }
+                }
+            }
+        }
+        return $users;    
     }
 }
 
