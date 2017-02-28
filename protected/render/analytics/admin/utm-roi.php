@@ -14,7 +14,9 @@
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
-
+        
+        <? APP::Render('core/widgets/css') ?>
+        
         <style>
             #utm-list .item {
                 font-size: 15px;
@@ -65,6 +67,7 @@
             .item-links {
                 width: 200px;
                 display: none;
+                margin-right: 10px;
             }
             .item-value.item-header {
                 font-weight: bold;
@@ -75,7 +78,7 @@
             }
         </style>
         
-        <? APP::Render('core/widgets/css') ?>
+        
     </head>
     <body data-ma-header="teal">
         <?
@@ -162,7 +165,7 @@
             </div>
         </div>
         
-        <form id="analytics_cohorts" target="_blank" method="post" action="<?= APP::Module('Routing')->root ?>analytics/cohorts">
+        <form id="analytics_cohorts" target="_blank" method="post" action="<?= APP::Module('Routing')->root ?>admin/analytics/cohorts">
             <input type="hidden" name="rules" value="">
             <input type="hidden" name="group" value="month">
             <input type="hidden" name="indicators[]" value="total_subscribers_active">
@@ -218,7 +221,7 @@
 
                         $.each(res.sort, function(source_index, source_value) {
                             var utm_value = res.labels[source_value].name ? res.labels[source_value].name : '<Не определено>';
-                            $('#utm-list > .utm-source').append('<div class="item source" data-state="inactive" id="' + source_value + '"><div class="control"><i class="fa fa-plus-square"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="source" data-value="' + res.labels[source_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[source_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[source_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#utm-list > .utm-source').append('<div class="item source" data-state="inactive" id="' + source_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="source" data-value="' + res.labels[source_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[source_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[source_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
                         });
                         break;
                     case 'source':
@@ -226,7 +229,7 @@
 
                         $.each(res.sort, function(medium_index, medium_value) {
                             var utm_value = res.labels[medium_value].name ? res.labels[medium_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-medium').append('<div class="item medium" data-state="inactive" id="' + medium_value + '"><div class="control"><i class="fa fa-plus-square"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="medium" data-value="' + res.labels[medium_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[medium_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[medium_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-medium').append('<div class="item medium" data-state="inactive" id="' + medium_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="medium" data-value="' + res.labels[medium_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[medium_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[medium_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
                         });
                         break;
                     case 'medium':
@@ -234,7 +237,7 @@
 
                         $.each(res.sort, function(campaign_index, campaign_value) {
                             var utm_value = res.labels[campaign_value].name ? res.labels[campaign_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-campaign').append('<div class="item campaign" data-state="inactive" id="' + campaign_value + '"><div class="control"><i class="fa fa-plus-square"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="campaign" data-value="' + res.labels[campaign_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[campaign_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[campaign_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-campaign').append('<div class="item campaign" data-state="inactive" id="' + campaign_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="campaign" data-value="' + res.labels[campaign_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[campaign_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[campaign_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
                         });
                         break;
                     case 'campaign':
@@ -242,7 +245,7 @@
 
                         $.each(res.sort, function(term_index, term_value) {
                             var utm_value = res.labels[term_value].name ? res.labels[term_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-term').append('<div class="item term" data-state="inactive" id="' + term_value + '"><div class="control"><i class="fa fa-plus-square"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="term" data-value="' + res.labels[term_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[term_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[term_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-term').append('<div class="item term" data-state="inactive" id="' + term_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="term" data-value="' + res.labels[term_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[term_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[term_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
                         });
                         break;
                     case 'term':
@@ -386,15 +389,15 @@
                 
                 GetLabels('root', null, null);
 
-                $(document).on('click', '#utm-list > .utm-source > .item  > .control > .fa', function () {
-                    var hide = $(this).hasClass('fa-plus-square');
+                $(document).on('click', '#utm-list > .utm-source > .item  > .control > .zmdi', function () {
+                    var hide = $(this).hasClass('plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('fa-plus-square');
-                        $(this).addClass('fa-minus-square');
+                        $(this).removeClass('plus-square');
+                        $(this).addClass('minus-square');
                     } else {
                         $(this).removeClass('fa-minus-square');
-                        $(this).addClass('fa-plus-square');
+                        $(this).addClass('plus-square');
                     }
                     
                     var item = $(this).closest('.item.source');
@@ -414,15 +417,15 @@
                     }
                 });
                 
-                $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .control > .fa', function () {
-                    var hide = $(this).hasClass('fa-plus-square');
+                $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .control > .zmdi', function () {
+                    var hide = $(this).hasClass('plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('fa-plus-square');
-                        $(this).addClass('fa-minus-square');
+                        $(this).removeClass('plus-square');
+                        $(this).addClass('minus-square');
                     } else {
                         $(this).removeClass('fa-minus-square');
-                        $(this).addClass('fa-plus-square');
+                        $(this).addClass('plus-square');
                     }
                     
                     var item_medium = $(this).closest('.item.medium');
@@ -451,15 +454,15 @@
                     }
                 });
                 
-                $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .control > .fa', function () {
-                    var hide = $(this).hasClass('fa-plus-square');
+                $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .control > .zmdi', function () {
+                    var hide = $(this).hasClass('fplus-square');
                     
                     if (hide) {
-                        $(this).removeClass('fa-plus-square');
-                        $(this).addClass('fa-minus-square');
+                        $(this).removeClass('plus-square');
+                        $(this).addClass('minus-square');
                     } else {
                         $(this).removeClass('fa-minus-square');
-                        $(this).addClass('fa-plus-square');
+                        $(this).addClass('plus-square');
                     }
                     
                     var item_campaign = $(this).closest('.item.campaign');
@@ -491,15 +494,15 @@
                     }
                 });
                 
-                $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .utm-term > .item > .control > .fa', function () {
+                $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .utm-term > .item > .control > .zmdi', function () {
                     var hide = $(this).hasClass('fa-plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('fa-plus-square');
-                        $(this).addClass('fa-minus-square');
+                        $(this).removeClass('plus-square');
+                        $(this).addClass('minus-square');
                     } else {
                         $(this).removeClass('fa-minus-square');
-                        $(this).addClass('fa-plus-square');
+                        $(this).addClass('plus-square');
                     }
                     
                     var item_term = $(this).closest('.item.term');

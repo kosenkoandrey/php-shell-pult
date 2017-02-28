@@ -1136,8 +1136,8 @@
                     if (rule.settings.num !== undefined) $('.trigger_settings select[data-id="num"]', $trigger_rule_item).val(rule.settings.num);
                     $('body').on('change', $('.trigger_settings select[data-id="num"]', $trigger_rule_item), function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
-                    if (rule.settings.item !== undefined) $('.trigger_settings select[data-id="item"]', $trigger_rule_item).val(rule.settings.name);
-                    $('body').on('change', $('.trigger_settings select[data-id="name"]', $trigger_rule_item), function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    if (rule.settings.item !== undefined) $('.trigger_settings select[data-id="item"]', $trigger_rule_item).val(rule.settings.item);
+                    $('body').on('change', $('.trigger_settings select[data-id="item"]', $trigger_rule_item), function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
