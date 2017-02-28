@@ -2135,6 +2135,262 @@ class Analytics {
         APP::Render('analytics/admin/rfm/mail', 'include', $result);
     }
     
+    public function HealthStandart() {
+        $create_date = time() - 2592000;
+        
+        if(isset($_POST['rules'])){
+            $rules = json_decode($_POST['rules'], true);
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }else{
+            $rules = [
+                "logic" => "intersect",
+                "rules" => [
+                    [
+                        "method" => "email",
+                        "settings" => [
+                            "logic" => "LIKE",
+                            "value" => "%"
+                        ]
+                    ]
+                ]
+            ];
+            $uid = APP::Module('Users')->UsersSearch($rules);
+        }
+
+        $users_all = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(DISTINCT id)'],
+            'users',[['id', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $users_active = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
+            'users',
+            [
+                ['users.id', 'IN', $uid, PDO::PARAM_INT],
+                ['user_about.item', '=', 'state', PDO::PARAM_STR],
+                ['user_about.value', '=', 'active', PDO::PARAM_STR]
+            ],
+            ['join/user_about'=>[['user_about.user', '=', 'users.id']]]
+        );
+        
+        $users_wait = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
+            'users',
+            [
+                ['users.id', 'IN', $uid, PDO::PARAM_INT],
+                ['user_about.item', '=', 'state', PDO::PARAM_STR],
+                ['user_about.value', '=', 'wait', PDO::PARAM_STR]
+            ],
+            ['join/user_about'=>[['user_about.user', '=', 'users.id']]]
+        );
+        
+        $users_inactive = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
+            'users',
+            [
+                ['users.id', 'IN', $uid, PDO::PARAM_INT],
+                ['user_about.item', '=', 'state', PDO::PARAM_STR],
+                ['user_about.value', '=', 'inactive', PDO::PARAM_STR]
+            ],
+            ['join/user_about'=>[['user_about.user', '=', 'users.id']]]
+        );
+        
+        $users_unsubscribe = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
+            'users',
+            [
+                ['users.id', 'IN', $uid, PDO::PARAM_INT],
+                ['user_about.item', '=', 'state', PDO::PARAM_STR],
+                ['user_about.value', '=', 'unsubscribe', PDO::PARAM_STR]
+            ],
+            ['join/user_about'=>[['user_about.user', '=', 'users.id']]]
+        );
+        
+        // orders
+        $orders_all = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(id)'],
+            'billing_invoices',
+            [
+                ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                ['amount', '!=', '0', PDO::PARAM_INT]
+            ]
+        );
+        
+        $orders_new = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(id)'],
+            'billing_invoices',
+            [
+                ['state', '=', 'new', PDO::PARAM_STR],
+                ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                ['amount', '!=', '0', PDO::PARAM_INT]
+            ]
+        );
+        
+        $orders_processed = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(id)'],
+            'billing_invoices',
+            [
+                ['state', '=', 'processed', PDO::PARAM_STR],
+                ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                ['amount', '!=', '0', PDO::PARAM_INT]
+            ]
+        );
+        
+        $orders_success = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'],
+            ['fetchAll',PDO::FETCH_COLUMN], ['COUNT(id)'],
+            'billing_invoices',
+            [
+                ['state', '=', 'success', PDO::PARAM_STR],
+                ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                ['amount', '!=', '0', PDO::PARAM_INT]
+            ]
+        );
+        
+        $orders_cost = [];
+        
+        $orders_cost_raw = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'],
+            ['fetchAll',PDO::FETCH_ASSOC], ['amount'],
+            'billing_invoices',
+            [
+                ['state', '=', 'success', PDO::PARAM_STR],
+                ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                ['amount', '!=', '0', PDO::PARAM_INT]
+            ]
+        );
+        
+        foreach ($orders_cost_raw as $user_order) {
+            array_push($orders_cost, $user_order['amount']);
+        }
+        
+        
+        // letters
+        $letters['count'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
+            'mail_log',
+            [
+                ['state', '=', 'success', PDO::PARAM_STR],
+                ['user', 'IN', $uid, PDO::PARAM_INT]
+            ]
+        );
+        
+        $letters['open'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count','SUM(pct) as sum_pct'],
+            'mail_open_pct',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters['click'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count','SUM(pct) as sum_pct'],
+            'mail_click_pct',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters['bounce'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count','SUM(pct) as sum_pct'],
+            'mail_bounce_pct',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+
+        $letters['spamreport'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count','SUM(pct) as sum_pct'],
+            'mail_spamreport_pct',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters['unsubscribe'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count','SUM(pct) as sum_pct'],
+            'mail_unsubscribe_pct',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+
+        //30
+        $letters30['count'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
+            'mail_log',
+            [
+                ['state', '=', 'success', PDO::PARAM_STR],
+                ['user', 'IN', $uid, PDO::PARAM_INT],
+                ['UNIX_TIMESTAMP(create_date)', 'IN', $uid, PDO::PARAM_INT]
+            ]
+        );
+        
+        $letters30['open'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
+            'mail_open_pct_30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters30['click'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
+            'mail_click_pct_30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters30['bounce'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
+            'mail_bounce_pct_30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters30['spamreport'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
+            'mail_spamreport_pct_30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+        
+        $letters30['unsubscribe'] = APP::Module('Mail')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'],
+            ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
+            'mail_unsubscribe_pct_30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+        );
+ 
+        $this->RenderView(
+            Array(
+                'ref' => Array(
+                    'all' => $users_all,
+                    'active' => $users_active,
+                    'wait' => $users_wait,
+                    'inactive' => $users_inactive,
+                    'unsubscribe' => $users_unsubscribe
+                ),
+                'letters' => Array(
+                    'all' => $letters['count'],
+                    'open' => $letters['open'],
+                    'click' => $letters['click'],
+                    'bounce' => $letters['bounce'],
+                    'spamreport' => $letters['spamreport'],
+                    'unsubscribe' => $letters['unsubscribe'],
+                    'all30' => $letters30['count'],
+                    'open30' => $letters30['open'],
+                    'click30' => $letters30['click'],
+                    'bounce30' => $letters30['bounce'],
+                    'spamreport30' => $letters30['spamreport'],
+                    'unsubscribe30' => $letters30['unsubscribe']
+                ),
+                'orders' => Array(
+                    'all' => $orders_all,
+                    'new' => $orders_new,
+                    'processed' => $orders_processed,
+                    'success' => $orders_success,
+                    'cost' => $orders_cost
+                ),
+                'users' => implode(':', $uid)
+            )
+        );
+    }
+    
     public function Settings() {
         APP::Render('analytics/admin/settings');
     }
