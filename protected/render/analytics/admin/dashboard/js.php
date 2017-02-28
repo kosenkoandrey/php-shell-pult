@@ -445,14 +445,14 @@ ob_end_clean();
             $('#analytics-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#analytics-period > button').removeAttr('disabled');
             $('#analytics-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#analytics-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#analytics-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetAnalytics(false);
         });
         $('#analytics-calendar-to-block').on('dp.change', function(e) {
             $('#analytics-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#analytics-period > button').removeAttr('disabled');
             $('#analytics-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#analytics-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#analytics-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetAnalytics(false);
         });
 

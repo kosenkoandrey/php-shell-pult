@@ -782,14 +782,14 @@ ob_end_clean();
             $('#mail-stat-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#mail-stat-period > button').removeAttr('disabled');
             $('#mail-stat-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#mail-stat-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#mail-stat-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetMailStat(false);
         });
         $('#mail-stat-calendar-to-block').on('dp.change', function(e) {
             $('#mail-stat-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#mail-stat-period > button').removeAttr('disabled');
             $('#mail-stat-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#mail-stat-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#mail-stat-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetMailStat(false);
         });
 

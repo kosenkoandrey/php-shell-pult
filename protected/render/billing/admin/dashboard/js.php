@@ -501,14 +501,14 @@ ob_end_clean();
             $('#billing-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#billing-period > button').removeAttr('disabled');
             $('#billing-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#billing-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#billing-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetInvoices(false);
         });
         $('#billing-calendar-to-block').on('dp.change', function(e) {
             $('#billing-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#billing-period > button').removeAttr('disabled');
             $('#billing-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#billing-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#billing-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetInvoices(false);
         });
 

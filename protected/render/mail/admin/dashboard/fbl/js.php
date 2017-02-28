@@ -430,14 +430,14 @@ ob_end_clean();
             $('#fbl-log-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#fbl-reports-period > button').removeAttr('disabled');
             $('#fbl-log-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#fbl-reports-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#fbl-reports-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetFBLReports(false);
         });
         $('#fbl-log-calendar-to-block').on('dp.change', function(e) {
             $('#fbl-log-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#fbl-reports-period > button').removeAttr('disabled');
             $('#fbl-log-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#fbl-reports-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#fbl-reports-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetFBLReports(false);
         });
 

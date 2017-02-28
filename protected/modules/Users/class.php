@@ -3002,6 +3002,37 @@ class Users {
         }
     }
     
+    public function UpdateUtmIndex() {
+        ini_set('max_execution_time','1800'); 
+        ini_set('memory_limit','8192M');
+
+        $users_utm = APP::Module('DB')->Select(
+            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            ['users_utm.user','users_utm.item','users_utm.value'], 'users_utm', [['users_utm.num', '=', '1', PDO::PARAM_INT]]
+        );
+        
+        $users = [];
+
+        foreach ($users_utm as $item) $users[$item['user_id']][$item['item']] = $item['value'];
+        unset($users_utm);
+        
+        $exist = [];
+        
+        APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
+        
+        foreach ($users as $utm) {
+            $utm_index['source'] = $utm['source'] ? $utm['source'] : '_';
+            $utm_index['medium'] = $utm['medium'] ? $utm['medium'] : '_';
+            $utm_index['campaign'] = $utm['campaign'] ? $utm['campaign'] : '_';
+            $utm_index['term'] = $utm['term'] ? $utm['term'] : '_';
+            $utm_index['content'] = $utm['content'] ? $utm['content'] : '_';
+            
+            if (!array_key_exists($utm_index['content'], (array) $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])) {
+                APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (NULL, "' . $utm['source'] . '", "' . $utm['medium'] . '", "' . $utm['campaign'] . '", "' . $utm['term'] . '", "' . $utm['content'] . '", NOW())');
+                $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
+            }
+        }
+    }
 }
 
 class UsersSearch {
