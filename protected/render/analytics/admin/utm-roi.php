@@ -74,8 +74,11 @@
         <? APP::Render('core/widgets/css') ?>
         <style>
             .item-links {
-                display: none;
+                height: 20px;
+                margin-bottom: 10px;
+                width: 184px;
                 margin-right: 10px;
+                display: none;
             }
         </style>
             
