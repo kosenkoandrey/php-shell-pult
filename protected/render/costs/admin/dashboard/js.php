@@ -494,14 +494,14 @@ ob_end_clean();
             $('#costs-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#costs-period > button').removeAttr('disabled');
             $('#costs-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#costs-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#costs-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetCosts(false);
         });
         $('#costs-calendar-to-block').on('dp.change', function(e) {
             $('#costs-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#costs-period > button').removeAttr('disabled');
             $('#costs-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#costs-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#costs-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetCosts(false);
         });
 

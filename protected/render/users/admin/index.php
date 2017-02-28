@@ -80,6 +80,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="tunnel_pause" href="javascript:void(0)">Поставить туннель на паузу</a></li>
                                         <li><a data-action="tunnel_complete" href="javascript:void(0)">Завершить туннель</a></li>
                                         <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Подписать и завершить туннель</a></li>
+                                        <li><a data-action="utm_roi" href="javascript:void(0)">UTM-анализ ROI</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -292,7 +293,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 break;
                             case 'remove' :
                                 var data = form.serialize();
-                                user_modal.send(data);
+                                user_modal.send(data, false);
                                 break;
                             case 'add_tag' :
                                 $('.modal-title', modal).html('Добавление метки');
@@ -423,25 +424,35 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 $('#tunnel_id', modal).TunnelSelector({'url':'<?= APP::Module('Routing')->root ?>'});
                                 modal.modal('show');
                                 break;
+                            case 'utm_roi' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
                         }
                         
                     },
-                    send : function(data){
-                        var modal = $('#user-modal');
-                        $.post('<?= APP::Module('Routing')->root ?>admin/users/api/action.json', data, function(res) { 
-                            modal.modal('hide');
-                            $('#users-table').bootgrid('reload', true);
+                    send : function(data, submit){
+                        if(submit){
+                            var modal = $('#user-modal');
+                            $('#user-action-form', modal).submit();
+                        }else{
+                            var modal = $('#user-modal');
+                            $.post('<?= APP::Module('Routing')->root ?>admin/users/api/action.json', data, function(res) { 
+                                modal.modal('hide');
+                                $('#users-table').bootgrid('reload', true);
 
-                            swal({
-                                title: 'Готово',
-                                text: 'Действие было выполнено',
-                                type: 'success',
-                                showCancelButton: false,
-                                confirmButtonText: 'Ok',
-                                closeOnConfirm: false
+                                swal({
+                                    title: 'Готово',
+                                    text: 'Действие было выполнено',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Ok',
+                                    closeOnConfirm: false
+                                });
                             });
-                        });
-                        return false;
+                            return false;
+                        }
                     }
                 };
                 
@@ -472,7 +483,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     var modal = $('#user-modal');
                     var form = $('#user-action-form', modal);
                     var data = form.serialize();
-                    user_modal.send(data);
+                    user_modal.send(data, false);
                     return false;
                 });
                 
@@ -557,7 +568,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         html += '<a target="_blank" href="https://vk.com/id'+j.extra+'" class="btn btn-sm btn-default btn-icon waves-effect waves-circle">'+j.service+'</a>';
                                         break;
                                     case 'fb' :
-                                        html += '<a target="_blank" href="http://facebook.com/profile.php?id='+j.extra+'" class="btn btn-sm btn-default btn-icon waves-effect waves-circle">'+j.service+'</a>';
+                                        html += '<a target="_blank" href="http://facebook.com/'+j.extra+'" class="btn btn-sm btn-default btn-icon waves-effect waves-circle">'+j.service+'</a>';
                                         break;
                                 }
                             });

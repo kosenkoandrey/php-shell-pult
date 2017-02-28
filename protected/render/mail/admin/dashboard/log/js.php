@@ -444,14 +444,14 @@ ob_end_clean();
             $('#mail-list-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#mail-log-period > button').removeAttr('disabled');
             $('#mail-list-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#mail-log-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#mail-log-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetMailLog(false);
         });
         $('#mail-list-calendar-to-block').on('dp.change', function(e) {
             $('#mail-list-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#mail-log-period > button').removeAttr('disabled');
             $('#mail-list-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#mail-log-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#mail-log-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetMailLog(false);
         });
 

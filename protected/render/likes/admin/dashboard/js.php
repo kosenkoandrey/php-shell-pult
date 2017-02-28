@@ -434,14 +434,14 @@ ob_end_clean();
             $('#likes-date-from').val(Math.round(e.date._d.getTime() / 1000));
             $('#likes-period > button').removeAttr('disabled');
             $('#likes-calendar-to-block').data('DateTimePicker').minDate(e.date);
-            $('#likes-calendar-from-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#likes-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetLikes(false);
         });
         $('#likes-calendar-to-block').on('dp.change', function(e) {
             $('#likes-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#likes-period > button').removeAttr('disabled');
             $('#likes-calendar-from-block').data('DateTimePicker').maxDate(e.date);
-            $('#likes-calendar-to-block').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
+            $('#likes-calendar-to').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetLikes(false);
         });
 
