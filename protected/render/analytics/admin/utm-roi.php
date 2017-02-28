@@ -14,9 +14,6 @@
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
-        
-        <? APP::Render('core/widgets/css') ?>
-        
         <style>
             #utm-list .item {
                 font-size: 15px;
@@ -64,11 +61,7 @@
             .item-value {
                 width: 170px;
             }
-            .item-links {
-                width: 200px;
-                display: none;
-                margin-right: 10px;
-            }
+            
             .item-value.item-header {
                 font-weight: bold;
             }
@@ -78,6 +71,14 @@
             }
         </style>
         
+        <? APP::Render('core/widgets/css') ?>
+        <style>
+            .item-links {
+                display: none;
+                margin-right: 10px;
+            }
+        </style>
+            
         
     </head>
     <body data-ma-header="teal">
@@ -221,7 +222,7 @@
 
                         $.each(res.sort, function(source_index, source_value) {
                             var utm_value = res.labels[source_value].name ? res.labels[source_value].name : '<Не определено>';
-                            $('#utm-list > .utm-source').append('<div class="item source" data-state="inactive" id="' + source_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="source" data-value="' + res.labels[source_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[source_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[source_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#utm-list > .utm-source').append('<div class="item source" data-state="inactive" id="' + source_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="source" data-value="' + res.labels[source_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[source_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links"><button data-filters="' + res.labels[source_value].ref + '" class="btn btn-default btn-xs ref">справочник</button><button data-rules="' + res.labels[source_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</button></div></div>');
                         });
                         break;
                     case 'source':
@@ -229,7 +230,7 @@
 
                         $.each(res.sort, function(medium_index, medium_value) {
                             var utm_value = res.labels[medium_value].name ? res.labels[medium_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-medium').append('<div class="item medium" data-state="inactive" id="' + medium_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="medium" data-value="' + res.labels[medium_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[medium_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[medium_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-medium').append('<div class="item medium" data-state="inactive" id="' + medium_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="medium" data-value="' + res.labels[medium_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[medium_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links"><button data-filters="' + res.labels[medium_value].ref + '" class="btn btn-default btn-xs ref">справочник</button><button data-rules="' + res.labels[medium_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</button></div></div>');
                         });
                         break;
                     case 'medium':
@@ -237,7 +238,7 @@
 
                         $.each(res.sort, function(campaign_index, campaign_value) {
                             var utm_value = res.labels[campaign_value].name ? res.labels[campaign_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-campaign').append('<div class="item campaign" data-state="inactive" id="' + campaign_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="campaign" data-value="' + res.labels[campaign_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[campaign_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[campaign_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-campaign').append('<div class="item campaign" data-state="inactive" id="' + campaign_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="campaign" data-value="' + res.labels[campaign_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[campaign_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links"><button data-filters="' + res.labels[campaign_value].ref + '" class="btn btn-default btn-xs ref">справочник</button><button data-rules="' + res.labels[campaign_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</button></div></div>');
                         });
                         break;
                     case 'campaign':
@@ -245,7 +246,7 @@
 
                         $.each(res.sort, function(term_index, term_value) {
                             var utm_value = res.labels[term_value].name ? res.labels[term_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-term').append('<div class="item term" data-state="inactive" id="' + term_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="term" data-value="' + res.labels[term_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[term_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[term_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-term').append('<div class="item term" data-state="inactive" id="' + term_value + '"><div class="control"><i class="zmdi zmdi-plus-square zmdi-hc-fw"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="term" data-value="' + res.labels[term_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[term_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links"><button data-filters="' + res.labels[term_value].ref + '" class="btn btn-default btn-xs ref">справочник</button><button data-rules="' + res.labels[term_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</button></div></div>');
                         });
                         break;
                     case 'term':
@@ -253,14 +254,14 @@
 
                         $.each(res.sort, function(content_index, content_value) {
                             var utm_value = res.labels[content_value].name ? res.labels[content_value].name : '<Не определено>';
-                            $('#' + item + ' > .utm-content').append('<div class="item content" data-state="inactive" id="' + content_value + '"><div class="control"><i class="fa fa-angle-right"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="content" data-value="' + res.labels[content_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links pull-right"><a href="javascript:void(0)" data-filters="' + res.labels[content_value].ref + '" class="btn btn-default btn-xs ref">справочник</a><a href="javascript:void(0)" data-rules="' + res.labels[content_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</a></div></div>');
+                            $('#' + item + ' > .utm-content').append('<div class="item content" data-state="inactive" id="' + content_value + '"><div class="control"><i class="fa fa-angle-right"></i><span data-target="#utm-roi-sort-modal" data-toggle="modal" data-mode="content" data-value="' + res.labels[content_value].name + '" data-sort-field="default" data-sort-mode="asc">' + utm_value + '</span></div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.roi) + ' %</div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.profit) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.revenue) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="item-value pull-right">' + formatAmount(res.labels[content_value].stat.cost) + ' <i class="fa fa-rub" aria-hidden="true"></i></div><div class="btn-group item-links"><button data-filters="' + res.labels[content_value].ref + '" class="btn btn-default btn-xs ref">справочник</button><button data-rules="' + res.labels[content_value].rules + '" class="btn btn-default btn-xs analytics-cohorts">когортный анализ</button></div></div>');
                         });
                         break;
                 }
             }
             
             function GetLabels(label, value, item) {
-                $('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
+                //$('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
                     
                 $.ajax({
                     type: 'post',
@@ -329,12 +330,12 @@
                     
                     switch(mode) {
                         case 'root':
-                            $('#utm-list > .utm-source').html('<i class="fa fa-circle-o-notch fa-spin"></i> Сортировка "source" меток...');
+                            $('#utm-list > .utm-source').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Сортировка "source" меток...');
                             break;
                         case 'source':
                             value = source_value;
                             item = source_item.attr('id');
-                            $('#' + item + ' > .utm-medium').html('<i class="fa fa-circle-o-notch fa-spin"></i> Сортировка "medium" меток...');
+                            $('#' + item + ' > .utm-medium').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Сортировка "medium" меток...');
                             break;
                         case 'medium':
                             value = {
@@ -342,7 +343,7 @@
                                 medium: medium_value
                             };
                             item = medium_item.attr('id');
-                            $('#' + item + ' > .utm-campaign').html('<i class="fa fa-circle-o-notch fa-spin"></i> Сортировка "campaign" меток...');
+                            $('#' + item + ' > .utm-campaign').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Сортировка "campaign" меток...');
                             break;
                         case 'campaign':
                             value = {
@@ -351,7 +352,7 @@
                                 campaign: campaign_value
                             };
                             item = campaign_item.attr('id');
-                            $('#' + item + ' > .utm-term').html('<i class="fa fa-circle-o-notch fa-spin"></i> Сортировка "term" меток...');
+                            $('#' + item + ' > .utm-term').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Сортировка "term" меток...');
                             break;
                         case 'term':
                             value = {
@@ -361,7 +362,7 @@
                                 term: term_value
                             };
                             item = term_item.attr('id');
-                            $('#' + item + ' > .utm-campaign').html('<i class="fa fa-circle-o-notch fa-spin"></i> Сортировка "content" меток...');
+                            $('#' + item + ' > .utm-campaign').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Сортировка "content" меток...');
                             break;
                     }
                 
@@ -390,14 +391,14 @@
                 GetLabels('root', null, null);
 
                 $(document).on('click', '#utm-list > .utm-source > .item  > .control > .zmdi', function () {
-                    var hide = $(this).hasClass('plus-square');
+                    var hide = $(this).hasClass('zmdi-plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('plus-square');
-                        $(this).addClass('minus-square');
+                        $(this).removeClass('zmdi-plus-square');
+                        $(this).addClass('zmdi-minus-square');
                     } else {
-                        $(this).removeClass('fa-minus-square');
-                        $(this).addClass('plus-square');
+                        $(this).removeClass('zmdi-minus-square');
+                        $(this).addClass('zmdi-plus-square');
                     }
                     
                     var item = $(this).closest('.item.source');
@@ -406,7 +407,7 @@
                         case 'inactive':
                             var source_value = $('.control > span', item).data('value');
                             
-                            item.append('<div class="utm-medium"><i class="fa fa-circle-o-notch fa-spin"></i> Загрузка "medium" меток...</div>');
+                            item.append('<div class="utm-medium"><div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Загрузка "medium" меток...</div>');
                             item.data('state','active');
 
                             GetLabels('source', source_value, item.attr('id'));
@@ -418,14 +419,14 @@
                 });
                 
                 $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .control > .zmdi', function () {
-                    var hide = $(this).hasClass('plus-square');
+                    var hide = $(this).hasClass('zmdi-plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('plus-square');
-                        $(this).addClass('minus-square');
+                        $(this).removeClass('zmdi-plus-square');
+                        $(this).addClass('zmdi-minus-square');
                     } else {
-                        $(this).removeClass('fa-minus-square');
-                        $(this).addClass('plus-square');
+                        $(this).removeClass('zmdi-minus-square');
+                        $(this).addClass('zmdi-plus-square');
                     }
                     
                     var item_medium = $(this).closest('.item.medium');
@@ -436,7 +437,7 @@
                             var medium_value = $('.control > span', item_medium).data('value');
                             var source_value = $('.control > span', item_source).data('value');
                             
-                            item_medium.append('<div class="utm-campaign"><i class="fa fa-circle-o-notch fa-spin"></i> Загрузка "campaign" меток...</div>');
+                            item_medium.append('<div class="utm-campaign"><div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Загрузка "campaign" меток...</div>');
                             item_medium.data('state','active');
 
                             GetLabels(
@@ -455,14 +456,14 @@
                 });
                 
                 $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .control > .zmdi', function () {
-                    var hide = $(this).hasClass('fplus-square');
+                    var hide = $(this).hasClass('zmdi-plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('plus-square');
-                        $(this).addClass('minus-square');
+                        $(this).removeClass('zmdi-plus-square');
+                        $(this).addClass('zmdi-minus-square');
                     } else {
-                        $(this).removeClass('fa-minus-square');
-                        $(this).addClass('plus-square');
+                        $(this).removeClass('zmdi-minus-square');
+                        $(this).addClass('zmdi-plus-square');
                     }
                     
                     var item_campaign = $(this).closest('.item.campaign');
@@ -475,7 +476,7 @@
                             var medium_value = $('.control > span', item_medium).data('value');
                             var source_value = $('.control > span', item_source).data('value');
                             
-                            item_campaign.append('<div class="utm-term"><i class="fa fa-circle-o-notch fa-spin"></i> Загрузка "term" меток...</div>');
+                            item_campaign.append('<div class="utm-term"><div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Загрузка "term" меток...</div>');
                             item_campaign.data('state','active');
 
                             GetLabels(
@@ -495,14 +496,14 @@
                 });
                 
                 $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .utm-term > .item > .control > .zmdi', function () {
-                    var hide = $(this).hasClass('fa-plus-square');
+                    var hide = $(this).hasClass('plus-square');
                     
                     if (hide) {
-                        $(this).removeClass('plus-square');
-                        $(this).addClass('minus-square');
+                        $(this).removeClass('zmdi-plus-square');
+                        $(this).addClass('zmdi-minus-square');
                     } else {
-                        $(this).removeClass('fa-minus-square');
-                        $(this).addClass('plus-square');
+                        $(this).removeClass('zmdi-minus-square');
+                        $(this).addClass('zmdi-plus-square');
                     }
                     
                     var item_term = $(this).closest('.item.term');
@@ -517,7 +518,7 @@
                             var medium_value = $('.control > span', item_medium).data('value');
                             var source_value = $('.control > span', item_source).data('value');
                             
-                            item_term.append('<div class="utm-content"><i class="fa fa-circle-o-notch fa-spin"></i> Загрузка "content" меток...</div>');
+                            item_term.append('<div class="utm-content"><div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div> Загрузка "content" меток...</div>');
                             item_term.data('state','active');
 
                             GetLabels(

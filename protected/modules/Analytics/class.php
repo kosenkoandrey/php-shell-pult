@@ -271,7 +271,7 @@ class Analytics {
                             }
                             break;
                         case 'source':
-                            if ($uid) {
+                            if (false) {
                                 /*
                                 $users_utm_where = Array(
                                     Array('admin_pult_ref.users_utm.num', '=', '1')
@@ -440,7 +440,7 @@ class Analytics {
                             } else {
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
-                                    ['DISTINCT(utm_medium)'],'users_utm_index',[['utm_source', '=', $_POST['settings']['value'], PDO::PARAM_STR]]
+                                    ['DISTINCT(utm_medium)'],'users_utm_index',[['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR]]
                                 );
 
                                 foreach ($users_utm as $utm_value) {
@@ -468,12 +468,12 @@ class Analytics {
 
                                     $cache_id = md5(json_encode($search_rules));
 
-                                    if (!$utm_uid = APP::Module('Cache')->Read($cache_id)) {
+                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->Write($cache_id, $utm_uid);
+                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user)  VALUES (' . implode('),(', $uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
@@ -561,7 +561,7 @@ class Analytics {
                             }
                             break;
                         case 'medium':
-                            if ($uid) {
+                            if (false) {
                                 /*
                                 $users_utm_where = Array(
                                     Array('admin_pult_ref.users_utm.num', '=', '1')
@@ -739,7 +739,7 @@ class Analytics {
 
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
-                                    ['DISTINCT(utm_campaign)'],'users_utm_index',[['utm_source', '=', $_POST['settings']['value'], PDO::PARAM_STR],['utm_medium', '=', $_POST['settings']['value']['medium'], PDO::PARAM_STR]]
+                                    ['DISTINCT(utm_campaign)'],'users_utm_index',[['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR],['utm_medium', 'IN', $_POST['settings']['value']['medium'], PDO::PARAM_STR]]
                                 );
 
                                 foreach ($users_utm as $utm_value) {
@@ -776,12 +776,12 @@ class Analytics {
                                     $cache_id = md5(json_encode($search_rules));
 
 
-                                    if (!$utm_uid = APP::Module('Cache')->Read($cache_id)) {
+                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->Write($cache_id, $utm_uid);
+                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
@@ -870,7 +870,7 @@ class Analytics {
                             }
                             break;
                         case 'campaign':
-                            if ($uid) {
+                            if (false) {
                                 /*
                                 $users_utm_where = Array(
                                     Array('admin_pult_ref.users_utm.num', '=', '1')
@@ -1058,9 +1058,9 @@ class Analytics {
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_term)'],'users_utm_index',
                                     [
-                                        ['utm_source', '=', $_POST['settings']['value'], PDO::PARAM_STR],
-                                        ['utm_medium', '=', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
-                                        ['utm_campaign', '=', $_POST['settings']['value']['campaign'], PDO::PARAM_STR]
+                                        ['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR],
+                                        ['utm_medium', 'IN', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
+                                        ['utm_campaign', 'IN', $_POST['settings']['value']['campaign'], PDO::PARAM_STR]
                                     ]
                                 );
 
@@ -1105,12 +1105,12 @@ class Analytics {
 
                                     $cache_id = md5(json_encode($search_rules));
 
-                                    if (!$utm_uid = APP::Module('Cache')->Read($cache_id)) {
+                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->Write($cache_id, $utm_uid);
+                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
@@ -1200,7 +1200,7 @@ class Analytics {
                             }
                             break;
                         case 'term':
-                            if ($uid) {
+                            if (false) {
                                 /*
                                 $users_utm_where = Array(
                                     Array('admin_pult_ref.users_utm.num', '=', '1')
@@ -1397,10 +1397,10 @@ class Analytics {
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_content)'],'users_utm_index',
                                     [
-                                        ['utm_source', '=', $_POST['settings']['value'], PDO::PARAM_STR],
-                                        ['utm_medium', '=', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
-                                        ['utm_campaign', '=', $_POST['settings']['value']['campaign'], PDO::PARAM_STR],
-                                        ['utm_term', '=', $_POST['settings']['value']['term'], PDO::PARAM_STR]
+                                        ['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR],
+                                        ['utm_medium', 'IN', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
+                                        ['utm_campaign', 'IN', $_POST['settings']['value']['campaign'], PDO::PARAM_STR],
+                                        ['utm_term', 'IN', $_POST['settings']['value']['term'], PDO::PARAM_STR]
                                     ]
                                 );
 
@@ -1453,12 +1453,12 @@ class Analytics {
 
                                     $cache_id = md5(json_encode($search_rules));
 
-                                    if (!$utm_uid = APP::Module('Cache')->Read($cache_id)) {
+                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->Write($cache_id, $utm_uid);
+                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
