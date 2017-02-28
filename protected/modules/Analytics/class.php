@@ -172,10 +172,10 @@ class Analytics {
                                     'logic' => 'intersect',
                                     'rules' => [
                                         [
-                                            'method' => 'user_utm',
+                                            'method' => 'utm',
                                             'settings' => [
                                                 'num' => '1',
-                                                'name' => 'source',
+                                                'item' => 'source',
                                                 'value' => $label_value
                                             ]
                                         ]
@@ -308,7 +308,7 @@ class Analytics {
                                                 'logic' => 'intersect',
                                                 'rules' => Array(
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'source',
@@ -316,7 +316,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'medium',
@@ -448,18 +448,18 @@ class Analytics {
                                         'logic' => 'intersect',
                                         'rules' => [
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'source',
+                                                    'item' => 'source',
                                                     'value' => $_POST['settings']['value']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'medium',
+                                                    'item' => 'medium',
                                                     'value' => $utm_value
                                                 ]
                                             ]
@@ -598,7 +598,7 @@ class Analytics {
                                                 'logic' => 'intersect',
                                                 'rules' => Array(
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'source',
@@ -606,7 +606,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'medium',
@@ -614,7 +614,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'campaign',
@@ -747,26 +747,26 @@ class Analytics {
                                         'logic' => 'intersect',
                                         'rules' => [
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'source',
+                                                    'item' => 'source',
                                                     'value' => $_POST['settings']['value']['source']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'medium',
+                                                    'item' => 'medium',
                                                     'value' => $_POST['settings']['value']['medium']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'campaign',
+                                                    'item' => 'campaign',
                                                     'value' => $utm_value
                                                 ]
                                             ]
@@ -907,7 +907,7 @@ class Analytics {
                                                 'logic' => 'intersect',
                                                 'rules' => Array(
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'source',
@@ -915,7 +915,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'medium',
@@ -923,7 +923,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'campaign',
@@ -931,7 +931,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'term',
@@ -1069,34 +1069,34 @@ class Analytics {
                                         'logic' => 'intersect',
                                         'rules' => [
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'source',
+                                                    'item' => 'source',
                                                     'value' => $_POST['settings']['value']['source']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'medium',
+                                                    'item' => 'medium',
                                                     'value' => $_POST['settings']['value']['medium']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'campaign',
+                                                    'item' => 'campaign',
                                                     'value' => $_POST['settings']['value']['campaign']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'term',
+                                                    'item' => 'term',
                                                     'value' => $utm_value
                                                 ]
                                             ]
@@ -1237,7 +1237,7 @@ class Analytics {
                                                 'logic' => 'intersect',
                                                 'rules' => Array(
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'source',
@@ -1245,7 +1245,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'medium',
@@ -1253,7 +1253,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'campaign',
@@ -1261,7 +1261,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'term',
@@ -1269,7 +1269,7 @@ class Analytics {
                                                         )
                                                     ),
                                                     Array(
-                                                        'method' => 'user_utm',
+                                                        'method' => 'utm',
                                                         'settings' => Array(
                                                             'num' => '1',
                                                             'name' => 'content',
@@ -1409,42 +1409,42 @@ class Analytics {
                                         'logic' => 'intersect',
                                         'rules' => [
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'source',
+                                                    'item' => 'source',
                                                     'value' => $_POST['settings']['value']['source']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'medium',
+                                                    'item' => 'medium',
                                                     'value' => $_POST['settings']['value']['medium']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'campaign',
+                                                    'item' => 'campaign',
                                                     'value' => $_POST['settings']['value']['campaign']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'term',
+                                                    'item' => 'term',
                                                     'value' => $_POST['settings']['value']['term']
                                                 ]
                                             ],
                                             [
-                                                'method' => 'user_utm',
+                                                'method' => 'utm',
                                                 'settings' => [
                                                     'num' => '1',
-                                                    'name' => 'content',
+                                                    'item' => 'content',
                                                     'value' => $utm_value
                                                 ]
                                             ]
