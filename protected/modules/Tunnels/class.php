@@ -3410,36 +3410,38 @@ class Tunnels {
                 }
                 
                 if (isset($settings['welcome'])) {
-                    if ((((time() - $user['reg_date']) <= $this->settings['module_tunnels_indoctrination_lifetime']) && ($user['state'] == 'active') && (!APP::Module('DB')->Select(
-                        $this->settings['module_tunnels_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
-                        ['COUNT(id)'], 'tunnels_users', 
-                        [
-                            ['tunnel_id', '=', $settings['welcome'][0], PDO::PARAM_INT],
-                            ['user_id', '=', $user['id'], PDO::PARAM_INT]
-                        ]
-                    )))) {
-                        APP::Module('DB')->Insert(
-                            $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    if ($settings['welcome']) {
+                        if ((((time() - $user['reg_date']) <= $this->settings['module_tunnels_indoctrination_lifetime']) && ($user['state'] == 'active') && (!APP::Module('DB')->Select(
+                            $this->settings['module_tunnels_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                            ['COUNT(id)'], 'tunnels_users', 
                             [
-                                'id' => 'NULL',
-                                'user_tunnel_id' => [APP::Module('DB')->Insert(
-                                    $this->settings['module_tunnels_db_connection'], 'tunnels_users',
-                                    [
-                                        'id' => 'NULL',
-                                        'tunnel_id' => [$settings['welcome'][0], PDO::PARAM_INT],
-                                        'user_id' => [$user['id'], PDO::PARAM_INT],
-                                        'state' => ['active', PDO::PARAM_STR],
-                                        'resume_date' => [date('Y-m-d H:i:s', (time() + $settings['welcome'][3])), PDO::PARAM_STR],
-                                        'object' => [$settings['welcome'][1] . ':' . $settings['welcome'][2], PDO::PARAM_STR],
-                                        'input_data' => 'NULL'
-                                    ]
-                                ), PDO::PARAM_INT],
-                                'label_id' => ['run', PDO::PARAM_STR],
-                                'token' => 'NULL',
-                                'info' => [json_encode($tunnel), PDO::PARAM_STR],
-                                'cr_date' => 'NOW()'
+                                ['tunnel_id', '=', $settings['welcome'][0], PDO::PARAM_INT],
+                                ['user_id', '=', $user['id'], PDO::PARAM_INT]
                             ]
-                        );
+                        )))) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                                [
+                                    'id' => 'NULL',
+                                    'user_tunnel_id' => [APP::Module('DB')->Insert(
+                                        $this->settings['module_tunnels_db_connection'], 'tunnels_users',
+                                        [
+                                            'id' => 'NULL',
+                                            'tunnel_id' => [$settings['welcome'][0], PDO::PARAM_INT],
+                                            'user_id' => [$user['id'], PDO::PARAM_INT],
+                                            'state' => ['active', PDO::PARAM_STR],
+                                            'resume_date' => [date('Y-m-d H:i:s', (time() + $settings['welcome'][3])), PDO::PARAM_STR],
+                                            'object' => [$settings['welcome'][1] . ':' . $settings['welcome'][2], PDO::PARAM_STR],
+                                            'input_data' => 'NULL'
+                                        ]
+                                    ), PDO::PARAM_INT],
+                                    'label_id' => ['run', PDO::PARAM_STR],
+                                    'token' => 'NULL',
+                                    'info' => [json_encode($tunnel), PDO::PARAM_STR],
+                                    'cr_date' => 'NOW()'
+                                ]
+                            );
+                        }
                     }
                 }
                 
@@ -3474,73 +3476,78 @@ class Tunnels {
                 ]);
 
                 if (isset($settings['complete_tunnels'])) {
-                    foreach (APP::Module('DB')->Select(
-                        $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
-                        ['id'], 'tunnels_users', 
-                        [
-                            ['tunnel_id', 'IN', $settings['complete_tunnels']],
-                            ['user_id', '=', $user['id'], PDO::PARAM_INT],
-                            ['state', '=', 'active', PDO::PARAM_STR]
-                        ]
-                    ) as $id) {
-                        APP::Module('DB')->Insert(
-                            $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    if ($settings['complete_tunnels']) {
+                        foreach (APP::Module('DB')->Select(
+                            $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                            ['id'], 'tunnels_users', 
                             [
-                                'id' => 'NULL',
-                                'user_tunnel_id' => [$id, PDO::PARAM_INT],
-                                'label_id' => ['complete', PDO::PARAM_STR],
-                                'token' => 'NULL',
-                                'info' => 'NULL',
-                                'cr_date' => 'NOW()'
+                                ['tunnel_id', 'IN', $settings['complete_tunnels']],
+                                ['user_id', '=', $user['id'], PDO::PARAM_INT],
+                                ['state', '=', 'active', PDO::PARAM_STR]
                             ]
-                        );
+                        ) as $id) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                                [
+                                    'id' => 'NULL',
+                                    'user_tunnel_id' => [$id, PDO::PARAM_INT],
+                                    'label_id' => ['complete', PDO::PARAM_STR],
+                                    'token' => 'NULL',
+                                    'info' => 'NULL',
+                                    'cr_date' => 'NOW()'
+                                ]
+                            );
 
-                        APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
-                            'state' => 'complete',
-                            'resume_date' => '0000-00-00 00:00:00',
-                            'object' => '',
-                            'input_data' => ''
-                        ], [
-                            ['id', '=', $id, PDO::PARAM_INT]
-                        ]);
+                            APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                                'state' => 'complete',
+                                'resume_date' => '0000-00-00 00:00:00',
+                                'object' => '',
+                                'input_data' => ''
+                            ], [
+                                ['id', '=', $id, PDO::PARAM_INT]
+                            ]);
 
-                        APP::Module('Triggers')->Exec('complete_tunnel', [
-                            'id' => $id
-                        ]);
+                            APP::Module('Triggers')->Exec('complete_tunnel', [
+                                'id' => $id
+                            ]);
+                        }
                     }
+                    
                 }
 
                 if (isset($settings['pause_tunnels'])) {
-                    foreach (APP::Module('DB')->Select(
-                        $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
-                        ['id'], 'tunnels_users', 
-                        [
-                            ['tunnel_id', 'IN', $settings['pause_tunnels']],
-                            ['user_id', '=', $user['id'], PDO::PARAM_INT],
-                            ['state', '=', 'active', PDO::PARAM_STR]
-                        ]
-                    ) as $id) {
-                        APP::Module('DB')->Insert(
-                            $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    if ($settings['pause_tunnels']) {
+                        foreach (APP::Module('DB')->Select(
+                            $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                            ['id'], 'tunnels_users', 
                             [
-                                'id' => 'NULL',
-                                'user_tunnel_id' => [$id, PDO::PARAM_INT],
-                                'label_id' => ['pause', PDO::PARAM_STR],
-                                'token' => 'NULL',
-                                'info' => 'NULL',
-                                'cr_date' => 'NOW()'
+                                ['tunnel_id', 'IN', $settings['pause_tunnels']],
+                                ['user_id', '=', $user['id'], PDO::PARAM_INT],
+                                ['state', '=', 'active', PDO::PARAM_STR]
                             ]
-                        );
+                        ) as $id) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                                [
+                                    'id' => 'NULL',
+                                    'user_tunnel_id' => [$id, PDO::PARAM_INT],
+                                    'label_id' => ['pause', PDO::PARAM_STR],
+                                    'token' => 'NULL',
+                                    'info' => 'NULL',
+                                    'cr_date' => 'NOW()'
+                                ]
+                            );
 
-                        APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
-                            'state' => 'pause'
-                        ], [
-                            ['id', '=', $id, PDO::PARAM_INT]
-                        ]);
+                            APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                                'state' => 'pause'
+                            ], [
+                                ['id', '=', $id, PDO::PARAM_INT]
+                            ]);
 
-                        APP::Module('Triggers')->Exec('pause_tunnel', [
-                            'id' => $id
-                        ]);
+                            APP::Module('Triggers')->Exec('pause_tunnel', [
+                                'id' => $id
+                            ]);
+                        }
                     }
                 }
                 
