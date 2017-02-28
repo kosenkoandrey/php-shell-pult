@@ -141,7 +141,7 @@ class Analytics {
             ];
         }
 
-        if ($uid)  APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (' . implode('),(', $uid) . ')');
+        if ($uid)  APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
         
         if(isset($_POST['api'])){
             switch ($_POST['api']) {
