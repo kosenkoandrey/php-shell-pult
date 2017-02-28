@@ -300,16 +300,14 @@ ob_end_clean();
             type: 'POST',
             dataType: 'json',
             success: function(data) {
-                console.log(data);
-                
                 $.plot("#costs-chart", [
                     { 
-                        label: "Yandex.Direct", 
-                        data: data.direct 
+                        label: "Яндекс.Директ", 
+                        data: data.range.direct 
                     },
                     { 
                         label: "Facebook", 
-                        data: data.fb 
+                        data: data.range.fb 
                     }
                 ], {
                     series: {
@@ -367,7 +365,7 @@ ob_end_clean();
                         var date = new Date(item.datapoint[0]);
 
                         $("#card-<?= $data['hash'] ?>-tooltip")
-                        .html(item.datapoint[1] + ' ' + item.series.label + ' of ' + date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear())
+                        .html(item.datapoint[1] + ' ' + item.series.label + ' - ' + date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear())
                         .css({
                             top: item.pageY+5, 
                             left: item.pageX+5
@@ -377,16 +375,71 @@ ob_end_clean();
                         $("#card-<?= $data['hash'] ?>-tooltip").hide();
                     }
 		});
+                
+                $('#costs-list').html([
+                    '<div class="table-responsive m-b-25">',
+                        '<table id="costs-table" class="table table-hover">',
+                            '<thead>',
+                                '<tr>',
+                                    '<th width="25%">Дата</th>',
+                                    '<th width="25%">Яндекс.Директ</th>',
+                                    '<th width="25%">Facebook</th>',
+                                    '<th width="25%">Расход</th>',
+                                '</tr>',
+                            '</thead>',
+                            '<tbody>',
+                                '<tr class="total">',
+                                    '<td></td>',
+                                    '<td class="t_direct"><a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/costs?filters=' + data.total.direct + '"></a></td>',
+                                    '<td class="t_fb"><a target="_blank" href="#"></a></td>',
+                                    '<td class="t_cost"></td>',
+                                '</tr>',
+                            '</tbody>',
+                        '</table>',
+                    '</div>'
+                ].join(''));
+                
+                var costs = [0];
+                
+                $.each(data.range.direct, function(key, i_costs) {
+                    $('#costs-table > tbody').prepend([
+                        '<tr>',
+                            '<td>' + moment.unix(parseInt(i_costs[0]) / 1000).format('DD-MM-YYYY') + '</td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/costs?filters=' + data.range.direct[key][2] + '" target="_blank">' + data.range.direct[key][1] + '</a></td>',
+                            '<td><a href="#" target="_blank">0</a></td>',
+                            '<td>' + data.range.direct[key][1] + ' руб.</td>',
+                        '</tr>'
+                    ].join(''));
+                    
+                    costs[0] += data.range.direct[key][1];
+                });
+
+                $('#costs-table .total .t_direct a').html(costs[0].toFixed(2) + ' руб.');
+                $('#costs-table .total .t_fb a').html('0 руб.');
+                $('#costs-table .total .t_cost').html(costs[0].toFixed(2) + ' руб.');
             } 
         });
     }
 
     $(document).on('click', "#costs-period > button",function() {
         var period = $(this).data('period');
-
-        var to = Math.round(new Date().getTime() / 1000);
-        var from = strtotime("-" + period, to);
-
+        var today = new Date();
+        
+        switch (period) {
+            case 'today':
+                var to = Math.round(today.getTime() / 1000);
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+                break;
+            case 'yesterday':
+                var to = (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000) - 1;
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime() / 1000;
+                break;
+            default:
+                var to = Math.round(today.getTime() / 1000) - 1;
+                var from = strtotime("-" + period, to);
+                break;
+        }
+        
         var to_date = new Date(to * 1000);
         var from_date = new Date(from * 1000);
 
@@ -457,6 +510,6 @@ ob_end_clean();
     });
     
     $(document).on('click', '#tab-nav-<?= $data['hash'] ?> > a',function() {
-        $('#costs-period > button[data-period="1 months"]').trigger('click');
+        $('#costs-period > button[data-period="1 weeks"]').trigger('click');
     });
 </script>

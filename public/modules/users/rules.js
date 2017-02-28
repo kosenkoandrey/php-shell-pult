@@ -9,7 +9,6 @@
 (function($) {
     var settings;
     var objects = {};
-    
     var methods = {
         init: function(options) { 
             $target_rules = $(this);
@@ -202,14 +201,13 @@
                                     break;
                                 case 'reg_date': 
                                     switch(id) {
-                                        
                                         case 'date_from': 
                                             if (settings.date_from === undefined) settings.date_from = new Object();
                                             settings.date_from = Math.round(objects['reg_date_from'].date._d.setHours(0,0,0,0) / 1000); 
                                             break;
                                         case 'date_to': 
                                             if (settings.date_to === undefined) settings.date_to = new Object();
-                                            settings.date_to = Math.round(objects['reg_date_to'].date._d.setHours(0,0,0,0) / 1000); 
+                                            settings.date_to = Math.round(objects['reg_date_to'].date._d.setHours(0,0,0,0) / 1000 - 1); 
                                             break;
                                         default: settings[id] = param_value;
                                     }
@@ -396,7 +394,7 @@
                                             break;
                                         case 'date_to': 
                                             if (settings.date_to === undefined) settings.date_to = new Object();
-                                            settings.date_to = Math.round(objects['mail_events_date_to'].date._d.setHours(0,0,0,0) / 1000); 
+                                            settings.date_to = Math.round(objects['mail_events_date_to'].date._d.setHours(0,0,0,0) / 1000 - 1); 
                                             break;
                                         case 'letter': 
                                             if (settings.letter === undefined) settings.letter = new Object();

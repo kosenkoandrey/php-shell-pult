@@ -206,8 +206,8 @@
                             case 'success':
                                 ?>
                                 swal({
-                                    title: 'Done!',
-                                    text: 'Yandex access token has been saved',
+                                    title: 'Готово!',
+                                    text: 'Токен был успешно сохранен',
                                     type: 'success',
                                     showCancelButton: false,
                                     confirmButtonText: 'Ok',

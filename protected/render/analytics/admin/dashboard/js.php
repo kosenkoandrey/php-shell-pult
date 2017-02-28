@@ -300,8 +300,6 @@ ob_end_clean();
             type: 'POST',
             dataType: 'json',
             success: function(data) {
-                console.log(data);
-                
                 $.plot("#analytics-chart", [
                     { 
                         label: "Визиты", 
@@ -387,10 +385,23 @@ ob_end_clean();
 
     $(document).on('click', "#analytics-period > button",function() {
         var period = $(this).data('period');
-
-        var to = Math.round(new Date().getTime() / 1000);
-        var from = strtotime("-" + period, to);
-
+        var today = new Date();
+        
+        switch (period) {
+            case 'today':
+                var to = Math.round(today.getTime() / 1000);
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+                break;
+            case 'yesterday':
+                var to = (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000) - 1;
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime() / 1000;
+                break;
+            default:
+                var to = Math.round(today.getTime() / 1000);
+                var from = strtotime("-" + period, to);
+                break;
+        }
+        
         var to_date = new Date(to * 1000);
         var from_date = new Date(from * 1000);
 
@@ -461,6 +472,6 @@ ob_end_clean();
     });
     
     $(document).on('click', '#tab-nav-<?= $data['hash'] ?> > a',function() {
-        $('#analytics-period > button[data-period="1 months"]').trigger('click');
+        $('#analytics-period > button[data-period="1 weeks"]').trigger('click');
     });
 </script>

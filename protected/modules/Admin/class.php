@@ -114,5 +114,21 @@ class Admin {
         echo json_encode(APP::UninstallModule($module));
         exit;
     }
+    
+    public function APIServer() {   
+        header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+        header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+        header('Content-Type: application/json');
+
+        exec("uptime", $system);
+        $string = $system[0];
+        $uptime = explode(" ", $string);
+
+        echo json_encode([
+            'la' => sys_getloadavg(),
+            'uptime' => $uptime[3]
+        ]);
+        exit;
+    }
 
 }

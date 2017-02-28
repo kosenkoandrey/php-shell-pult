@@ -1,4 +1,8 @@
 <?
+APP::$insert['js_flot'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.js'];
+APP::$insert['js_flot_tooltip'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js'];
+APP::$insert['js_flot_resize'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.resize.js'];
+
 $system = APP::Module('Admin')->System();
 $modules = [];
         
@@ -20,11 +24,19 @@ foreach (APP::$modules as $key => $value) {
             <table class="table">
                 <tbody>
                     <tr>
-                        <td>LA</td>
-                        <td><?= implode(' / ', $system[0]) ?></td>
+                        <td>Uptime</td>
+                        <td id="uptime_value">-</td>
+                    </tr>
+                    <tr>
+                        <td>Нагрузка</td>
+                        <td id="la_values"><?= implode(' / ', $system[0]) ?></td>
                     </tr>
                 </tbody>
             </table>
+            <div style="margin: 0 10px;">
+                <div id="dynamic-chart" class="flot-chart"></div>
+                <div class="flc-dynamic"></div>
+            </div>
         </div>
         <div class="tab-pane fade" id="system-hdd">
             <table class="table">
@@ -155,6 +167,9 @@ foreach (APP::$modules as $key => $value) {
                     <li class="sub-menu">
                         <a href="<?= APP::Module('Routing')->root ?>admin/users"><i class="zmdi zmdi-caret-right"></i> Пользователи</a>
                     </li>
+                    <li class="sub-menu">
+                        <a href="<?= APP::Module('Routing')->root ?>admin/taskmanager"><i class="zmdi zmdi-caret-right"></i> Менеджер задач</a>
+                    </li>
                 <?
                 break;
             default:
@@ -211,3 +226,116 @@ foreach (APP::$modules as $key => $value) {
         ?>
     </ul>
 </aside>
+<?
+ob_start();
+?>
+<script>
+    $(document).ready(function(){
+        var la_chart = [];
+        var la_update_interval = 1000;
+
+        function returnServerLA() {
+            return la_chart;
+        }
+
+        function getServerLA() {
+            tmp_la_chart = la_chart.slice(1);
+            out_la_chart = [];
+
+            for (var i = 0; i < tmp_la_chart.length; ++i) {
+                out_la_chart.push([i - 1, tmp_la_chart[i][1]]);
+            }
+
+            $.ajax({
+                url: '<?= APP::Module('Routing')->root ?>admin/api/server.json',
+                type: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    $('#la_values').html(data.la[0] + ' / ' + data.la[1] + ' / ' + data.la[2]);
+                    $('#uptime_value').html(data.uptime + ' дней');
+                    
+                    out_la_chart.push([60, data.la[0]]);
+                    la_chart = out_la_chart;
+                }
+            });
+        }
+
+        /* Create Chart */
+        
+        for (var i = 0; i <= 60; ++i) {
+            la_chart.push([i, 0]);
+        }
+
+        var plot = $.plot("#dynamic-chart", [la_chart], {
+            series: {
+                label: "Средняя нагрузка",
+                lines: {
+                    show: true,
+                    lineWidth: 0.2,
+                    fill: 0.6
+                },
+
+                color: '#00BCD4',
+                shadowSize: 0,
+            },
+            yaxis: {
+                min: 0,
+                max: 4,
+                tickColor: '#eee',
+                font :{
+                    lineHeight: 13,
+                    style: "normal",
+                    color: "#9f9f9f",
+                },
+                shadowSize: 0,
+
+            },
+            xaxis: {
+                tickColor: '#eee',
+                show: true,
+                font :{
+                    lineHeight: 13,
+                    style: "normal",
+                    color: "#9f9f9f",
+                },
+                shadowSize: 0,
+                min: 0,
+                max: 60
+            },
+            grid: {
+                borderWidth: 1,
+                borderColor: '#eee',
+                labelMargin:10,
+                hoverable: true,
+                clickable: true,
+                mouseActiveRadius:6,
+            },
+            legend:{
+                container: '.flc-dynamic',
+                backgroundOpacity: 0.5,
+                noColumns: 0,
+                backgroundColor: "white",
+                lineWidth: 0
+            },
+            tooltip: {
+                show: true,
+                content: "%s - %y"
+            }
+        });
+
+        /* Update */    
+        function updateLA() {
+            getServerLA();
+            plot.setData([returnServerLA()]);
+            // Since the axes don't change, we don't need to call plot.setupGrid()
+
+            plot.draw();
+            setTimeout(updateLA, la_update_interval);
+        }
+
+        updateLA();
+    });
+</script>
+<?
+APP::$insert['js_la'] = ['js', 'code', 'before', '</body>', ob_get_contents()];
+ob_end_clean();

@@ -459,6 +459,6 @@ ob_end_clean();
     });
     
     $(document).on('click', '#tab-nav-<?= $data['hash'] ?> > a',function() {
-        $('#fbl-reports-period > button[data-period="1 months"]').trigger('click');
+        $('#fbl-reports-period > button[data-period="1 weeks"]').trigger('click');
     });
 </script>

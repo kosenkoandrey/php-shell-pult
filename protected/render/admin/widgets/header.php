@@ -1,3 +1,14 @@
+<?
+$messages_cnt = APP::Module('DB')->Select(
+    APP::Module('Messages')->settings['module_messages_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+    ['COUNT(id)'], 
+    'messages',
+    [
+        ['user', '=', APP::Module('Users')->user['id'], PDO::PARAM_INT],
+        ['state', '=', 'unread', PDO::PARAM_STR]
+    ]
+);
+?>
 <header id="header" class="media">
     <div class="pull-left h-logo">
         <a href="<?= APP::Module('Routing')->root ?>admin" class="hidden-xs">
@@ -7,6 +18,9 @@
     </div>
 
     <ul class="pull-right h-menu">
+        <li class="hidden-xs">
+            <a href="<?= APP::Module('Routing')->root ?>messages"><? if ($messages_cnt) { ?><span class="badge bgm-orange" style="position: absolute; top: 0; left: 30px; font-weight: bold;"><?= $messages_cnt ?></span><? } ?><i class="hm-icon zmdi zmdi-comment-text"></i></a>
+        </li>
         <li class="dropdown hidden-xs">
             <a data-toggle="dropdown" href=""><i class="hm-icon zmdi zmdi-more-vert"></i></a>
             <ul class="dropdown-menu dm-icon pull-right">

@@ -317,7 +317,7 @@ ob_end_clean();
     });
 
     $(document).on('click', '#tab-nav-<?= $data['hash'] ?> > a', function () {
-        $('#new-users-erros-period > button[data-period="1 months"]').trigger('click');
+        $('#new-users-erros-period > button[data-period="1 weeks"]').trigger('click');
     });
 
     $('#new-users-calendar').popover({
@@ -396,27 +396,23 @@ ob_end_clean();
             success: function (data) {
                 $.plot("#new-users-chart", [
                     {
-                        label: "активные",
-                        data: data.range.active
-                    },
-                    {
-                        label: "ожидают активации",
+                        label: "Ожидают активации",
                         data: data.range.inactive
                     },
                     {
-                        label: "временно неактивные",
+                        label: "Временно неактивные",
                         data: data.range.pause
                     },
                     {
-                        label: "отписанные",
+                        label: "Отписанные",
                         data: data.range.unsubscribe
                     },
                     {
-                        label: "в ченом списке",
+                        label: "В черном списке",
                         data: data.range.blacklist
                     },
                     {
-                        label: "дропнутые",
+                        label: "Дропнутые",
                         data: data.range.dropped
                     }
                 ], {
@@ -474,7 +470,7 @@ ob_end_clean();
                         var date = new Date(item.datapoint[0]);
 
                         $("#card-<?= $data['hash'] ?>-tooltip")
-                                .html(item.datapoint[1] + ' ' + item.series.label + ' of ' + date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear())
+                                .html(item.datapoint[1] + ' ' + item.series.label + ' - ' + date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear())
                                 .css({
                                     top: item.pageY + 5,
                                     left: item.pageX + 5
@@ -682,6 +678,8 @@ ob_end_clean();
                             )
                         );
                 });
+                
+                console.log(range_total);
 
                 $('#users-table tbody')
                 .append(
@@ -698,23 +696,6 @@ ob_end_clean();
                             $('<a/>', {
                                 'class': 'alink',
                                 'target': '_blank',
-                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.inactive
-                            })
-                            .append(range_total.inactive.toLocaleString())
-                            )
-                        .append(
-                            $('<sup/>')
-                            .css('margin-left', 5)
-                            .append(range_total.inactive ? (range_total.inactive / (data.total.value / 100)).toFixed(2) : 0)
-                            .append('%')
-                            )
-                        )
-                    .append(
-                        $('<td/>')
-                        .append(
-                            $('<a/>', {
-                                'class': 'alink',
-                                'target': '_blank',
                                 'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.active
                             })
                             .append(range_total.active.toLocaleString())
@@ -723,6 +704,23 @@ ob_end_clean();
                             $('<sup/>')
                             .css('margin-left', 5)
                             .append(range_total.active ? (range_total.active / (data.total.value / 100)).toFixed(2) : 0)
+                            .append('%')
+                            )
+                        )
+                .append(
+                        $('<td/>')
+                        .append(
+                            $('<a/>', {
+                                'class': 'alink',
+                                'target': '_blank',
+                                'href': '<?= APP::Module('Routing')->root ?>admin/users?filters=' + data.total.hash.inactive
+                            })
+                            .append(range_total.inactive.toLocaleString())
+                            )
+                        .append(
+                            $('<sup/>')
+                            .css('margin-left', 5)
+                            .append(range_total.inactive ? (range_total.inactive / (data.total.value / 100)).toFixed(2) : 0)
                             .append('%')
                             )
                         )

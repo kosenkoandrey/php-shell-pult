@@ -12,5 +12,6 @@ return [
         ['admin\/modules\/uninstall\/(?P<module_hash>.*)',         'Admin', 'UninstallModule'],
         
         ['admin\/api\/modules\/uninstall\/(?P<module_hash>.*)',    'Admin', 'APIUninstallModule'],
+        ['admin\/api\/server\.json',                               'Admin', 'APIServer'],
     ]
 ];

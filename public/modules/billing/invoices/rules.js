@@ -7,11 +7,13 @@
  */
 
 (function($) {
+    var settings;
+    var objects = {};
     var methods = {
         init: function(options) { 
             $target_rules = $(this);
 
-            var settings = $.extend( {
+            settings = $.extend( {
                 'rules': $.evalJSON($(this).val()),
                 'debug': false
             }, options);
@@ -114,6 +116,20 @@
                                         default: settings[id] = param_value;
                                     }
                                     break;
+                                case 'cr_date': 
+                                    switch(id) {
+                                        
+                                        case 'date_from': 
+                                            if (settings.date_from === undefined) settings.date_from = new Object();
+                                            settings.date_from = Math.round(objects['cr_date_from'].date._d.setHours(0,0,0,0) / 1000); 
+                                            break;
+                                        case 'date_to': 
+                                            if (settings.date_to === undefined) settings.date_to = new Object();
+                                            settings.date_to = Math.round(objects['cr_date_to'].date._d.setHours(0,0,0,0) / 1000 - 1); 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
                                 default: settings[id] = param_value;
                             }
                         }
@@ -187,7 +203,8 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="user" href="javascript:void(0)">Пользователь</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="amount" href="javascript:void(0)">Сумма</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="author" href="javascript:void(0)">Автор</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">Состояние</a></li>'
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">Состояние</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="cr_date" href="javascript:void(0)">Дата создания</a></li>'
             ].join('');
         },
         render_rules: function(rules, holder) {
@@ -432,6 +449,37 @@
 
                     if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    break;
+                    
+                case 'cr_date':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Дата создания</tr>',
+                            '<tr>',
+                                '<td style="width: 125px">',
+                                    '<input data-id="date_from" class="form-control m-l-5 date-picker-from" type="text" placeholder="Начало">',
+                                    '<input data-id="date_to" class="form-control m-l-5 date-picker-to" type="text" placeholder="Конец">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+                    
+                    $('.date-picker-from', $trigger_rule_item).datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        defaultDate: 0
+                    }).on('dp.change', function(e) {
+                        objects['cr_date_from'] = e;
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    $('.date-picker-to', $trigger_rule_item).datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        defaultDate: 0
+                    }).on('dp.change', function(e) {
+                        objects['cr_date_to'] = e;
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
                     
                     break;
             }

@@ -236,6 +236,8 @@ class Costs {
     
     public function GetYandexToken() {
         if (isset(APP::Module('Routing')->get['code'])) {
+            $params = json_decode(APP::Module('Routing')->get['state']);
+            
             $data = json_decode(APP::Module('Utils')->Curl([
                 'url' => 'https://oauth.yandex.ru/token',
                 'return_transfer' => 1,
@@ -248,13 +250,27 @@ class Costs {
             ]));
             
             if ($data->access_token) {
-                APP::Module('Registry')->Update(['value' => $data->access_token], [['item', '=', 'module_costs_yandex_token', PDO::PARAM_STR]]);
-                header('Location: ' . APP::Module('Routing')->root . 'admin/costs/settings?yandex_token=success');
+                APP::Module('DB')->Update($params->db, 'registry', [
+                    'value' => $data->access_token
+                ], [
+                    ['item', '=', 'module_costs_yandex_token', PDO::PARAM_STR]
+                ]);
+
+                header('Location: ' . $params->url . 'admin/costs/settings?yandex_token=success');
             } else {
-                header('Location: ' . APP::Module('Routing')->root . 'admin/costs/settings?yandex_token=error');
+                header('Location: ' . $params->url . 'admin/costs/settings?yandex_token=error');
             }
         } else {
-            header('Location: https://oauth.yandex.ru/authorize?response_type=code&client_id=' . $this->settings['module_costs_yandex_client_id']);
+            $params = [
+                'response_type' => 'code',
+                'client_id' => $this->settings['module_costs_yandex_client_id'],
+                'state' => json_encode([
+                    'url' => APP::Module('Routing')->root,
+                    'db' => APP::Module('DB')->conf['connections']['auto']['database']
+                ])
+            ];
+            
+            header('Location: https://oauth.yandex.ru/authorize?' . http_build_query($params));
         }
         
         exit;
@@ -316,16 +332,25 @@ class Costs {
             $tmp[$cost['utm_source']][date('d-m-Y', $cost['cost_date'])][] = $cost['amount'];
         }
         
-        $out = [];
+        $out = [
+            'range' => [],
+            'total' => [
+                'direct' => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}}]}'),
+            ]
+        ];
 
         foreach ((array) $tmp as $source => $dates) {
             foreach ((array) $dates as $key => $value) {
-                $out[$source][$key] = [strtotime($key) * 1000, array_sum((array) $value)];
+                $out['range'][$source][$key] = [
+                    strtotime($key) * 1000, 
+                    array_sum((array) $value),
+                    APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"date","settings":{"date_from":' . strtotime($key) . ',"date_to":' . (strtotime($key . ' + 1 day') - 1) . '}}]}')
+                ];
             }
         }
         
-        foreach ($out as $key => $value) {
-            $out[$key] = array_values($value);
+        foreach ($out['range'] as $key => $value) {
+            $out['range'][$key] = array_values($value);
         }
 
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
@@ -585,7 +610,7 @@ class CostsSearch {
             APP::Module('Costs')->settings['module_costs_db_connection'], 
             ['fetchAll', PDO::FETCH_COLUMN], 
             ['id'], 'costs',
-            [['cost_date', 'BETWEEN', '"' . $settings['from'] . '" AND "' . $settings['to'] . '"']]
+            [['UNIX_TIMESTAMP(cost_date)', 'BETWEEN', $settings['date_from'] . ' AND ' . $settings['date_to'], PDO::PARAM_STR]]
         );
     }
     

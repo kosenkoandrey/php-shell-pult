@@ -30,6 +30,8 @@ return [
         ['admin\/tunnels\/api\/timeouts\/update\.json(\?.*)?',      'Tunnels', 'APIUpdateTimeout'],
         ['admin\/tunnels\/api\/timeouts\/remove\.json(\?.*)?',      'Tunnels', 'APIRemoveTimeout'],
         
+        ['admin\/tunnels\/api\/users\/state\.json(\?.*)?',          'Tunnels', 'APIChangeUserState'],
+        
         ['tunnels\/api\/subscribe\.json(\?.*)?',                    'Tunnels', 'APISubscribe'],
         ['tunnels\/api\/tags\/add\.json(\?.*)?',                    'Tunnels', 'APIAddTag'],
         

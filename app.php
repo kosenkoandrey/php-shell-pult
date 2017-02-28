@@ -360,11 +360,15 @@ class APP {
                 chmod($file, 0777);
             }
             
+            $message = json_encode([date('H:i:s', time()), $code, $details], JSON_PARTIAL_OUTPUT_ON_ERROR);
+            
             file_put_contents(
                 $file,
-                json_encode([date('H:i:s', time()), $code, $details], JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n",
+                $message . "\n",
                 FILE_APPEND | LOCK_EX
             );
+            
+            self::Module('Messages')->Add($type, false, $message);
         }
         
         if ($view) {

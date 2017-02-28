@@ -303,19 +303,19 @@ ob_end_clean();
                 $.plot("#billing-chart", [
                     { 
                         label: "Новые", 
-                        data: data.new 
+                        data: data.range.new 
                     },
                     { 
                         label: "В обработке", 
-                        data: data.processed 
+                        data: data.range.processed 
                     },
                     { 
                         label: "Аннулированные", 
-                        data: data.revoked 
+                        data: data.range.revoked 
                     },
                     { 
                         label: "Оплаченные", 
-                        data: data.success 
+                        data: data.range.success 
                     }
                 ], {
                     series: {
@@ -400,10 +400,10 @@ ob_end_clean();
                             '<tbody>',
                                 '<tr class="total">',
                                     '<td></td>',
-                                    '<td class="t_new"><a href="#"></a></td>',
-                                    '<td class="t_processed"><a href="#"></a></td>',
-                                    '<td class="t_revoked"><a href="#"></a></td>',
-                                    '<td class="t_success"><a href="#"></a></td>',
+                                    '<td class="t_new"><a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.total.new + '"></a></td>',
+                                    '<td class="t_processed"><a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.total.processed + '"></a></td>',
+                                    '<td class="t_revoked"><a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.total.revoked + '"></a></td>',
+                                    '<td class="t_success"><a target="_blank" href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.total.success + '"></a></td>',
                                     '<td class="t_profit"></td>',
                                 '</tr>',
                             '</tbody>',
@@ -413,22 +413,22 @@ ob_end_clean();
                 
                 var billing_invoices = [0, 0, 0, 0, 0];
                 
-                $.each(data.success, function(key, invoices) {
+                $.each(data.range.success, function(key, invoices) {
                     $('#billing-invoices-table > tbody').prepend([
                         '<tr>',
                             '<td>' + moment.unix(parseInt(invoices[0]) / 1000).format('DD-MM-YYYY') + '</td>',
-                            '<td><a href="#" target="_blank">' + data.new[key][1] + '</a></td>',
-                            '<td><a href="#" target="_blank">' + data.processed[key][1] + '</a></td>',
-                            '<td><a href="#" target="_blank">' + data.revoked[key][1] + '</a></td>',
-                            '<td><a href="#" target="_blank">' + invoices[1] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.range.new[key][3] + '" target="_blank">' + data.range.new[key][1] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.range.processed[key][3] + '" target="_blank">' + data.range.processed[key][1] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + data.range.revoked[key][3] + '" target="_blank">' + data.range.revoked[key][1] + '</a></td>',
+                            '<td><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices?filters=' + invoices[3] + '" target="_blank">' + invoices[1] + '</a></td>',
                             '<td>' + invoices[2] + ' руб.</td>',
                         '</tr>'
                     ].join(''));
                     
-                    billing_invoices[0] += data.new[key][1];
-                    billing_invoices[1] += data.processed[key][1];
-                    billing_invoices[2] += data.revoked[key][1];
-                    billing_invoices[3] += data.success[key][1];
+                    billing_invoices[0] += data.range.new[key][1];
+                    billing_invoices[1] += data.range.processed[key][1];
+                    billing_invoices[2] += data.range.revoked[key][1];
+                    billing_invoices[3] += data.range.success[key][1];
                     billing_invoices[4] += invoices[2];
                 });
                 
@@ -443,10 +443,23 @@ ob_end_clean();
 
     $(document).on('click', "#billing-period > button",function() {
         var period = $(this).data('period');
-
-        var to = Math.round(new Date().getTime() / 1000);
-        var from = strtotime("-" + period, to);
-
+        var today = new Date();
+        
+        switch (period) {
+            case 'today':
+                var to = Math.round(today.getTime() / 1000);
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+                break;
+            case 'yesterday':
+                var to = (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000) - 1;
+                var from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime() / 1000;
+                break;
+            default:
+                var to = Math.round(today.getTime() / 1000);
+                var from = strtotime("-" + period, to);
+                break;
+        }
+        
         var to_date = new Date(to * 1000);
         var from_date = new Date(from * 1000);
 
@@ -517,6 +530,6 @@ ob_end_clean();
     });
     
     $(document).on('click', '#tab-nav-<?= $data['hash'] ?> > a',function() {
-        $('#billing-period > button[data-period="1 months"]').trigger('click');
+        $('#billing-period > button[data-period="1 weeks"]').trigger('click');
     });
 </script>

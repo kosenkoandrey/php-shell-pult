@@ -9,7 +9,7 @@
 <div class="btn-group m-b-15">
     <button id="new-users-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="new-users-calendar-from">...</span> - <span id="new-users-calendar-to">...</span></button>
 </div>
-<div id="new-users-chart">
+<div id="new-users-chart" class="m-b-20">
     <div class="text-center">
         <div class="preloader pl-xxl">
             <svg class="pl-circular" viewBox="25 25 50 50">

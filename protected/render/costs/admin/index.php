@@ -1,5 +1,5 @@
 <?
-$filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Decode($_GET['filters']) : '{"logic":"intersect","rules":[{"method":"utm_source","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_medium","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_campaign","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_term","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_content","settings":{"logic":"LIKE","value":"%"}}]}');
+$filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP::Module('Crypt')->Decode(APP::Module('Routing')->get['filters']) : '{"logic":"intersect","rules":[{"method":"utm_source","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_medium","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_campaign","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_term","settings":{"logic":"LIKE","value":"%"}},{"method":"utm_content","settings":{"logic":"LIKE","value":"%"}}]}');
 ?>
 <!DOCTYPE html>
 <!--[if IE 9 ]><html class="ie9"><![endif]-->
@@ -7,7 +7,7 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Costs</title>
+        <title>Управление расходами</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
@@ -31,7 +31,7 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Costs' => 'admin/costs'
+            'Расходы' => 'admin/costs'
         ]);
         ?>
         <section id="main">
@@ -41,15 +41,15 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Costs</h2>
+                            <h2>Управление расходами</h2>
                             <ul class="actions">
                                 <li class="dropdown">
                                     <a href="javascript:void(0)" data-toggle="dropdown">
                                         <i class="zmdi zmdi-more-vert"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/costs/add">Add cost</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/costs/settings">Settings</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/costs/add">Добавить расход</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/costs/settings">Настройки</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -57,14 +57,14 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                         <div class="card-body card-padding">
                             <input type="hidden" name="search" value="<?= $filters ?>" id="search">
                             <div class="btn-group">
-                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Apply</button>
+                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Сделать выборку</button>
                             
                                 <div class="btn-group">
                                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
-                                        Actions <span class="caret"></span>
+                                        Выполнить действие <span class="caret"></span>
                                     </button>
                                     <ul id="search_results_actions" class="dropdown-menu" role="menu">
-                                        <li><a data-action="remove" href="javascript:void(0)">Remove</a></li>
+                                        <li><a data-action="remove" href="javascript:void(0)">Удалить</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -74,14 +74,14 @@ $filters = htmlspecialchars(isset($_GET['filters']) ? APP::Module('Crypt')->Deco
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-order="desc">ID</th>
-                                        <th data-column-id="date">Date</th>
-                                        <th data-column-id="amount">Amount</th>
+                                        <th data-column-id="date">Дата</th>
+                                        <th data-column-id="amount">Сумма</th>
                                         <th data-column-id="utm_source">UTM-source</th>
                                         <th data-column-id="utm_medium">UTM-medium</th>
                                         <th data-column-id="utm_campaign">UTM-campaign</th>
                                         <th data-column-id="utm_term">UTM-term</th>
                                         <th data-column-id="utm_content">UTM-content</th>
-                                        <th data-column-id="actions" data-formatter="actions" data-sortable="false">Actions</th>
+                                        <th data-column-id="actions" data-formatter="actions" data-sortable="false">Действия</th>
                                     </tr>
                                 </thead>
                             </table>

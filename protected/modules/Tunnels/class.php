@@ -624,6 +624,85 @@ class Tunnels {
     }
     
     
+    public function APIChangeUserState() {
+        switch ($_POST['action']) {
+            case 'play':
+                APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                    'state' => 'active'
+                ], [
+                    ['id', '=', $_POST['tunnel'], PDO::PARAM_INT]
+                ]);
+                
+                APP::Module('DB')->Insert(
+                    $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    [
+                        'id' => 'NULL',
+                        'user_tunnel_id' => [$_POST['tunnel'], PDO::PARAM_INT],
+                        'label_id' => ['resume', PDO::PARAM_STR],
+                        'token' => 'NULL',
+                        'info' => [json_encode([
+                            'user' => APP::Module('Users')->user['id']
+                        ]), PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+                break;
+            case 'pause':
+                APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                    'state' => 'pause'
+                ], [
+                    ['id', '=', $_POST['tunnel'], PDO::PARAM_INT]
+                ]);
+                
+                APP::Module('DB')->Insert(
+                    $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    [
+                        'id' => 'NULL',
+                        'user_tunnel_id' => [$_POST['tunnel'], PDO::PARAM_INT],
+                        'label_id' => ['pause', PDO::PARAM_STR],
+                        'token' => 'NULL',
+                        'info' => [json_encode([
+                            'user' => APP::Module('Users')->user['id']
+                        ]), PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+                break;
+            case 'stop':
+                APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                    'state' => 'complete',
+                    'resume_date' => '0000-00-00 00:00:00',
+                    'object' => '',
+                    'input_data' => ''
+                ], [
+                    ['id', '=', $_POST['tunnel'], PDO::PARAM_INT]
+                ]);
+                
+                APP::Module('DB')->Insert(
+                    $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    [
+                        'id' => 'NULL',
+                        'user_tunnel_id' => [$_POST['tunnel'], PDO::PARAM_INT],
+                        'label_id' => ['stop', PDO::PARAM_STR],
+                        'token' => 'NULL',
+                        'info' => [json_encode([
+                            'user' => APP::Module('Users')->user['id']
+                        ]), PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+                break;
+        }
+
+        header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+        header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+        header('Content-Type: application/json');
+        
+        echo json_encode([
+            'result' => 'success',
+        ]);
+    }
+    
     public function APIAddTag() {
         $id = APP::Module('DB')->Insert(
             $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
@@ -1377,15 +1456,15 @@ class Tunnels {
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['COUNT(id)'], 'task_manager',
                                 [
-                                    ['token', '=', $user['id'] . '_tunnel_activation', PDO::PARAM_STR],
+                                    ['token', '=', 'user_'. $user['id'] . '_activation', PDO::PARAM_STR],
                                     ['state', '=', 'wait', PDO::PARAM_STR]
                                 ]
                             )) {
                                 APP::Module('TaskManager')->Add(
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
-                                    json_encode($activation_settings), 
-                                    'user'. $user['id'], 
+                                    json_encode([$user['email'], $activation[0], $activation_settings]), 
+                                    'user_'. $user['id'] . '_activation', 
                                     'wait'
                                 );
                             }
@@ -1403,15 +1482,15 @@ class Tunnels {
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['COUNT(id)'], 'task_manager',
                                 [
-                                    ['token', '=', $user['id'] . '_tunnel_activation', PDO::PARAM_STR],
+                                    ['token', '=', 'user_'. $user['id'] . '_activation', PDO::PARAM_STR],
                                     ['state', '=', 'wait', PDO::PARAM_STR]
                                 ]
                             )) {
                                 APP::Module('TaskManager')->Add(
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
-                                    json_encode($activation_settings), 
-                                    'user'. $user['id'], 
+                                    json_encode([$user['email'], $activation[0], $activation_settings]), 
+                                    'user_'. $user['id'] . '_activation', 
                                     'wait'
                                 );
                             }
@@ -1429,15 +1508,15 @@ class Tunnels {
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['COUNT(id)'], 'task_manager',
                                 [
-                                    ['token', '=', $user['id'] . '_tunnel_activation', PDO::PARAM_STR],
+                                    ['token', '=', 'user_'. $user['id'] . '_activation', PDO::PARAM_STR],
                                     ['state', '=', 'wait', PDO::PARAM_STR]
                                 ]
                             )) {
                                 APP::Module('TaskManager')->Add(
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
-                                    json_encode($activation_settings), 
-                                    'user'. $user['id'], 
+                                    json_encode([$user['email'], $activation[0], $activation_settings]), 
+                                    'user_'. $user['id'] . '_activation', 
                                     'wait'
                                 );
                             }
@@ -1862,15 +1941,15 @@ class Tunnels {
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['COUNT(id)'], 'task_manager',
                                 [
-                                    ['token', '=', $user['id'] . '_tunnel_activation', PDO::PARAM_STR],
+                                    ['token', '=', 'user_'. $user['id'] . '_activation', PDO::PARAM_STR],
                                     ['state', '=', 'wait', PDO::PARAM_STR]
                                 ]
                             )) {
                                 APP::Module('TaskManager')->Add(
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
-                                    json_encode($activation_settings), 
-                                    'user'. $user['id'], 
+                                    json_encode([$user['email'], $activation[0], $activation_settings]), 
+                                    'user_'. $user['id'] . '_activation', 
                                     'wait'
                                 );
                             }
@@ -1888,15 +1967,15 @@ class Tunnels {
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['COUNT(id)'], 'task_manager',
                                 [
-                                    ['token', '=', $user['id'] . '_tunnel_activation', PDO::PARAM_STR],
+                                    ['token', '=', 'user_'. $user['id'] . '_activation', PDO::PARAM_STR],
                                     ['state', '=', 'wait', PDO::PARAM_STR]
                                 ]
                             )) {
                                 APP::Module('TaskManager')->Add(
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
-                                    json_encode($activation_settings), 
-                                    'user'. $user['id'], 
+                                    json_encode([$user['email'], $activation[0], $activation_settings]), 
+                                    'user_'. $user['id'] . '_activation', 
                                     'wait'
                                 );
                             }
@@ -1914,15 +1993,15 @@ class Tunnels {
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['COUNT(id)'], 'task_manager',
                                 [
-                                    ['token', '=', $user['id'] . '_tunnel_activation', PDO::PARAM_STR],
+                                    ['token', '=', 'user_'. $user['id'] . '_activation', PDO::PARAM_STR],
                                     ['state', '=', 'wait', PDO::PARAM_STR]
                                 ]
                             )) {
                                 APP::Module('TaskManager')->Add(
                                     'Mail', 'Send', 
                                     date('Y-m-d H:i:s', (time() + $this->settings['module_tunnels_resend_acrivation_timeout'])), 
-                                    json_encode($activation_settings), 
-                                    'user'. $user['id'], 
+                                    json_encode([$user['email'], $activation[0], $activation_settings]), 
+                                    'user_'. $user['id'] . '_activation', 
                                     'wait'
                                 );
                             }

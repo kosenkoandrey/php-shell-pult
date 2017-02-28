@@ -75,7 +75,7 @@
                                         default: echo $data['about']['state']; break;
                                     }
                                 } else {
-                                    echo 'СОСТОЯНИЕ НЕ ИЗВЕСТНО';
+                                    echo 'СОСТОЯНИЕ НЕИЗВЕСТНО';
                                 }
                                 ?>)
                             </small>
@@ -101,6 +101,7 @@
                                 <? if ($data['premium']) { ?><a href="#tab-premium" aria-controls="tab-premium" role="tab" data-toggle="tab" class="list-group-item">Платные материалы</a><? } ?>
                                 <? if ($data['invoices']) { ?><a href="#tab-invoices" aria-controls="tab-invoices" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['invoices']) ?></span>Счета</a><? } ?>
                                 <? if ($data['polls']) { ?><a href="#tab-polls" aria-controls="tab-polls" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" style="margin: 0 3px"><?= count($data['polls']) ?></span>Опросы</a><? } ?>
+                                <? if ($data['taskmanager']) { ?><a href="#tab-taskmanager" aria-controls="tab-taskmanager" role="tab" data-toggle="tab" class="list-group-item"><span class="badge bgm-teal" data-toggle="tooltip" data-placement="top" title="Задачи" style="margin: 0 3px"><?= count($data['taskmanager']) ?></span>Планировщик</a><? } ?>
                             </div>
                         </div>
 
@@ -169,11 +170,20 @@
                                                                 case 'unsubscribe': echo 'отписан'; break;
                                                                 case 'blacklist': echo 'в черном списке'; break;
                                                                 case 'dropped': echo 'невозможно доставить почту'; break;
+                                                                case 'unknown': echo 'неизвестно'; break;
                                                                 default: echo $data['about']['state']; break;
                                                                 
                                                             }
                                                         } else {
-                                                            echo 'не изветстно';
+                                                            echo 'неизвестно';
+                                                        }
+                                                        
+                                                        foreach ($data['taskmanager'] as $task) {
+                                                            if (($task['module'] . $task['method'] == 'UsersActivateUserTask') && ($task['state'] == 'wait')) {
+                                                                ?>
+                                                                <span class="m-l-5">(автоматическое восстановление подписки <?= $task['exec_date'] ?>)</span>    
+                                                                <?
+                                                            }
                                                         }
                                                         ?>
                                                     </dd>
@@ -195,11 +205,13 @@
                                                     <dd>
                                                         <div class="fg-line" style="width: 50%;">
                                                             <select id="about_state" name="about[state]" class="selectpicker">
-                                                                <option value="unknown">не изветстно</option>
+                                                                <option value="inactive">ожидает активации</option>
                                                                 <option value="active">активный</option>
-                                                                <option value="inactive">неактивный</option>
+                                                                <option value="pause">временно отписан</option>
+                                                                <option value="unsubscribe">отписан</option>
                                                                 <option value="blacklist">в черном списке</option>
-                                                                <option value="dropped">дропнутый</option>
+                                                                <option value="dropped">невозможно доставить почту</option>
+                                                                <option value="unknown">неизвестно</option>
                                                             </select>
                                                         </div>
                                                     </dd>
@@ -492,28 +504,52 @@
                                                         <?
                                                         foreach ($data['tunnels']['subscriptions'] as $item) {
                                                             $tunnel_icon = false;
+                                                            $tunnel_actions = [
+                                                                'play' => true,
+                                                                'pause' => true,
+                                                                'stop' => true
+                                                            ];
 
                                                             switch ($item['info']['state']) {
-                                                                case 'pause': $tunnel_icon = ['Grey-400', 'time']; break;
-                                                                case 'complete': $tunnel_icon = ['Teal-400', 'check']; break;
-                                                                case 'active': $tunnel_icon = ['Orange-400', 'arrow-split']; break;
+                                                                case 'pause': 
+                                                                    $tunnel_icon = ['Grey-400', 'time']; 
+                                                                    $tunnel_actions = [
+                                                                        'play' => true,
+                                                                        'pause' => false,
+                                                                        'stop' => true
+                                                                    ];
+                                                                    break;
+                                                                case 'complete': 
+                                                                    $tunnel_icon = ['Teal-400', 'check']; 
+                                                                    $tunnel_actions = [
+                                                                        'play' => false,
+                                                                        'pause' => false,
+                                                                        'stop' => false
+                                                                    ];
+                                                                    break;
+                                                                case 'active': 
+                                                                    $tunnel_icon = ['Orange-400', 'arrow-split']; 
+                                                                    $tunnel_actions = [
+                                                                        'play' => false,
+                                                                        'pause' => true,
+                                                                        'stop' => true
+                                                                    ];
+                                                                    break;
                                                             }
                                                             ?>
                                                             <tr>
-                                                                <td style="width: 60px;">
+                                                                <td id="tunnel_icon_<?= $item['info']['id'] ?>" style="width: 60px;">
                                                                     <span style="display: inline-block" class="avatar-char palette-<?= $tunnel_icon[0] ?> bg"><i class="zmdi zmdi-<?= $tunnel_icon[1] ?>"></i></span>
                                                                 </td>
                                                                 <td style="font-size: 16px;">
                                                                     <a class="tunnel_tags" data-id="<?= $item['info']['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)"><?= $item['info']['tunnel_name'] ?></a>
                                                                     <div style="font-size: 11px;"><?= count($item['tags']) ?> событий</div>
                                                                 </td>
-                                                                <!--
-                                                                <td>
-                                                                    <a target="_blank" href="#" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
-                                                                    <a target="_blank" href="#" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
-                                                                    <a target="_blank" href="#" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
+                                                                <td style="width: 300px;">
+                                                                    <a data-toggle="tooltip" data-placement="top" data-original-title="Остановить" data-id="<?= $item['info']['id'] ?>" data-action="stop" href="javascript:void(0)" class="tunnel_actions stop btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['stop']) { ?>disabled<? } ?>"><span class="zmdi zmdi-close-circle"></span></a>
+                                                                    <a data-toggle="tooltip" data-placement="top" data-original-title="На паузу" data-id="<?= $item['info']['id'] ?>" data-action="pause" href="javascript:void(0)" class="tunnel_actions pause btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['pause']) { ?>disabled<? } ?>"><span class="zmdi zmdi-hourglass-alt"></span></a>
+                                                                    <a data-toggle="tooltip" data-placement="top" data-original-title="Возобновить" data-id="<?= $item['info']['id'] ?>" data-action="play" href="javascript:void(0)" class="tunnel_actions play btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['play']) { ?>disabled<? } ?>"><span class="zmdi zmdi-power"></span></a>
                                                                 </td>
-                                                                -->
                                                             </tr>
                                                             <?
                                                         }
@@ -781,7 +817,7 @@
                                                             <tr>
                                                                 <td>Значение</td>
                                                                 <td class="tag_value">
-                                                                    <pre></pre>
+                                                                    <pre style="white-space: pre-wrap"></pre>
                                                                 </td>
                                                             </tr>
                                                             <tr>
@@ -1180,6 +1216,117 @@
                                     </div>
                                     <?
                                 }
+                                
+                                if ($data['taskmanager']) {
+                                    ?>
+                                    <div role="tabpanel" class="tab-pane" id="tab-taskmanager">
+                                        <div class="pmb-block">
+                                            <div class="pmbb-header">
+                                                <h2><i class="zmdi zmdi-labels m-r-5"></i> Всего <?= count($data['taskmanager']) ?> задач</h2>
+                                            </div>
+                                        </div>
+                                        <table class="table table-hover table-vmiddle">
+                                            <tbody>
+                                                <?
+                                                foreach ($data['taskmanager'] as $item) {
+                                                    $task_icon = false;
+
+                                                    switch ($item['state']) {
+                                                        case 'complete': $task_icon = ['Teal-400', 'check']; break;
+                                                        case 'wait': $task_icon = ['Orange-400', 'time']; break;
+                                                    }
+                                                    ?>
+                                                    <tr>
+                                                        <td style="width: 60px;">
+                                                            <span style="display: inline-block" class="avatar-char palette-<?= $task_icon[0] ?> bg"><i class="zmdi zmdi-<?= $task_icon[1] ?>"></i></span>
+                                                        </td>
+                                                        <td style="font-size: 16px;">
+                                                            <a class="taskmanager" data-id="<?= $item['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)">
+                                                                <?
+                                                                switch ($item['module'] . $item['method']) {
+                                                                    case 'BillingExecMembersAccessTask': echo 'Открытие доступа к мемберке'; break;
+                                                                    case 'BillingExecSecondaryProductsTask': echo 'Привязка вторичного продукта к счету'; break;
+                                                                    case 'MailSend': echo 'Отправка письма'; break;
+                                                                    case 'UsersActivateUserTask': echo 'Восстановление подписки (активация пользователя)'; break;
+                                                                    default: echo $item['module'] . $item['method']; break;
+                                                                }
+                                                                ?>
+                                                            </a>
+                                                            <div style="font-size: 11px;"><?= $item['exec_date'] ?></div>
+                                                        </td>
+                                                        <!--
+                                                        <td>
+                                                            <a target="_blank" href="#" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
+                                                            <a target="_blank" href="#" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
+                                                            <a target="_blank" href="#" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
+                                                        </td>
+                                                        -->
+                                                    </tr>
+                                                    <?
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                
+                                    <div class="modal fade" id="taskmanager-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">Детали задачи</h4>
+                                                </div>
+                                                <div class="details">
+                                                    <table class="table table-hover">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>ID задачи</td>
+                                                                <td class="taskmanager_id"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Токен</td>
+                                                                <td class="taskmanager_token"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Модуль</td>
+                                                                <td class="taskmanager_module"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Метод</td>
+                                                                <td class="taskmanager_method"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Аргументы</td>
+                                                                <td class="taskmanager_args">
+                                                                    <pre style="white-space: pre-wrap"></pre>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Состояние</td>
+                                                                <td class="taskmanager_state"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Дата создания</td>
+                                                                <td class="taskmanager_cr_date"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Запланированная дата выполнения</td>
+                                                                <td class="taskmanager_exec_date"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Фактическая дата выполнения</td>
+                                                                <td class="taskmanager_complete_date"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?
+                                }
                                 ?>
                             </div>
                         </div>
@@ -1252,6 +1399,16 @@
                             
                             var about_username = $('#about_username').val();
                             var about_state = $('#about_state').val();
+                            
+                            switch ($('#about_state').val()) {
+                                case 'inactive': about_state = 'ожидает активации'; break;
+                                case 'active': about_state = 'активный'; break;
+                                case 'pause': about_state = 'временно отписан'; break;
+                                case 'unsubscribe': about_state = 'отписан'; break;
+                                case 'blacklist': about_state = 'в черном списке'; break;
+                                case 'dropped': about_state = 'невозможно доставить почту'; break;
+                                case 'unknown': about_state = 'неизвестно'; break;
+                            }
                             
                             $('#about-username-value').html(about_username ? about_username : 'user<?= $data['user']['id'] ?>');
                             $('#about-state-value').html(about_state);
@@ -1329,7 +1486,7 @@
                                         '</h4>',
                                     '</div>',
                                     '<div id="collapse-mail-event-' + event.id + '" class="collapse" role="tabpanel" aria-labelledby="collapse-mail-event-' + event.id + '">',
-                                        '<div class="panel-body"><pre>' + details + '</pre></div>',
+                                        '<div class="panel-body"><pre style="white-space: pre-wrap">' + details + '</pre></div>',
                                     '</div>',
                                 '</div>'
                             ].join(''));
@@ -1367,7 +1524,7 @@
                                         '</h4>',
                                     '</div>',
                                     '<div id="collapse-mail-event-' + tag.id + '" class="collapse" role="tabpanel" aria-labelledby="collapse-mail-event-' + tag.id + '">',
-                                        '<div class="panel-body"><pre>' + info + '</pre></div>',
+                                        '<div class="panel-body"><pre style="white-space: pre-wrap">' + info + '</pre></div>',
                                     '</div>',
                                 '</div>'
                             ].join(''));
@@ -1379,10 +1536,115 @@
                     $('#tunnel-tags-modal').modal('show');
                 });
                 
-                
-                
-                
-                
+                $('body').on('click', '.tunnel_actions', function() {
+                    var id = $(this).data('id');
+                    var action = $(this).data('action');
+                    
+                    switch (action) {
+                        case 'play':
+                            $('.tunnel_actions.play').addClass('disabled');
+                            $('.tunnel_actions.pause').removeClass('disabled');
+                            $('.tunnel_actions.stop').removeClass('disabled');
+                            
+                            $('#tunnel_icon_' + id + ' span')
+                            .removeClass('palette-Grey-400')
+                            .removeClass('palette-Teal-400')
+                            .addClass('palette-Orange-400');
+                    
+                            $('#tunnel_icon_' + id + ' i')
+                            .removeClass('zmdi-time')
+                            .removeClass('zmdi-check')
+                            .addClass('zmdi-arrow-split');
+                    
+                            $.post('<?= APP::Module('Routing')->root ?>admin/tunnels/api/users/state.json', {
+                                action: 'play',
+                                tunnel: id
+                            }, function() { 
+                                swal({
+                                    title: 'Готово!',
+                                    text: 'Подписка на туннель успешно возобновлена',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Ok',
+                                    closeOnConfirm: false
+                                });
+                            });
+                            break;
+                        case 'pause':
+                            $('.tunnel_actions.play').removeClass('disabled');
+                            $('.tunnel_actions.pause').addClass('disabled');
+                            $('.tunnel_actions.stop').removeClass('disabled');
+                            
+                            $('#tunnel_icon_' + id + ' span')
+                            .addClass('palette-Grey-400')
+                            .removeClass('palette-Teal-400')
+                            .removeClass('palette-Orange-400');
+                    
+                            $('#tunnel_icon_' + id + ' i')
+                            .addClass('zmdi-time')
+                            .removeClass('zmdi-check')
+                            .removeClass('zmdi-arrow-split');
+                    
+                            $.post('<?= APP::Module('Routing')->root ?>admin/tunnels/api/users/state.json', {
+                                action: 'pause',
+                                tunnel: id
+                            }, function() { 
+                                swal({
+                                    title: 'Готово!',
+                                    text: 'Подписка на туннель успешно поставлена на паузу',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Ok',
+                                    closeOnConfirm: false
+                                });
+                            });
+                            break;
+                        case 'stop':
+                            swal({
+                                title: 'Вы действительно хотите остановить туннель?',
+                                text: 'Возобновить подписку на туннель будет невозможно',
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#DD6B55',
+                                confirmButtonText: 'Да',
+                                cancelButtonText: 'Отмена',
+                                closeOnConfirm: false,
+                                closeOnCancel: true
+                            }, function(isConfirm){
+                                if (isConfirm) {
+                                    $('.tunnel_actions.play').addClass('disabled');
+                                    $('.tunnel_actions.pause').addClass('disabled');
+                                    $('.tunnel_actions.stop').addClass('disabled');
+                                    
+                                    $('#tunnel_icon_' + id + ' span')
+                                    .removeClass('palette-Grey-400')
+                                    .addClass('palette-Teal-400')
+                                    .removeClass('palette-Orange-400');
+
+                                    $('#tunnel_icon_' + id + ' i')
+                                    .removeClass('zmdi-time')
+                                    .addClass('zmdi-check')
+                                    .removeClass('zmdi-arrow-split');
+                                    
+                                    $.post('<?= APP::Module('Routing')->root ?>admin/tunnels/api/users/state.json', {
+                                        action: 'stop',
+                                        tunnel: id
+                                    }, function() { 
+                                        swal({
+                                            title: 'Готово!',
+                                            text: 'Подписка на туннель успешно остановлена',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonText: 'Ok',
+                                            closeOnConfirm: false
+                                        });
+                                    });
+                                }
+                            });
+                            break;
+                    }
+                });
+
                 var tunnel_queue = <?= json_encode($data['tunnels']['queue']) ?>;
                 
                 $('body').on('click', '.tunnel_queue', function() {
@@ -1399,12 +1661,7 @@
                     
                     $('#tunnel-queue-modal').modal('show');
                 });
-                
-                
-                
-                
-                
-                
+
                 var tags = <?= json_encode($data['tags']) ?>;
                 
                 $('body').on('click', '.tags', function() {
@@ -1418,6 +1675,25 @@
                     $('#tags-modal .details .tag_cr_date').html(tags[id].cr_date);
 
                     $('#tags-modal').modal('show');
+                });
+                
+                var taskmanager = <?= json_encode($data['taskmanager']) ?>;
+                
+                $('body').on('click', '.taskmanager', function() {
+                    var id = $(this).data('id');
+                    var args = taskmanager[id].args !== 'NULL' ? JSON.stringify(JSON.parse(taskmanager[id].args), undefined, 4) : 'Аргументы отсутствуют';
+                    
+                    $('#taskmanager-modal .details .taskmanager_id').html(taskmanager[id].id);
+                    $('#taskmanager-modal .details .taskmanager_token').html(taskmanager[id].token);
+                    $('#taskmanager-modal .details .taskmanager_module').html(taskmanager[id].module);
+                    $('#taskmanager-modal .details .taskmanager_method').html(taskmanager[id].method);
+                    $('#taskmanager-modal .details .taskmanager_args > pre').html(args);
+                    $('#taskmanager-modal .details .taskmanager_state').html(taskmanager[id].state);
+                    $('#taskmanager-modal .details .taskmanager_cr_date').html(taskmanager[id].cr_date);
+                    $('#taskmanager-modal .details .taskmanager_exec_date').html(taskmanager[id].exec_date);
+                    $('#taskmanager-modal .details .taskmanager_complete_date').html(taskmanager[id].complete_date);
+
+                    $('#taskmanager-modal').modal('show');
                 });
             });
         </script>

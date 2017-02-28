@@ -252,7 +252,7 @@ class Billing {
                             'Billing', 'ExecMembersAccessTask', 
                             date('Y-m-d H:i:s', strtotime($item['timeout'])), 
                             json_encode([$invoice_id, $user_id, $item_data['type'], $item_data['id']]), 
-                            'user' . $user_id, 
+                            'user_' . $user_id . '_add_member_access', 
                             'wait'
                         );
                     }
@@ -295,11 +295,11 @@ class Billing {
                     'Billing', 'ExecSecondaryProductsTask', 
                     date('Y-m-d H:i:s', strtotime($product['timeout'])), 
                     json_encode([$invoice_id, $product['id']]), 
-                    'user' . APP::Module('DB')->Select(
+                    'user_' . APP::Module('DB')->Select(
                         $this->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                         ['user_id'], 'billing_invoices', 
                         [['id', '=', $invoice_id, PDO::PARAM_INT]]
-                    ), 
+                    ) . '_add_secondary_product', 
                     'wait'
                 );
             }
@@ -545,16 +545,29 @@ class Billing {
             $tmp[$data['state']][date('d-m-Y', $data['date'])][] = $data['amount'];
         }
 
-        $out = [];
+        $out = [
+            'range' => [],
+            'total' => [
+                'new' => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"cr_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"new"}}]}'),
+                'processed' => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"cr_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"processed"}}]}'),
+                'revoked' => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"cr_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"revoked"}}]}'),
+                'success' => APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"cr_date","settings":{"date_from":' . $_POST['date']['from'] . ',"date_to":' . $_POST['date']['to'] . '}},{"method":"state","settings":{"logic":"=","value":"success"}}]}')
+            ]
+        ];
 
         foreach ((array) $tmp as $source => $dates) {
             foreach ((array) $dates as $key => $value) {
-                $out[$source][$key] = [strtotime($key) * 1000, count($value), array_sum($value)];
+                $out['range'][$source][$key] = [
+                    strtotime($key) * 1000, 
+                    count($value), 
+                    array_sum($value),
+                    APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"cr_date","settings":{"date_from":' . strtotime($key) . ',"date_to":' . strtotime($key . ' + 1 day') . '}},{"method":"state","settings":{"logic":"=","value":"' . $source . '"}}]}')
+                ];
             }
         }
         
-        foreach ($out as $key => $value) {
-            $out[$key] = array_values($value);
+        foreach ($out['range'] as $key => $value) {
+            $out['range'][$key] = array_values($value);
         }
 
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
@@ -1178,6 +1191,10 @@ class Billing {
         if ((int) $_POST['status'] =! 5) {
             exit;
         }
+        
+        if (isset($_POST['duplicate'])) {
+            exit;
+        }
 
         if (!$user_id = APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0],
@@ -1269,6 +1286,17 @@ class InvoicesSearch {
     public function state($settings) {
         return APP::Module('DB')->Select(
             APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], ['id'], 'billing_invoices', [['state', $settings['logic'], $settings['value'], PDO::PARAM_STR]]
+        );
+    }
+    
+    public function cr_date($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'billing_invoices',
+            [
+                ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', $settings['date_from'] . ' AND ' . $settings['date_to'], PDO::PARAM_STR]
+            ]
         );
     }
     

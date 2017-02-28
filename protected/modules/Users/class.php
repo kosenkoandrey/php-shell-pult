@@ -280,12 +280,12 @@ class Users {
                 'dropped' => Array((int) $counters['dropped'], APP::Module('Crypt')->Encode('{"logic":"intersect","rules":[{"method":"reg_date","settings":{"date_from":' . strtotime($date_index) . ',"date_to":' . strtotime($date_index . ' +1 day') . '}},{"method":"state","settings":{"logic":"=","value":"dropped"}}]}')),
             ];
 
-            $out_range['inactive'][$date_index] = [strtotime($date_index) * 1000, $counters['inactive']];
-            $out_range['active'][$date_index] = [strtotime($date_index) * 1000, $counters['active']];
-            $out_range['pause'][$date_index] = [strtotime($date_index) * 1000, $counters['pause']];
-            $out_range['unsubscribe'][$date_index] = [strtotime($date_index) * 1000, $counters['unsubscribe']];
-            $out_range['blacklist'][$date_index] = [strtotime($date_index) * 1000, $counters['blacklist']];
-            $out_range['dropped'][$date_index] = [strtotime($date_index) * 1000, $counters['dropped']];
+            $out_range['inactive'][$date_index] = [strtotime($date_index) * 1000, $counters['inactive'] ? round((int) $counters['inactive'] / ((int) $counters['total'] / 100)) : 0];
+            $out_range['active'][$date_index] = [strtotime($date_index) * 1000, $counters['active'] ? round((int) $counters['active'] / ((int) $counters['total'] / 100)) : 0];
+            $out_range['pause'][$date_index] = [strtotime($date_index) * 1000, $counters['pause'] ? round((int) $counters['pause'] / ((int) $counters['total'] / 100)) : 0];
+            $out_range['unsubscribe'][$date_index] = [strtotime($date_index) * 1000, $counters['unsubscribe'] ? round((int) $counters['unsubscribe'] / ((int) $counters['total'] / 100)) : 0];
+            $out_range['blacklist'][$date_index] = [strtotime($date_index) * 1000, $counters['blacklist'] ? round((int) $counters['blacklist'] / ((int) $counters['total'] / 100)) : 0];
+            $out_range['dropped'][$date_index] = [strtotime($date_index) * 1000, $counters['dropped'] ? round((int) $counters['dropped'] / ((int) $counters['total'] / 100)) : 0];
         }
 
         $date_from_values = explode('-', date('Y-m-d', $_POST['date']['from']));
@@ -577,21 +577,23 @@ class Users {
 
 
     public function NewUsersGC() {
-        $lock = fopen($this->settings['module_users_tmp_dir'] . '/module_users_new_users_gc.lock', 'w');
+        if ($this->settings['module_users_timeout_activation'] != '') {
+            $lock = fopen($this->settings['module_users_tmp_dir'] . '/module_users_new_users_gc.lock', 'w');
 
-        if (flock($lock, LOCK_EX|LOCK_NB)) {
-            APP::Module('DB')->Delete(
-                $this->settings['module_users_db_connection'], 'users',
-                [
-                    ['role', '=', 'new', PDO::PARAM_STR],
-                    ['UNIX_TIMESTAMP(reg_date)', '<=', strtotime('-' . $this->settings['module_users_timeout_activation']), PDO::PARAM_INT]
-                ]
-            );
-        } else {
-            exit;
+            if (flock($lock, LOCK_EX|LOCK_NB)) {
+                APP::Module('DB')->Delete(
+                    $this->settings['module_users_db_connection'], 'users',
+                    [
+                        ['role', '=', 'new', PDO::PARAM_STR],
+                        ['UNIX_TIMESTAMP(reg_date)', '<=', strtotime('-' . $this->settings['module_users_timeout_activation']), PDO::PARAM_INT]
+                    ]
+                );
+            } else {
+                exit;
+            }
+
+            fclose($lock);
         }
-
-        fclose($lock);
     }
 
 
@@ -665,7 +667,7 @@ class Users {
             APP::Module('DB')->Delete(
                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], 'task_manager',
                 [
-                    ['token', '=', $user_id . '_tunnel_activation', PDO::PARAM_STR],
+                    ['token', '=', 'user_' . $user_id . '_activation', PDO::PARAM_STR],
                     ['state', '=', 'wait', PDO::PARAM_STR]
                 ]
             );
@@ -910,6 +912,7 @@ class Users {
         $premium = [];
         $invoices = [];
         $polls = [];
+        $taskmanager = [];
 
         if ((!APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchColumn', 0],
@@ -1294,6 +1297,27 @@ class Users {
                 ];
             }
         }
+        
+        // TASKMANAGER
+        
+        foreach (APP::Module('DB')->Select(
+            APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'id', 
+                'token', 
+                'module', 
+                'method',
+                'args',
+                'state',
+                'cr_date',
+                'exec_date',
+                'complete_date'
+            ], 
+            'task_manager',
+            [['token', 'LIKE', 'user\_' . $user_id . '\_%', PDO::PARAM_STR]]
+        ) as $value) {
+            $taskmanager[$value['id']] = $value;
+        }
 
         APP::Render(
             'users/admin/profile', 'include',
@@ -1321,7 +1345,8 @@ class Users {
                 'likes' => $likes,
                 'premium' => $premium,
                 'invoices' => $invoices,
-                'polls' => $polls
+                'polls' => $polls,
+                'taskmanager' => $taskmanager
             ]
         );
     }
@@ -2890,7 +2915,7 @@ class Users {
             'Users', 'ActivateUserTask', 
             date('Y-m-d H:i:s', strtotime($_POST['timeout'])), 
             json_encode([$mail['user']]), 
-            'user'. $mail['user'], 
+            'user_'. $mail['user'] . '_activate_task', 
             'wait'
         );
         
