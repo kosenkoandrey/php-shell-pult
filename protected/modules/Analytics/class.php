@@ -252,8 +252,8 @@ class Analytics {
                                 }
 
                                 $cost_value = (int) APP::Module('DB')->Select(
-                                    APP::Module('Users')->settings['module_users_db_connection'],
-                                    ['fetch', PDO::FETCH_COLUMN],['SUM(cost)'],'costs',$cost_utm
+                                    APP::Module('Costs')->settings['module_costs_db_connection'],
+                                    ['fetch', PDO::FETCH_COLUMN],['SUM(amount)'],'costs', $cost_utm
                                 );
                                 //////////////////////////////////////
 
@@ -263,12 +263,13 @@ class Analytics {
                                         'cost' => $cost_value,
                                         'revenue' => $revenue_value,
                                         'profit' => $revenue_value - $cost_value,
-                                        'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : round((($revenue_value - $cost_value) / 1) * 100, 2))
+                                        'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : 0)
                                     ],
                                     'rules' => htmlentities(json_encode($search_rules)),
                                     'ref' => APP::Module('Crypt')->Encode(json_encode($search_rules))
                                 ];
                             }
+                           
                             break;
                         case 'source':
                             if (false) {
@@ -440,7 +441,7 @@ class Analytics {
                             } else {
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
-                                    ['DISTINCT(utm_medium)'],'users_utm_index',[['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR]]
+                                    ['DISTINCT(utm_medium)'],'users_utm_index',[['utm_source', '=', $_POST['settings']['value'], PDO::PARAM_STR]]
                                 );
 
                                 foreach ($users_utm as $utm_value) {
@@ -541,8 +542,8 @@ class Analytics {
                                     }
 
                                     $cost_value = (int) APP::Module('DB')->Select(
-                                        APP::Module('Users')->settings['module_users_db_connection'],
-                                        ['fetch', PDO::FETCH_COLUMN],['SUM(cost)'],'costs',$cost_utm
+                                        APP::Module('Costs')->settings['module_costs_db_connection'],
+                                        ['fetch', PDO::FETCH_COLUMN],['SUM(amount)'],'costs',$cost_utm
                                     );
                                     //////////////////////////////////////
 
@@ -552,7 +553,7 @@ class Analytics {
                                             'cost' => $cost_value,
                                             'revenue' => $revenue_value,
                                             'profit' => $revenue_value - $cost_value,
-                                            'roi' => ($cost_value ?  round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : round((($revenue_value - $cost_value) / 1) * 100, 2))
+                                            'roi' => ($cost_value ?  round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : 0)
                                         ],
                                         'rules' => htmlentities(json_encode($search_rules)),
                                         'ref' => APP::Module('Crypt')->Encode(json_encode($search_rules))
@@ -739,7 +740,11 @@ class Analytics {
 
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
-                                    ['DISTINCT(utm_campaign)'],'users_utm_index',[['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR],['utm_medium', 'IN', $_POST['settings']['value']['medium'], PDO::PARAM_STR]]
+                                    ['DISTINCT(utm_campaign)'],'users_utm_index',
+                                    [
+                                        ['utm_source', '=', $_POST['settings']['value']['source'], PDO::PARAM_STR],
+                                        ['utm_medium', '=', $_POST['settings']['value']['medium'], PDO::PARAM_STR]
+                                    ]
                                 );
 
                                 foreach ($users_utm as $utm_value) {
@@ -850,8 +855,8 @@ class Analytics {
                                     }
 
                                     $cost_value = (int) APP::Module('DB')->Select(
-                                        APP::Module('Users')->settings['module_users_db_connection'],
-                                        ['fetch', PDO::FETCH_COLUMN],['SUM(cost)'],'costs',$cost_utm
+                                        APP::Module('Costs')->settings['module_costs_db_connection'],
+                                        ['fetch', PDO::FETCH_COLUMN],['SUM(amount)'],'costs',$cost_utm
                                     );
                                     //////////////////////////////////////
 
@@ -861,7 +866,7 @@ class Analytics {
                                             'cost' => $cost_value,
                                             'revenue' => $revenue_value,
                                             'profit' => $revenue_value - $cost_value,
-                                            'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : round((($revenue_value - $cost_value) / 1) * 100, 2))
+                                            'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : 0)
                                         ],
                                         'rules' => htmlentities(json_encode($search_rules)),
                                         'ref' => APP::Module('Crypt')->Encode(json_encode($search_rules))
@@ -1058,9 +1063,9 @@ class Analytics {
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_term)'],'users_utm_index',
                                     [
-                                        ['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR],
-                                        ['utm_medium', 'IN', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
-                                        ['utm_campaign', 'IN', $_POST['settings']['value']['campaign'], PDO::PARAM_STR]
+                                        ['utm_source', '=', $_POST['settings']['value']['source'], PDO::PARAM_STR],
+                                        ['utm_medium', '=', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
+                                        ['utm_campaign', '=', $_POST['settings']['value']['campaign'], PDO::PARAM_STR]
                                     ]
                                 );
 
@@ -1180,8 +1185,8 @@ class Analytics {
                                     }
 
                                     $cost_value = (int) APP::Module('DB')->Select(
-                                        APP::Module('Users')->settings['module_users_db_connection'],
-                                        ['fetch', PDO::FETCH_COLUMN],['SUM(cost)'],'costs',$cost_utm
+                                        APP::Module('Costs')->settings['module_costs_db_connection'],
+                                        ['fetch', PDO::FETCH_COLUMN],['SUM(amount)'],'costs',$cost_utm
                                     );
                                     //////////////////////////////////////
 
@@ -1191,7 +1196,7 @@ class Analytics {
                                             'cost' => $cost_value,
                                             'revenue' => $revenue_value,
                                             'profit' => $revenue_value - $cost_value,
-                                            'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : round((($revenue_value - $cost_value) / 1) * 100, 2))
+                                            'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : 0)
                                         ],
                                         'rules' => htmlentities(json_encode($search_rules)),
                                         'ref' => APP::Module('Crypt')->Encode(json_encode($search_rules))
@@ -1397,10 +1402,10 @@ class Analytics {
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_content)'],'users_utm_index',
                                     [
-                                        ['utm_source', 'IN', $_POST['settings']['value'], PDO::PARAM_STR],
-                                        ['utm_medium', 'IN', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
-                                        ['utm_campaign', 'IN', $_POST['settings']['value']['campaign'], PDO::PARAM_STR],
-                                        ['utm_term', 'IN', $_POST['settings']['value']['term'], PDO::PARAM_STR]
+                                        ['utm_source', '=', $_POST['settings']['value']['source'], PDO::PARAM_STR],
+                                        ['utm_medium', '=', $_POST['settings']['value']['medium'], PDO::PARAM_STR],
+                                        ['utm_campaign', '=', $_POST['settings']['value']['campaign'], PDO::PARAM_STR],
+                                        ['utm_term', '=', $_POST['settings']['value']['term'], PDO::PARAM_STR]
                                     ]
                                 );
 
@@ -1529,8 +1534,8 @@ class Analytics {
                                     }
 
                                     $cost_value = (int) APP::Module('DB')->Select(
-                                        APP::Module('Users')->settings['module_users_db_connection'],
-                                        ['fetch', PDO::FETCH_COLUMN],['SUM(cost)'],'costs',$cost_utm
+                                        APP::Module('Costs')->settings['module_costs_db_connection'],
+                                        ['fetch', PDO::FETCH_COLUMN],['SUM(amount)'],'costs',$cost_utm
                                     );
                                     //////////////////////////////////////
 
@@ -1540,7 +1545,7 @@ class Analytics {
                                             'cost' => $cost_value,
                                             'revenue' => $revenue_value,
                                             'profit' => $revenue_value - $cost_value,
-                                            'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : round((($revenue_value - $cost_value) / 1) * 100, 2))
+                                            'roi' => ($cost_value ? round((($revenue_value - $cost_value) / $cost_value) * 100, 2) : 0)
                                         ],
                                         'rules' => htmlentities(json_encode($search_rules)),
                                         'ref' => APP::Module('Crypt')->Encode(json_encode($search_rules))
