@@ -3096,22 +3096,27 @@ class Users {
         
         $users = [];
 
-        foreach ($users_utm as $item) $users[$item['user_id']][$item['item']] = $item['value'];
+        foreach ($users_utm as $item) $users[$item['user']][$item['item']] = $item['value'];
         unset($users_utm);
         
         $exist = [];
         
-        APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
+        APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('TRUNCATE TABLE users_utm_index');
         
         foreach ($users as $utm) {
-            $utm_index['source'] = $utm['source'] ? $utm['source'] : '_';
-            $utm_index['medium'] = $utm['medium'] ? $utm['medium'] : '_';
-            $utm_index['campaign'] = $utm['campaign'] ? $utm['campaign'] : '_';
-            $utm_index['term'] = $utm['term'] ? $utm['term'] : '_';
-            $utm_index['content'] = $utm['content'] ? $utm['content'] : '_';
-            
-            if (!array_key_exists($utm_index['content'], (array) $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])) {
-                APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp VALUES (NULL, "' . $utm['source'] . '", "' . $utm['medium'] . '", "' . $utm['campaign'] . '", "' . $utm['term'] . '", "' . $utm['content'] . '", NOW())');
+            $utm_index['source'] = isset($utm['source']) ? $utm['source'] : '_';
+            $utm_index['medium'] = isset($utm['medium']) ? $utm['medium'] : '_';
+            $utm_index['campaign'] = isset($utm['campaign']) ? $utm['campaign'] : '_';
+            $utm_index['term'] = isset($utm['term']) ? $utm['term'] : '_';
+            $utm_index['content'] = isset($utm['content']) ? $utm['content'] : '_';
+
+            if (isset($exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])){
+                if(!array_key_exists($utm_index['content'], (array) $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])) {
+                    APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
+                    $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
+                }
+            }else{
+                APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
                 $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
             }
         }
