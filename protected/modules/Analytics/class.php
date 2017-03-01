@@ -13,6 +13,7 @@ class Analytics {
             'module_analytics_db_connection',
             'module_analytics_tmp_dir',
             'module_analytics_max_execution_time',
+            'module_analytics_cache',
             'module_analytics_yandex_token',
             'module_analytics_yandex_client_id',
             'module_analytics_yandex_client_secret',
@@ -28,7 +29,6 @@ class Analytics {
         return APP::Render('analytics/admin/dashboard/index', 'return');
     }
     
-
     public function GetYandex() {
         if (empty($this->settings['module_analytics_yandex_token'])) exit;
         set_time_limit($this->settings['module_analytics_max_execution_time']);
@@ -471,11 +471,15 @@ class Analytics {
                                         ]
                                     ];
 
-                                    $cache_id = md5(json_encode($search_rules));
-
-                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                    
+                                    if(!$this->settings['module_analytics_cache']){
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                    }else{
+                                        $cache_id = md5(json_encode($search_rules));
+                                        if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                            $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
+                                            APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                        }
                                     }
 
                                     APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user)  VALUES (' . implode('),(', $utm_uid) . ')');
@@ -784,12 +788,14 @@ class Analytics {
                                         ]
                                     ];
 
-                                    $cache_id = md5(json_encode($search_rules));
-
-
-                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                    if(!$this->settings['module_analytics_cache']){
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                    }else{
+                                        $cache_id = md5(json_encode($search_rules));
+                                        if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                            $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
+                                            APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                        }
                                     }
 
                                     APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $utm_uid) . ')');
@@ -1117,11 +1123,14 @@ class Analytics {
                                         ]
                                     ];
 
-                                    $cache_id = md5(json_encode($search_rules));
-
-                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                    if(!$this->settings['module_analytics_cache']){
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                    }else{
+                                        $cache_id = md5(json_encode($search_rules));
+                                        if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                            $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
+                                            APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                        }
                                     }
 
                                     APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $utm_uid) . ')');
@@ -1468,11 +1477,14 @@ class Analytics {
                                         ]
                                     ];
 
-                                    $cache_id = md5(json_encode($search_rules));
-
-                                    if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                    if(!$this->settings['module_analytics_cache']){
                                         $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
-                                        APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                    }else{
+                                        $cache_id = md5(json_encode($search_rules));
+                                        if (!$utm_uid = APP::Module('Cache')->memcache->get($cache_id)) {
+                                            $utm_uid = APP::Module('Users')->UsersSearch($search_rules);
+                                            APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
+                                        }
                                     }
 
                                     APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $utm_uid) . ')');
@@ -1666,11 +1678,13 @@ class Analytics {
         APP::Module('Registry')->Update(['value' => $_POST['module_analytics_yandex_client_id']], [['item', '=', 'module_analytics_yandex_client_id', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_analytics_yandex_client_secret']], [['item', '=', 'module_analytics_yandex_client_secret', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_analytics_yandex_counter']], [['item', '=', 'module_analytics_yandex_counter', PDO::PARAM_STR]]);
+        APP::Module('Registry')->Update(['value' => isset($_POST['module_analytics_cache'])], [['item', '=', 'module_analytics_cache', PDO::PARAM_STR]]);
         
         APP::Module('Triggers')->Exec('update_analytics_settings', [
             'db_connection' => $_POST['module_analytics_db_connection'],
             'tmp_dir' => $_POST['module_analytics_tmp_dir'],
             'max_execution_time' => $_POST['module_analytics_max_execution_time'],
+            'module_analytics_cache' => isset($_POST['module_analytics_cache']),
             'yandex_client_id' => $_POST['module_analytics_yandex_client_id'],
             'yandex_client_secret' => $_POST['module_analytics_yandex_client_secret'],
             'yandex_counter' => $_POST['module_analytics_yandex_counter']
