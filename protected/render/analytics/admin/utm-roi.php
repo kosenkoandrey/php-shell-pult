@@ -21,13 +21,14 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 border-top: 1px dotted #e3e3e3;
-                padding: 15px 0 15px 30px;
+                padding: 15px 0 0 30px;
             }
             #utm-list .item:hover {
                 background-color: rgba(245, 245, 245, 0.90);
             }
             #utm-list .item > .control {
                 display: inline-block;
+                margin-bottom: 15px;
             }
             #utm-list .item > .control > i {
                 margin-right: 8px;

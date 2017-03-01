@@ -474,7 +474,7 @@ class Analytics {
                                         APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user)  VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user)  VALUES (' . implode('),(', $utm_uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
@@ -786,7 +786,7 @@ class Analytics {
                                         APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $utm_uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
@@ -1115,7 +1115,7 @@ class Analytics {
                                         APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $utm_uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
@@ -1463,7 +1463,7 @@ class Analytics {
                                         APP::Module('Cache')->memcache->set($cache_id, $utm_uid, false, 180);
                                     }
 
-                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $uid) . ')');
+                                    APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_utm_roi_tmp (user) VALUES (' . implode('),(', $utm_uid) . ')');
 
                                     $revenue_value = (int) APP::Module('DB')->Select(
                                         APP::Module('Billing')->settings['module_billing_db_connection'],
