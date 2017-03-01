@@ -67,6 +67,16 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="module_analytics_cache" class="col-sm-2 control-label">Кеширование</label>
+                                            <div class="col-sm-1">
+                                                <div class="toggle-switch m-t-10">
+                                                    <input id="module_analytics_cache" name="module_analytics_cache" type="checkbox" hidden="hidden">
+                                                    <label for="module_analytics_cache" class="ts-helper"></label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane animated fadeIn" id="settings-yandex">
                                         <div class="form-group">
@@ -186,6 +196,7 @@
                 $('#module_analytics_yandex_client_secret').val('<?= APP::Module('Analytics')->settings['module_analytics_yandex_client_secret'] ?>');
                 $('#module_analytics_yandex_token').val('<?= APP::Module('Analytics')->settings['module_analytics_yandex_token'] ?>');
                 $('#module_analytics_yandex_counter').val('<?= APP::Module('Analytics')->settings['module_analytics_yandex_counter'] ?>');
+                $('#module_analytics_cache').prop('checked', <?= (int) APP::Module('Analytics')->settings['module_analytics_cache'] ?>);
                 
                 $('#update-settings').submit(function(event) {
                     event.preventDefault();
