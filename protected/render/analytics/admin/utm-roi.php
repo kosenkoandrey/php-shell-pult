@@ -21,13 +21,12 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 border-top: 1px dotted #e3e3e3;
-                padding: 10px 0 0 10px;
+                padding: 15px 0 15px 30px;
             }
             #utm-list .item:hover {
-                background: rgba(255, 229, 0, 0.26);
+                background-color: rgba(245, 245, 245, 0.90);
             }
             #utm-list .item > .control {
-                margin-bottom: 10px;
                 display: inline-block;
             }
             #utm-list .item > .control > i {
@@ -60,14 +59,25 @@
             }
             .item-value {
                 width: 170px;
+                padding-left: 15px;
+            }
+            
+            .item-value.item-header:first-child{
+                padding-left:30px;
+            }
+            
+            .item-value.item-header:last-child{
+                padding-right:30px;
             }
             
             .item-value.item-header {
-                font-weight: bold;
+                padding: 15px;
+                font-weight: 500;
+                color: #333;
+                text-transform: uppercase;
             }
             .item-value.item-utm-header {
                 display: inline-block;
-                padding: 5px 0;
             }
         </style>
         
@@ -110,7 +120,7 @@
                             </ul>
                         </div>
                         
-                        <div class="card-body card-padding">
+                        <div class="card-body">
                             <div id="table-header">
                                 <div class="item-value item-header item-utm-header">UTM-метки</div>
                                 <div class="item-value item-header pull-right">ROI</div>
@@ -140,7 +150,7 @@
                         <div class="form-horizontal form-padding">
                             <div class="form-group">
                                 <label class="col-md-3 control-label">Поле</label>
-                                <div class="col-md-4">
+                                <div class="col-md-9">
                                     <select id="sort-field" class="selectpicker">
                                         <option value="default">Название</option>
                                         <option value="cost">Расходы</option>
@@ -152,7 +162,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-md-3 control-label">Направление</label>
-                                <div class="col-md-4">
+                                <div class="col-md-9">
                                     <select id="sort-mode" class="selectpicker">
                                         <option value="asc">Возрастание</option>
                                         <option value="desc">Убывание</option>
@@ -162,8 +172,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-default" data-dismiss="modal" type="button">Отмена</button>
-                        <button class="btn btn-primary save">Применить</button>
+                        <button type="button" class="btn btn-link waves-effect save">Применить</button>
+                        <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Отмена</button>
                     </div>
                 </div>
             </div>
@@ -264,8 +274,10 @@
             }
             
             function GetLabels(label, value, item) {
-                //$('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
-                    
+                if(label == 'root'){
+                    $('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
+                }
+                
                 $.ajax({
                     type: 'post',
                     url: '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi',
@@ -319,7 +331,7 @@
                 $('#sort-mode').selectpicker('refresh');
   
                 $('.save', modal).off('click').on('click', function(e){
-                    $('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
+                    //$('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
                 
                     modal.modal('hide');
                     
@@ -389,7 +401,7 @@
             });
 
             $(document).ready(function() {
-                $('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
+                //$('#utm-list').html('<center><div class="preloader pl-xxl"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20" /></svg></div></center>');
                 
                 GetLabels('root', null, null);
 
@@ -499,7 +511,7 @@
                 });
                 
                 $(document).on('click', '#utm-list > .utm-source > .item  > .utm-medium > .item > .utm-campaign > .item > .utm-term > .item > .control > .zmdi', function () {
-                    var hide = $(this).hasClass('plus-square');
+                    var hide = $(this).hasClass('zmdi-plus-square');
                     
                     if (hide) {
                         $(this).removeClass('zmdi-plus-square');
@@ -543,10 +555,10 @@
                 
                 $('#utm-list')
                 .on('mouseenter', '.item', function(event){
-                    $('> .item-links', this).show();
+                    //$('> .item-links', this).show();
                 })
                 .on('mouseleave', '.item', function(event){
-                    $('> .item-links', this).hide();
+                    //$('> .item-links', this).hide();
                 });
                 
                 $(document).on('click', '.analytics-cohorts', function () {
