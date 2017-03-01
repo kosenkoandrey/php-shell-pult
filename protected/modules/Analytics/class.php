@@ -246,7 +246,7 @@ class Analytics {
                                         if (($use_utm_alias) && (isset($utm_labels[$value['utm_label']]))) $utm_labels[$value['utm_label']] = $utm_alias_value;
                                     }
                                 }
-
+                                
                                 foreach ($utm_labels as $label => $value) {
                                     $cost_utm[] = ['utm_' . $label, '=', $value, PDO::PARAM_STR];
                                 }
@@ -255,6 +255,8 @@ class Analytics {
                                     APP::Module('Costs')->settings['module_costs_db_connection'],
                                     ['fetch', PDO::FETCH_COLUMN],['SUM(amount)'],'costs', $cost_utm
                                 );
+                                
+                                
                                 //////////////////////////////////////
 
                                 $out[md5($label_value . time())] = [
@@ -439,6 +441,8 @@ class Analytics {
                                  *
                                  */
                             } else {
+                                if ($uid)  APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
+                                
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_medium)'],'users_utm_index',[['utm_source', '=', $_POST['settings']['value'], PDO::PARAM_STR]]
@@ -536,7 +540,7 @@ class Analytics {
                                             if (($use_utm_alias) && (isset($utm_labels[$value['utm_label']]))) $utm_labels[$value['utm_label']] = $utm_alias_value;
                                         }
                                     }
-
+                                    
                                     foreach ($utm_labels as $label => $value) {
                                         $cost_utm[] = ['utm_' . $label, '=', $value, PDO::PARAM_STR];
                                     }
@@ -737,7 +741,9 @@ class Analytics {
                                 }
                                  */
                             } else {
-
+                                
+                                if ($uid)  APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
+                                
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_campaign)'],'users_utm_index',
@@ -1059,6 +1065,9 @@ class Analytics {
                                 }
                                  */
                             } else {
+                                
+                                if ($uid)  APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
+                                
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_term)'],'users_utm_index',
@@ -1398,6 +1407,9 @@ class Analytics {
                                 }
                                  */
                             } else {
+                                
+                                if ($uid)  APP::Module('DB')->Open($this->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_utm_roi_tmp');
+                                
                                 $users_utm = APP::Module('DB')->Select(
                                     APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
                                     ['DISTINCT(utm_content)'],'users_utm_index',
