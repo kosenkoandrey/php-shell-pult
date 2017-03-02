@@ -672,6 +672,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order" href="javascript:void(0)">Product order</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order_sum" href="javascript:void(0)">Sum amount</a></li>',
+                */
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="rfm_billing" href="javascript:void(0)">RFM анализ</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="rfm_mail" href="javascript:void(0)">RFM анализ (письма)</a></li>',                
