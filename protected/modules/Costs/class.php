@@ -79,9 +79,7 @@ class Costs {
                 'content' => json_encode([
                     'method' => 'get',
                     'params' => [
-                        'SelectionCriteria' => [
-                            'States' => ['ON']
-                        ],
+                        'SelectionCriteria' => new \stdClass,
                         'FieldNames' => [
                             'Id',
                             'Name'

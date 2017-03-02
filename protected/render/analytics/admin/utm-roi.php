@@ -98,7 +98,7 @@
     <body data-ma-header="teal">
         <?
         APP::Render('admin/widgets/header', 'include', [
-            'UTM-анализ ROI' => 'admin/analytics/utm/roi'
+            'Аналитика' => 'admin/analytics/utm/roi'
         ]);
         ?>
         <section id="main">
