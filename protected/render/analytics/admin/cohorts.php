@@ -148,14 +148,19 @@ foreach ($tmp_roi_period as $index => $values) {
                         <div class="card-header">
                             
                             <h2>Когортный анализ</h2>
-                            <div class="panel-control">
-                                <ul class="actions">
-                                    <li><button type="button" id="cohorts-settings" class="btn btn-default"><i class="fa fa-cog"></i> Настройки</button></li>
-                                </ul>
-                            </div>
+                            <ul class="actions">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0)" data-toggle="dropdown">
+                                        <i class="zmdi zmdi-more-vert"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a id="cohorts-settings" href="javascript:void(0)"><i class="fa fa-cog"></i> Настройки</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="card-body card-padding">
-                            <div class="row">
+                        <div class="card-body">
+                            <div>
                             <div class="col-lg-10 col-sm-8 cohorts-left">
                                 <div class="cohorts-left-header">
                                     <table class="table">
@@ -323,7 +328,7 @@ foreach ($tmp_roi_period as $index => $values) {
                             </div>
                             <hr style="margin-top: 10px">
                                     
-                            <table class="table table-striped table-hover">
+                            <table class="table table-striped">
                                 <?
                                 foreach ($total_cohorts as $key => $values) {
                                     ?>
@@ -453,8 +458,8 @@ foreach ($tmp_roi_period as $index => $values) {
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary save" type="button">Применить</button>
-                            <button class="btn btn-default" data-dismiss="modal" type="button">Отмена</button>
+                            <button type="button" class="btn btn-link waves-effect save">Применить</button>
+                            <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Отмена</button>
                         </div>
                     </div>
                 </div>
