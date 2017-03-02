@@ -81,6 +81,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="tunnel_complete" href="javascript:void(0)">Завершить туннель</a></li>
                                         <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Подписать и завершить туннель</a></li>
                                         <li><a data-action="utm_roi" href="javascript:void(0)">UTM-анализ ROI</a></li>
+                                        <li><a data-action="cohort" href="javascript:void(0)">Когортный анализ</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -427,6 +428,23 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                             case 'utm_roi' :
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi');
                                 var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'cohort' :
+                                var data = form.serialize();
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
+                                form.append('<input type="hidden" name="group" value="month">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_dropped">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_clients">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_orders">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_revenue">');
+                                form.append('<input type="hidden" name="indicators[]" value="ltv_client">');
+                                form.append('<input type="hidden" name="indicators[]" value="cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="subscriber_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="client_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="roi">');
                                 user_modal.send(data, true);
                                 break;
                         }
