@@ -458,6 +458,15 @@
                                         default: settings[id] = param_value;
                                     }
                                     break;
+                                case 'mail_open_time': 
+                                    switch(id) {
+                                        case 'value': 
+                                            if (settings.value === undefined) settings.value = new Object();
+                                            settings.value = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
                                 case 'mail_open_pct30': 
                                     switch(id) {
                                         case 'from': 
@@ -507,6 +516,52 @@
                                         case 'sum': 
                                             if (settings.sum === undefined) settings.sum = new Object();
                                             settings.sum = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'rfm_billing': 
+                                    switch(id) {
+                                        case 'dates_from': 
+                                            if (settings.dates_from === undefined) settings.dates_from = new Object();
+                                            settings.dates_from = param_value; 
+                                            break;
+                                        case 'dates_to': 
+                                            if (settings.dates_to === undefined) settings.dates_to = new Object();
+                                            settings.dates_to = param_value; 
+                                            break;
+                                        case 'units_from': 
+                                            if (settings.units_from === undefined) settings.units_from = new Object();
+                                            settings.units_from = param_value; 
+                                            break;
+                                        case 'units_to': 
+                                            if (settings.units_to === undefined) settings.units_to = new Object();
+                                            settings.units_to = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
+                                case 'rfm_mail': 
+                                    switch(id) {
+                                        case 'dates_from': 
+                                            if (settings.dates_from === undefined) settings.dates_from = new Object();
+                                            settings.dates_from = param_value; 
+                                            break;
+                                        case 'dates_to': 
+                                            if (settings.dates_to === undefined) settings.dates_to = new Object();
+                                            settings.dates_to = param_value; 
+                                            break;
+                                        case 'units_from': 
+                                            if (settings.units_from === undefined) settings.units_from = new Object();
+                                            settings.units_from = param_value; 
+                                            break;
+                                        case 'units_to': 
+                                            if (settings.units_to === undefined) settings.units_to = new Object();
+                                            settings.units_to = param_value; 
+                                            break;
+                                        case 'event': 
+                                            if (settings.event === undefined) settings.event = new Object();
+                                            settings.event = param_value; 
                                             break;
                                         default: settings[id] = param_value;
                                     }
@@ -617,7 +672,9 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order" href="javascript:void(0)">Product order</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order_sum" href="javascript:void(0)">Sum amount</a></li>',
-                */
+                '<li class="divider"></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="rfm_billing" href="javascript:void(0)">RFM анализ</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="rfm_mail" href="javascript:void(0)">RFM анализ (письма)</a></li>',                
             ].join('');
         },
         render_rules: function(rules, holder) {
@@ -1593,7 +1650,7 @@
                         '</table>'
                     ].join(''));
 
-                    if (rule.settings.from !== undefined) $('.trigger_settings select[data-id="from"]', $trigger_rule_item).val(rule.settings.from);
+                    if (rule.settings.from !== undefined) $('.trigger_settings input[data-id="from"]', $trigger_rule_item).val(rule.settings.from);
                     $('.trigger_settings input[data-id="from"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
                     if (rule.settings.to !== undefined) $('.trigger_settings input[data-id="to"]', $trigger_rule_item).val(rule.settings.to);
@@ -1617,12 +1674,28 @@
                         '</table>'
                     ].join(''));
 
-                    if (rule.settings.from !== undefined) $('.trigger_settings select[data-id="from"]', $trigger_rule_item).val(rule.settings.from);
+                    if (rule.settings.from !== undefined) $('.trigger_settings input[data-id="from"]', $trigger_rule_item).val(rule.settings.from);
                     $('.trigger_settings input[data-id="from"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
                     if (rule.settings.to !== undefined) $('.trigger_settings input[data-id="to"]', $trigger_rule_item).val(rule.settings.to);
                     $('.trigger_settings input[data-id="to"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
+                    break;
+                case 'mail_open_time':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Letter open time</tr>',
+                            '<tr>',
+                                '<td style="width: 100px">',
+                                    '<input data-id="value" class="form-control m-l-5" type="text" placeholder="0">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
+                    $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
                     break;
                 case 'product_buy':
                     $('.trigger_settings', $trigger_rule_item).append([
@@ -1695,6 +1768,133 @@
 
                     if (rule.settings.sum !== undefined) $('.trigger_settings select[data-id="sum"]', $trigger_rule_item).val(rule.settings.sum);
                     $('.trigger_settings input[data-id="sum"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    break;
+                case 'rfm_billing':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>RFM анализ</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="dates_from" data-id="dates_from" class="form-control dt_picker" type="text">',
+                                        '</div>',
+                                    '</div>',
+                                     '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="dates_to" data-id="dates_to" class="form-control dt_picker" type="text" >',
+                                        '</div>',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="units_from" data-id="units_from" class="form-control" type="text" placeholder="Количество от">',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="units_to" data-id="units_to" class="form-control" type="text" placeholder="Количество до">',
+                                        '</div>',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+                    
+                    if (rule.settings.dates_from !== undefined) $('.trigger_settings input[data-id="dates_from"]', $trigger_rule_item).val(rule.settings.dates_from);
+                    $('#dates_from', $trigger_rule_item).datetimepicker({
+                        format: 'DD-MM-YYYY',
+                    }).on('dp.change', function(e){
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    if (rule.settings.dates_to !== undefined) $('.trigger_settings input[data-id="dates_to"]', $trigger_rule_item).val(rule.settings.dates_to);
+                    $('#dates_to', $trigger_rule_item).datetimepicker({
+                        format: 'DD-MM-YYYY',
+                        defaultDate: new Date()
+                    }).on('dp.change', function(e){
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+
+                    if (rule.settings.units_from !== undefined) $('.trigger_settings input[data-id="units_from"]', $trigger_rule_item).val(rule.settings.units_from);
+                    $('.trigger_settings input[data-id="units_from"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    if (rule.settings.units_to !== undefined) $('.trigger_settings input[data-id="units_to"]', $trigger_rule_item).val(rule.settings.units_to);
+                    $('.trigger_settings input[data-id="units_to"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    break;
+                case 'rfm_mail':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>RFM анализ (письма)</tr>',
+                            '<tr>',
+                                '<td style="width: 100px">',
+                                    '<div class="col-sm-12">',
+                                        '<select class="form-control" data-id="event" >',
+                                            '<option value="open">Open</option>',
+                                            '<option value="click">Click</option>',
+                                        '</select>',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="dates_from" data-id="dates_from" class="form-control dt_picker" type="text">',
+                                        '</div>',
+                                    '</div>',
+                                     '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="dates_to" data-id="dates_to" class="form-control dt_picker" type="text" >',
+                                        '</div>',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="units_from" data-id="units_from" class="form-control" type="text" placeholder="Количество от">',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-6">',
+                                        '<div class="input-group mar-btm">',
+                                            '<input id="units_to" data-id="units_to" class="form-control" type="text" placeholder="Количество до">',
+                                        '</div>',
+                                    '</div>',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+                    
+                    if (rule.settings.dates_from !== undefined) $('.trigger_settings input[data-id="dates_from"]', $trigger_rule_item).val(rule.settings.dates_from);
+                    $('input[data-id="dates_from"]', $trigger_rule_item).datetimepicker({
+                        format: 'DD-MM-YYYY',
+                    }).on('dp.change', function(e){
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    if (rule.settings.dates_to !== undefined) $('.trigger_settings input[data-id="dates_to"]', $trigger_rule_item).val(rule.settings.dates_to);
+                    $('input[data-id="dates_to"]', $trigger_rule_item).datetimepicker({
+                        format: 'DD-MM-YYYY',
+                        defaultDate: new Date()
+                    }).on('dp.change', function(e){
+                        $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
+                    });
+                    
+                    if (rule.settings.event !== undefined) $('.trigger_settings select[data-id="event"]', $trigger_rule_item).val(rule.settings.event);
+                    $('.trigger_settings select[data-id="event"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    if (rule.settings.units_from !== undefined) $('.trigger_settings input[data-id="units_from"]', $trigger_rule_item).val(rule.settings.units_from);
+                    $('.trigger_settings input[data-id="units_from"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
+                    if (rule.settings.units_to !== undefined) $('.trigger_settings input[data-id="units_to"]', $trigger_rule_item).val(rule.settings.units_to);
+                    $('.trigger_settings input[data-id="units_to"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+
                     break;
             }
         }
