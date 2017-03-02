@@ -447,6 +447,23 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 form.append('<input type="hidden" name="indicators[]" value="roi">');
                                 user_modal.send(data, true);
                                 break;
+                            case 'cohort' :
+                                var data = form.serialize();
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
+                                form.append('<input type="hidden" name="group" value="month">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_dropped">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_clients">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_orders">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_revenue">');
+                                form.append('<input type="hidden" name="indicators[]" value="ltv_client">');
+                                form.append('<input type="hidden" name="indicators[]" value="cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="subscriber_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="client_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="roi">');
+                                user_modal.send(data, true);
+                                break;
                         }
                         
                     },
