@@ -11,8 +11,12 @@ return [
         ['admin\/analytics\/rfm\/billing(\?.*)?',                   'Analytics', 'RfmBilling'],
         ['admin\/analytics\/rfm\/mail\/(?P<event>open|click)(\?.*)?','Analytics', 'RfmMail'],
         ['admin\/analytics\/cohorts(\?.*)?',                        'Analytics', 'Cohorts'],
+        ['admin\/analytics\/geo(\?.*)?',                            'Analytics', 'Geo'],
         
         //API
+        ['admin\/analytics\/api\/geo\/city\.json(\?.*)?',           'Analytics', 'APIGetGeoCity'],
+        ['admin\/analytics\/api\/geo\/country\.json(\?.*)?',        'Analytics', 'APIGetGeoCountry'],
+        
         ['admin\/analytics\/api\/dashboard\.json(\?.*)?',           'Analytics', 'APIDashboard'],
         ['admin\/analytics\/api\/settings\/update\.json(\?.*)?',    'Analytics', 'APIUpdateSettings'],
     ],

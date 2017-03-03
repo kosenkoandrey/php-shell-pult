@@ -14,7 +14,6 @@
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
-        <link href="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/morris.min.css" rel="stylesheet">
 
         <style>
             .alink:hover {
@@ -32,7 +31,7 @@
     <body data-ma-header="teal">
         <?
         APP::Render('admin/widgets/header', 'include', [
-            'Letter Pct' => 'admin/analytics/open/letter/pct'
+            'Анализ по % открытия' => 'admin/analytics/open/letter/pct'
         ]);
         ?>
         <section id="main">
@@ -42,29 +41,31 @@
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Анализ по % открытия <div class="pull-right mar-rgt">средняя температура по больнице &mdash; <?= $data['avg'] ?>%</div>Анализ по % открытия</h2>
+                            <h2>Анализ по % открытия <div class="pull-right mar-rgt">средняя температура по больнице &mdash; <?= $data['avg'] ?>%</div></h2>
                         </div>
                         
                         <div class="card-body card-padding">
-                            <div id="demo-morris-bar" style="height:350px"></div>
-                            <table class="table table-striped">
-                                <tbody>
-                                    <?
-
-                                    foreach ($data['pct'] as $key => $value) {
-                                        if ($value) {
-                                            ?>
-                                            <tr>
-                                                <td width="10%"><?= $key ?>%</td>
-                                                <td><a class="alink" target="_blank" href="<?= APP::Module('Routing')->root ?>admin/users?filters=<?php echo $data['url'][$key]; ?>" ><?= $value ?></a></td>
-                                            </tr>
-                                            <?
-                                        }
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
+                            <div id="bar-chart" class="flot-chart" style="height:350px"></div>
                         </div>
+                    </div>
+                    <div class="card">
+                        <table class="table table-striped">
+                            <tbody>
+                                <?
+
+                                foreach ($data['pct'] as $key => $value) {
+                                    if ($value) {
+                                        ?>
+                                        <tr>
+                                            <td width="10%"><?= $key ?>%</td>
+                                            <td><a class="alink" target="_blank" href="<?= APP::Module('Routing')->root ?>admin/users?filters=<?php echo $data['url'][$key]; ?>" ><?= $value ?></a></td>
+                                        </tr>
+                                        <?
+                                    }
+                                }
+                                ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -83,28 +84,91 @@
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/json/dist/jquery.json.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.updated.min.js"></script>
-        
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/morris.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/raphael-js/raphael.min.js"></script>
-        
-        <? APP::Render('core/widgets/js') ?>
                 
-        <!-- OPTIONAL -->
-        <script>
-            $(document).ready(function() {
-                Morris.Bar({
-                    element: 'demo-morris-bar',
-                    data: [<? foreach ($data['pct'] as $key => $value) { ?>{ y: '<?= $key ?>%', a: <?= $value ?>},<? } ?>],
-                    xkey: 'y',
-                    ykeys: 'a',
-                    labels: ['Кол-во пользователей'],
-                    gridEnabled: false,
-                    gridLineColor: 'transparent',
-                    barColors: ['#177bbb'],
-                    resize: true,
-                    hideHover: 'auto'
-                });
+        <? APP::Render('core/widgets/js') ?>
+        
+        <?
+        APP::$insert['js_flot_tooltip'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js'];
+        APP::$insert['js_flot_resize'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.resize.js'];
+        ob_start();
+        ?>
+         <script type="text/javascript">
+            $(function(){
+                var barData = new Array();
+                <? foreach ($data['pct'] as $key => $value) { ?>
+                      barData.push({
+                        data : [[<?= $key ?>, <?= $value ?>]],
+                        label: '<?= $key ?>%',
+                        bars : {
+                            show : true,
+                            barWidth : 1,
+                            order : 1,
+                            lineWidth: 0,
+                            fillColor: '#8BC34A'
+                        }
+                    });
+                <? } ?>
+                
+                if ($('#bar-chart')[0]) {
+                    $.plot($("#bar-chart"), barData, {
+                        grid : {
+                                borderWidth: 1,
+                                borderColor: '#eee',
+                                show : true,
+                                hoverable : true,
+                                clickable : true
+                        },
+
+                        yaxis: {
+                            tickColor: '#eee',
+                            tickDecimals: 0,
+                            font :{
+                                lineHeight: 13,
+                                style: "normal",
+                                color: "#9f9f9f",
+                            },
+                            shadowSize: 0
+                        },
+
+                        xaxis: {
+                            tickColor: '#fff',
+                            tickDecimals: 0,
+                            font :{
+                                lineHeight: 13,
+                                style: "normal",
+                                color: "#9f9f9f"
+                            },
+                            shadowSize: 0,
+                        },
+
+                        legend:{
+                            container: '.flc-bar',
+                            backgroundOpacity: 0.5,
+                            noColumns: 0,
+                            backgroundColor: "white",
+                            lineWidth: 0
+                        }
+                    });
+                }
+                
+                if ($(".flot-chart")[0]) {
+                    $(".flot-chart").bind("plothover", function (event, pos, item) {
+                        if (item) {
+                            var x = item.datapoint[0],
+                                y = item.datapoint[1];
+                            $(".flot-tooltip").html(item.series.label + " от 100% = " + y).css({top: item.pageY+5, left: item.pageX+5}).show();
+                        }
+                        else {
+                            $(".flot-tooltip").hide();
+                        }
+                    });
+
+                    $("<div class='flot-tooltip' class='chart-tooltip'></div>").appendTo("body");
+                }
             });
         </script>
+        <?
+        APP::$insert['js_opentime'] = ['js', 'code', 'before', '</body>', ob_get_contents()];
+        ob_end_clean(); ?>
     </body>
 </html>

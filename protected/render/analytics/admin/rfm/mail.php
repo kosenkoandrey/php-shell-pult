@@ -57,7 +57,7 @@ function getUrl($event, $method, $filter, $date_from, $date_to, $units_from, $un
                                     <h2>RFM-анализ <?php if(isset($data['title'])){ echo '('.$data['title'].')'; }  ?> <?php echo date('d-m-Y', strtotime($data['dates_from'])); ?></h2>
                                 </div>
 
-                                <div class="card-body card-padding">
+                                <div class="card-body">
                                     <table class="table table-bordered table-hover">
                                         <thead>
                                             <tr>

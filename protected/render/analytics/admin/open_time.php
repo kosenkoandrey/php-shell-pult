@@ -13,8 +13,6 @@
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
-        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
-        <link href="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/morris.min.css" rel="stylesheet">
 
         <style>
             .alink:hover {
@@ -29,6 +27,18 @@
             .legend tr{
                 cursor: pointer;
             }
+            
+            .time{
+                cursor: pointer;
+                width: 150px;
+            }
+            
+            .time i{
+                font-size: 18px;
+                float: left;
+                margin-right: 10px;
+                vertical-align: bottom;
+            }
 
         </style>
         
@@ -37,7 +47,7 @@
     <body data-ma-header="teal">
         <?
         APP::Render('admin/widgets/header', 'include', [
-            'Letter Open Time' => 'admin/analytics/open/letter/time'
+            'Анализ по времени открытия' => 'admin/analytics/open/letter/time'
         ]);
         ?>
         <section id="main">
@@ -45,28 +55,41 @@
 
             <section id="content">
                 <div class="container">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Анализ по времени открытия</h2>
-                        </div>
-                        
-                        <div class="card-body card-padding">
-                            <table class="table table-striped" style="margin-bottom:30px;">
-                                <tbody>
-                                    <tr>
-                                        <td class="time" data-sort="<?php echo $data['sort_time']; ?>">Время <i class="fa fa-sort-amount-<?php echo $data['sort_time']; ?>" style="width:16px;height:16px;" aria-hidden="true"></i></td>
-                                        <td>Количество</td>
-                                    </tr>
-                                    <?php foreach ($data['data'] as $value) { ?>
-                                        <tr>
-                                            <td width="10%"><?= $value['time'] ?></td>
-                                            <td><a class="alink" target="_blank" href="<?= APP::Module('Routing')->root ?>admin/users?filters=<?= $value['filter'] ?>" ><?= $value['count'] ?></a></td>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Анализ по времени открытия</h2>
+                            </div>
 
+                            <div class="card-body">
+                                <table class="table" style="margin-bottom:30px;">
+                                    <thead>
+                                        <tr>
+                                            <td class="time" data-sort="<?php echo $data['sort_time']; ?>"><i class="zmdi zmdi-sort-amount-<?php echo $data['sort_time']; ?>" aria-hidden="true"></i><div style="width:120px;"> Время</div></td>
+                                            <td>Количество</td>
                                         </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                            <div id="demo-flot-donut" style="height:800px;"></div>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($data['data'] as $value) { ?>
+                                            <tr>
+                                                <td width="10%"><?= $value['time'] ?></td>
+                                                <td><a class="alink" target="_blank" href="<?= APP::Module('Routing')->root ?>admin/users?filters=<?= $value['filter'] ?>" ><?= $value['count'] ?></a></td>
+
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                        <div class="card-header">
+                            <h2>График</h2>
+                        </div>
+                        <div class="card-body card-padding">
+                            <div id="pie-chart" class="flot-chart-pie" ></div>
+                            <div class="flc-pie hidden-xs"></div>
                             <form id="form-sort" method="post">
                                 <input name="rules" value='<?php echo $data['rules']; ?>' type="hidden" />
                                 <input name="sort_time" value="<?php echo $data['sort_time']; ?>" type="hidden" />
@@ -89,21 +112,19 @@
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/json/dist/jquery.json.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.updated.min.js"></script>
-        
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/morris.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/raphael-js/raphael.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/sparkline/jquery.sparkline.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/flot-charts/jquery.flot.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/flot-charts/jquery.flot.resize.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/flot-charts/jquery.flot.pie.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/gauge-js/gauge.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/easy-pie-chart/jquery.easypiechart.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootstrap-growl/bootstrap-growl.min.js"></script>
+ 
         
         <? APP::Render('core/widgets/js') ?>
-                
-        <!-- OPTIONAL -->
-        <script type="text/javascript">
+                       
+        <?
+        APP::$insert['js_flot_pie'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.pie.js'];
+        APP::$insert['js_flot_tooltip'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js'];
+        APP::$insert['js_flot_resize'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.resize.js'];
+
+        ob_start();
+        ?>
+         <script type="text/javascript">
             $(function(){
                 $(document).on('click', '.time', function(e){
                     var sort = $(this).data('sort');
@@ -117,42 +138,45 @@
                 });
 
                 var dataSet = <?php echo $data['chart']; ?>;
-
-                $.plot('#demo-flot-donut', dataSet, {
-                    series: {
-                        pie: {
-                            show: true,
-                            label: {
+                
+                if($('#pie-chart')[0]){
+                    $.plot('#pie-chart', dataSet, {
+                        series: {
+                            pie: {
                                 show: true,
-                                radius: 1
+                                stroke: { 
+                                    width: 1,
+                                },
                             },
-                            innerRadius: 0.3
+                        },
+                        legend: {
+                            container: '.flc-pie',
+                            backgroundOpacity: 0.5,
+                            noColumns: 0,
+                            backgroundColor: "white",
+                            lineWidth: 0
+                        },
+                        grid: {
+                            hoverable: true,
+                            clickable: true
+                        },
+                        tooltip: true,
+                        tooltipOpts: {
+                            content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+                            shifts: {
+                                x: 20,
+                                y: 0
+                            },
+                            defaultTheme: false,
+                            cssClass: 'flot-tooltip'
                         }
-                    },
-                    legend: {
-                        show: true,
-                        labelFormatter: legendFormatter
-                    },
-                    grid: {
-                        hoverable: true
-                    }
-                });
 
-                $(document).on('mouseover', '.legend .legendLabel span', function(e){
-                    var id = $(this).data('id');
-                    $('.pieLabel div').hide();
-                    $('.pieLabel').find('span[data-id="'+id+'"]').parent().show();       
-                });
-
-                $(document).on('mouseout', '.legend .legendLabel span', function(e){
-                    $('.pieLabel div').show();
-                });
-
-                function legendFormatter(label, series) {
-                    // series is the series object for the label
-                    return '<span data-id="#pieLabel'+parseInt(label)+'" style="margin-left:5px;font-size:14px;">' + label + '</span>';
+                    });
                 }
             });
         </script>
+        <?
+        APP::$insert['js_opentime'] = ['js', 'code', 'before', '</body>', ob_get_contents()];
+        ob_end_clean(); ?>
     </body>
 </html>

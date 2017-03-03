@@ -80,11 +80,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="tunnel_pause" href="javascript:void(0)">Поставить туннель на паузу</a></li>
                                         <li><a data-action="tunnel_complete" href="javascript:void(0)">Завершить туннель</a></li>
                                         <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Подписать и завершить туннель</a></li>
+                                        <li class="divider"></li>
                                         <li><a data-action="utm_roi" href="javascript:void(0)">UTM-анализ ROI</a></li>
                                         <li><a data-action="open_letter_pct" href="javascript:void(0)">Анализ по % открытия</a></li>
                                         <li><a data-action="open_letter_time" href="javascript:void(0)">Анализ по времени открытия</a></li>
                                         <li><a data-action="rfm" href="javascript:void(0)">RFM анализ</a></li>
                                         <li><a data-action="cohort" href="javascript:void(0)">Когортный анализ</a></li>
+                                        <li><a data-action="geo" href="javascript:void(0)">Geo анализ</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -499,6 +501,11 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 );
                                 $('#send_action').hide();
                                 modal.modal('show');
+                                break;
+                            case 'geo' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/geo');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
                                 break;
                         }
                         
