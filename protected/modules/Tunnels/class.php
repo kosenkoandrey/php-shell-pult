@@ -2858,7 +2858,7 @@ class Tunnels {
                 'tunnels_users',
                 [
                     ['tunnels_users.state', '=', 'active', PDO::PARAM_STR],
-                    ['tunnels_users.tunnel_id', 'IN', array_keys($this->t_factors)],
+                    ['tunnels_users.tunnel_id', 'IN', array_keys((array) $this->t_factors)],
                     ['UNIX_TIMESTAMP(tunnels_users.resume_date)', '<=', time(), PDO::PARAM_INT],
                     ['tunnels_users.object', '!=', '', PDO::PARAM_STR],
                     ['users.role', 'IN', APP::Module('DB')->Select(
