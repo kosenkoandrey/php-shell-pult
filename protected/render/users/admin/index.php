@@ -163,7 +163,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     build : function(action, rules){
                         var modal = $('#user-modal');
                         var form = $('#user-action-form', modal);
-                        
+                        from.html('');
                         form.append(
                             [
                                 "<input type='hidden' value='" + action + "' name='action'>",
@@ -432,29 +432,14 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 break;
                             case 'utm_roi' :
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi');
+                                form.attr('target', '_blank');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
                             case 'cohort' :
                                 var data = form.serialize();
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
-                                form.append('<input type="hidden" name="group" value="month">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_dropped">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_clients">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_orders">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_revenue">');
-                                form.append('<input type="hidden" name="indicators[]" value="ltv_client">');
-                                form.append('<input type="hidden" name="indicators[]" value="cost">');
-                                form.append('<input type="hidden" name="indicators[]" value="subscriber_cost">');
-                                form.append('<input type="hidden" name="indicators[]" value="client_cost">');
-                                form.append('<input type="hidden" name="indicators[]" value="roi">');
-                                user_modal.send(data, true);
-                                break;
-                            case 'cohort' :
-                                var data = form.serialize();
-                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
+                                form.attr('target', '_blank');
                                 form.append('<input type="hidden" name="group" value="month">');
                                 form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
                                 form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
@@ -471,11 +456,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 break;
                             case 'open_letter_pct' :
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/pct');
+                                form.attr('target', '_blank');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
                             case 'open_letter_time' :
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/time');
+                                form.attr('target', '_blank');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
@@ -504,6 +491,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 break;
                             case 'geo' :
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/geo');
+                                form.attr('target', '_blank');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
