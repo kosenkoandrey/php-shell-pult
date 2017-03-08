@@ -80,7 +80,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="tunnel_pause" href="javascript:void(0)">Поставить туннель на паузу</a></li>
                                         <li><a data-action="tunnel_complete" href="javascript:void(0)">Завершить туннель</a></li>
                                         <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Подписать и завершить туннель</a></li>
+                                        <li class="divider"></li>
                                         <li><a data-action="utm_roi" href="javascript:void(0)">UTM-анализ ROI</a></li>
+                                        <li><a data-action="open_letter_pct" href="javascript:void(0)">Анализ по % открытия</a></li>
+                                        <li><a data-action="open_letter_time" href="javascript:void(0)">Анализ по времени открытия</a></li>
+                                        <li><a data-action="rfm" href="javascript:void(0)">RFM анализ</a></li>
+                                        <li><a data-action="cohort" href="javascript:void(0)">Когортный анализ</a></li>
+                                        <li><a data-action="geo" href="javascript:void(0)">Geo анализ</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -426,6 +432,78 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 break;
                             case 'utm_roi' :
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'cohort' :
+                                var data = form.serialize();
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
+                                form.append('<input type="hidden" name="group" value="month">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_dropped">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_clients">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_orders">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_revenue">');
+                                form.append('<input type="hidden" name="indicators[]" value="ltv_client">');
+                                form.append('<input type="hidden" name="indicators[]" value="cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="subscriber_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="client_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="roi">');
+                                user_modal.send(data, true);
+                                break;
+                            case 'cohort' :
+                                var data = form.serialize();
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
+                                form.append('<input type="hidden" name="group" value="month">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_dropped">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_clients">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_orders">');
+                                form.append('<input type="hidden" name="indicators[]" value="total_revenue">');
+                                form.append('<input type="hidden" name="indicators[]" value="ltv_client">');
+                                form.append('<input type="hidden" name="indicators[]" value="cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="subscriber_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="client_cost">');
+                                form.append('<input type="hidden" name="indicators[]" value="roi">');
+                                user_modal.send(data, true);
+                                break;
+                            case 'open_letter_pct' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/pct');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'open_letter_time' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/time');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'rfm' :
+                                form.append(
+                                    [
+                                        '<div class="form-group">',
+                                            '<div class="col-sm-12">',
+                                                '<a class="rfm-button btn btn-lg btn-default btn-block" href="<?= APP::Module('Routing')->root ?>admin/analytics/rfm/billing">Покупки</a>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<div class="col-sm-12">',
+                                                '<a class="rfm-button btn btn-lg btn-default btn-block" href="<?= APP::Module('Routing')->root ?>admin/analytics/rfm/mail/open">Открытия писем</a>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<div class="col-sm-12">',
+                                                '<a class="rfm-button btn btn-lg btn-default btn-block" href="<?= APP::Module('Routing')->root ?>admin/analytics/rfm/mail/click">Клики в письмах</a>',
+                                            '</div>',
+                                        '</div>',
+                                    ].join('')
+                                );
+                                $('#send_action').hide();
+                                modal.modal('show');
+                                break;
+                            case 'geo' :
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/geo');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
