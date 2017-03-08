@@ -463,7 +463,7 @@ class Analytics {
         foreach ($out as $index => $values) {
             $cost = (float) round(APP::Module('DB')->Select(
                 APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetch', PDO::FETCH_COLUMN], ['SUM(cost)'],'cost',
+                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs',
                 array_merge(
                     [
                         ['cost_date', 'BETWEEN', '"' . date('Y-m-d', $values['date'][0]) . '" AND "' . date('Y-m-d', $values['date'][1]) . '"', PDO::PARAM_STR]
