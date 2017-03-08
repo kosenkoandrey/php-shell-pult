@@ -13,6 +13,8 @@ $indicators = [
     'roi' => 'ROI',
 ];
 
+$post['indicators'] = isset($_POST['indicators']) ? $_POST['indicators'] : [];
+
 function to_bank_amount($val, $precision = 2) {
     $q = pow (10, $precision);
     $x = intval (abs ($val) * $q * 10);
@@ -188,13 +190,13 @@ foreach ($tmp_roi_period as $index => $values) {
                                             foreach ($data as $index => $values) {
                                                 $last_indicators = [];
                                                 ?>
-                                                <tr valign="top" style="height: <?= (25 * count($_POST['indicators'])) + 30 ?>px">
+                                                <tr valign="top" style="height: <?= (25 * count($post['indicators'])) + 30 ?>px">
                                                     <? if ($index !== 0) { ?><td colspan="<?= $index ?>"></td><? } ?>
                                                     <td class="indicator-names">
                                                         <?
                                                         $indicators_names = [];
 
-                                                        foreach ($_POST['indicators'] as $value) {
+                                                        foreach ($post['indicators'] as $value) {
                                                             $indicators_names[] = $indicators[$value];
                                                         }
                                                         ?>
@@ -207,7 +209,7 @@ foreach ($tmp_roi_period as $index => $values) {
 
                                                     foreach ($data as $l_index => $l_values) {
                                                         if (isset($l_values['indicators'][$index])) {
-                                                            foreach ($_POST['indicators'] as $key) {
+                                                            foreach ($post['indicators'] as $key) {
                                                                 switch ($key) {
                                                                     default:
                                                                         $total[$key] = $l_values['indicators'][$index][$key];
@@ -221,7 +223,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                                                 <?
                                                                 $indicators_values = [];
 
-                                                                foreach ($_POST['indicators'] as $key) {
+                                                                foreach ($post['indicators'] as $key) {
                                                                     $last_value = $total[$key] - (isset($last_indicators[$key]) ? $last_indicators[$key] : 0);
                                                                     $sup_last_value = '';
 
@@ -316,7 +318,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                             <?
                                             foreach ($total_glob_data as $values) {
                                                 ?>
-                                                <tr style="height: <?= (25 * count($_POST['indicators'])) + 30 ?>px"><td style="font-weight: bold"><?= $values ?></td></tr>
+                                                <tr style="height: <?= (25 * count($post['indicators'])) + 30 ?>px"><td style="font-weight: bold"><?= $values ?></td></tr>
                                                 <?
                                             }
                                             ?>
@@ -449,7 +451,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                         <select name="indicators[]" id="select-indicators" data-placeholder="Выберите показатели" multiple>
                                             <?
                                             foreach ($indicators as $key => $value) {
-                                                ?><option value="<?= $key ?>" <? if(array_search($key, $_POST['indicators']) !== false) { ?>selected<? } ?>><?= $value ?></option><?
+                                                ?><option value="<?= $key ?>" <? if(array_search($key, $post['indicators']) !== false) { ?>selected<? } ?>><?= $value ?></option><?
                                             }
                                             ?>
                                         </select>
