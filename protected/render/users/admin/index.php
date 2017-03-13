@@ -164,6 +164,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     build : function(action, rules){
                         var modal = $('#user-modal');
                         var form = $('#user-action-form', modal);
+                        form.html('');
                         
                         form.append(
                             [
