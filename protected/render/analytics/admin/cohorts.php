@@ -98,7 +98,7 @@ foreach ($tmp_roi_period as $index => $values) {
                 overflow-x: auto;
             }
             .indicator-names {
-                min-width: 210px;
+                min-width: 240px;
             }
             .link {
                 text-decoration: underline;
