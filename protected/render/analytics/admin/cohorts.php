@@ -97,6 +97,9 @@ foreach ($tmp_roi_period as $index => $values) {
                 width: 100%;
                 overflow-x: auto;
             }
+            td.indicator-names:first-child{
+                padding-left:0px!important;
+            }
             .indicator-names {
                 min-width: 240px;
             }
