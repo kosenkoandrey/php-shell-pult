@@ -13,7 +13,21 @@ $indicators = [
     'roi' => 'ROI',
 ];
 
-$post['indicators'] = isset($_POST['indicators']) ? $_POST['indicators'] : [];
+$post_indicators = [
+    'total_subscribers_active',
+    'total_subscribers_unsubscribe',
+    'total_subscribers_dropped',
+    'total_clients',
+    'total_orders',
+    'total_revenue',
+    'ltv_client',
+    'cost',
+    'subscriber_cost',
+    'client_cost',
+    'roi',
+];
+
+$post['indicators'] = isset($_POST['indicators']) ? $_POST['indicators'] : $post_indicators;
 
 function to_bank_amount($val, $precision = 2) {
     $q = pow (10, $precision);
@@ -83,8 +97,11 @@ foreach ($tmp_roi_period as $index => $values) {
                 width: 100%;
                 overflow-x: auto;
             }
+            td.indicator-names:first-child{
+                padding-left:0px!important;
+            }
             .indicator-names {
-                min-width: 210px;
+                min-width: 240px;
             }
             .link {
                 text-decoration: underline;
@@ -434,14 +451,14 @@ foreach ($tmp_roi_period as $index => $values) {
                         </div>
                         <div class="modal-body">
                             <form method="post" class="form-horizontal bv-form">
-                                <input type="hidden" name="rules" value="<?= htmlspecialchars($_POST['rules']) ?>">
+                                <input type="hidden" name="rules" value="<?= isset($_POST['rules']) ? htmlspecialchars($_POST['rules']) : '' ?>">
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Способ компоновки</label>
                                     <div class="col-md-10">
                                         <select name="group" class="selectpicker">
-                                            <option value="day" <? if($_POST['group'] == 'day') { ?>selected<? } ?>>День</option>
-                                            <option value="week" <? if($_POST['group'] == 'week') { ?>selected<? } ?>>Неделя</option>
-                                            <option value="month" <? if($_POST['group'] == 'month') { ?>selected<? } ?>>Месяц</option>
+                                            <option value="day" <? if(isset($_POST['group']) && $_POST['group'] == 'day') { ?>selected<? } ?>>День</option>
+                                            <option value="week" <? if(isset($_POST['group']) && $_POST['group'] == 'week') { ?>selected<? } ?>>Неделя</option>
+                                            <option value="month" <? if(isset($_POST['group']) && $_POST['group'] == 'month') { ?>selected<? } ?>>Месяц</option>
                                         </select>
                                     </div>
                                 </div>

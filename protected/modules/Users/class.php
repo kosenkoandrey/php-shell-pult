@@ -566,7 +566,7 @@ class Users {
                     'user' => [$user, PDO::PARAM_INT],
                     'num' => [$num, PDO::PARAM_INT],
                     'item' => [$item, PDO::PARAM_STR],
-                    'value' => [$value, PDO::PARAM_STR],
+                    'value' => $value ? [$value, PDO::PARAM_STR] : 'NULL',
                     'cr_date' => 'NOW()'
                 ]
             );
@@ -3261,11 +3261,11 @@ class UsersSearch {
     
     public function utm($settings) {
         $where = [
-            ['value', '=', $settings['value'], PDO::PARAM_STR],
+            $settings['value'] ? ['value', '=', $settings['value'], PDO::PARAM_STR] : ['value', 'IS', 'NULL'],
             ['item', '=', $settings['item'], PDO::PARAM_STR]
         ];
         
-        if((int)$settings['num']){
+        if ((int)$settings['num']) {
             $where[] = ['num', '=', $settings['num'], PDO::PARAM_INT];
         }
         

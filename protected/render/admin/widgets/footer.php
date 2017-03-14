@@ -1,3 +1,3 @@
 <footer id="footer">
-    Powered by <a href="https://php-shell.com" target="_blank">php-shell</a>
+    Powered by <a href="http://mailiq.ru" target="_blank">MailIQ</a>
 </footer>

@@ -6,6 +6,7 @@ return [
         ['admin\/analytics\/yandex\/get(\?.*)?',                    'Analytics', 'GetYandex'],
         ['admin\/analytics\/yandex\/token(\?.*)?',                  'Analytics', 'GetYandexToken'],
         ['admin\/analytics\/utm\/roi(\?.*)?',                       'Analytics', 'UtmRoi'],
+        ['admin\/analytics\/utm(\?.*)?',                            'Analytics', 'Utm'],
         ['admin\/analytics\/open\/letter\/pct(\?.*)?',              'Analytics', 'OpenLettersPct'],
         ['admin\/analytics\/open\/letter\/time(\?.*)?',             'Analytics', 'LetterOpenTime'],
         ['admin\/analytics\/rfm\/billing(\?.*)?',                   'Analytics', 'RfmBilling'],

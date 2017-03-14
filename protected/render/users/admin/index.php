@@ -82,12 +82,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="tunnel_complete" href="javascript:void(0)">Завершить туннель</a></li>
                                         <li><a data-action="tunnel_manually_complete" href="javascript:void(0)">Подписать и завершить туннель</a></li>
                                         <li class="divider"></li>
-                                        <li><a data-action="utm_roi" href="javascript:void(0)">UTM-анализ ROI</a></li>
-                                        <li><a data-action="open_letter_pct" href="javascript:void(0)">Анализ по % открытия</a></li>
-                                        <li><a data-action="open_letter_time" href="javascript:void(0)">Анализ по времени открытия</a></li>
+                                        <li><a data-action="utm" data-ask="no" href="javascript:void(0)">UTM-анализ</a></li>
+                                        <li><a data-action="utm_roi" data-ask="no" href="javascript:void(0)">UTM-анализ ROI</a></li>
+                                        <li><a data-action="open_letter_pct" data-ask="no" href="javascript:void(0)">Анализ по % открытия</a></li>
+                                        <li><a data-action="open_letter_time" data-ask="no" href="javascript:void(0)">Анализ по времени открытия</a></li>
                                         <li><a data-action="rfm" href="javascript:void(0)">RFM анализ</a></li>
-                                        <li><a data-action="cohort" href="javascript:void(0)">Когортный анализ</a></li>
-                                        <li><a data-action="geo" href="javascript:void(0)">Geo анализ</a></li>
+                                        <li><a data-action="cohort" data-ask="no" href="javascript:void(0)">Когортный анализ</a></li>
+                                        <li><a data-action="geo" data-ask="no" href="javascript:void(0)">Geo анализ</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -165,6 +166,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     build : function(action, rules){
                         var modal = $('#user-modal');
                         var form = $('#user-action-form', modal);
+                        form.html('');
                         
                         form.append(
                             [
@@ -433,28 +435,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 modal.modal('show');
                                 break;
                             case 'utm_roi' :
+                                form.attr('target', '_blank');
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm/roi');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
                             case 'cohort' :
-                                var data = form.serialize();
-                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
-                                form.append('<input type="hidden" name="group" value="month">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_active">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_subscribers_dropped">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_clients">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_orders">');
-                                form.append('<input type="hidden" name="indicators[]" value="total_revenue">');
-                                form.append('<input type="hidden" name="indicators[]" value="ltv_client">');
-                                form.append('<input type="hidden" name="indicators[]" value="cost">');
-                                form.append('<input type="hidden" name="indicators[]" value="subscriber_cost">');
-                                form.append('<input type="hidden" name="indicators[]" value="client_cost">');
-                                form.append('<input type="hidden" name="indicators[]" value="roi">');
-                                user_modal.send(data, true);
-                                break;
-                            case 'cohort' :
+                                form.attr('target', '_blank');
                                 var data = form.serialize();
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/cohorts');
                                 form.append('<input type="hidden" name="group" value="month">');
@@ -472,11 +459,13 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 user_modal.send(data, true);
                                 break;
                             case 'open_letter_pct' :
+                                form.attr('target', '_blank');
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/pct');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
                             case 'open_letter_time' :
+                                form.attr('target', '_blank');
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/open/letter/time');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
@@ -505,7 +494,14 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 modal.modal('show');
                                 break;
                             case 'geo' :
+                                form.attr('target', '_blank');
                                 form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/geo');
+                                var data = form.serialize();
+                                user_modal.send(data, true);
+                                break;
+                            case 'utm' :
+                                form.attr('target', '_blank');
+                                form.attr('action', '<?= APP::Module('Routing')->root ?>admin/analytics/utm');
                                 var data = form.serialize();
                                 user_modal.send(data, true);
                                 break;
@@ -562,21 +558,26 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                 
                 $(document).on('click', '#search_results_actions a', function () {
                     var action = $(this).data('action');
+                    var ask = $(this).data('ask') === undefined ? 'yes' : $(this).data('ask');
                     
-                    swal({
-                        title: 'Вы уверены?',
-                        type: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#DD6B55',
-                        confirmButtonText: 'Да',
-                        cancelButtonText: 'Отменить',
-                        closeOnConfirm: true,
-                        closeOnCancel: true
-                    }, function(isConfirm){
-                        if (isConfirm) {
-                            user_modal.build(action, $('#search').val());
-                        }
-                    });
+                    if(ask == 'yes'){
+                        swal({
+                            title: 'Вы уверены?',
+                            type: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#DD6B55',
+                            confirmButtonText: 'Да',
+                            cancelButtonText: 'Отменить',
+                            closeOnConfirm: true,
+                            closeOnCancel: true
+                        }, function(isConfirm){
+                            if (isConfirm) {
+                                user_modal.build(action, $('#search').val());
+                            }
+                        });
+                    }else{
+                        user_modal.build(action, $('#search').val());
+                    }
                 });
                 
                 $(document).on('click', '#exec_action', function(){

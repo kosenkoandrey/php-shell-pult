@@ -11,10 +11,18 @@ $messages_cnt = APP::Module('DB')->Select(
 ?>
 <header id="header" class="media">
     <div class="pull-left h-logo">
-        <a href="<?= APP::Module('Routing')->root ?>admin" class="hidden-xs">
+        <a href="<?= APP::Module('Routing')->root ?>admin">
             <span style="font-size: 21px">PULT</span>   
-            <small>GLAMURNENKO.RU</small>
+            <small style="font-size: 15px;">GLAMURNENKO.RU</small>
         </a>
+        
+        <div class="menu-collapse" data-ma-action="sidebar-open" data-ma-target="main-menu">
+            <div class="mc-wrap">
+                <div class="mcw-line top palette-White bg"></div>
+                <div class="mcw-line center palette-White bg"></div>
+                <div class="mcw-line bottom palette-White bg"></div>
+            </div>
+        </div>
     </div>
 
     <ul class="pull-right h-menu">
@@ -29,7 +37,7 @@ $messages_cnt = APP::Module('DB')->Select(
                 </li>
             </ul>
         </li>
-        <li class="hm-alerts" data-user-alert="shell-app" data-ma-action="sidebar-open" data-ma-target="user-alerts">
+        <li class="hm-alerts" data-user-alert="system-cpu" data-ma-action="sidebar-open" data-ma-target="user-alerts">
             <a href=""><i class="hm-icon zmdi zmdi-settings"></i></a>
         </li>
         <li class="dropdown hm-profile">
@@ -51,7 +59,7 @@ $messages_cnt = APP::Module('DB')->Select(
         </li>
     </ul>
 
-    <div class="media-body h-nav">
+    <div class="media-body h-nav hidden-xs">
         <div class="btn-group btn-group-lg">
             <? foreach ($data as $key => $value) { ?><a href="<?= APP::Module('Routing')->root . $value ?>" class="btn btn-default"><?= $key ?></a><? } ?>
         </div>

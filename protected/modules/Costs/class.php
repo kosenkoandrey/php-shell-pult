@@ -126,19 +126,21 @@ class Costs {
                 
                 $log['banners_stat'][$campaign['Id']] = $banners_stat;
 
-                foreach ((array) $banners_stat['data']['Stat'] as $banner_stat) {
-                    if ($banner_stat['Sum'] != 0) {
-                        $total_amt = $total_amt + $banner_stat['Sum'];
-                    
-                        $out[] = [
-                            'amount' => $banner_stat['Sum'],
-                            'utm_source' => $this->settings['module_costs_yandex_utm_source'],
-                            'utm_medium' => $this->settings['module_costs_yandex_utm_medium'],
-                            'utm_campaign' => $campaign['Id'],
-                            'utm_content' => $banner_stat['BannerID'],
-                            'utm_term' => strripos($banner_stat['Phrase'], ' -') === false ? $banner_stat['Phrase'] : strstr($banner_stat['Phrase'],' -', true),
-                            'utm_compaing_desc' => $campaign['Name']
-                        ];
+                if (!isset($banners_stat['error_code'])) {
+                    foreach ((array) $banners_stat['data']['Stat'] as $banner_stat) {
+                        if ($banner_stat['Sum'] != 0) {
+                            $total_amt = $total_amt + $banner_stat['Sum'];
+
+                            $out[] = [
+                                'amount' => $banner_stat['Sum'],
+                                'utm_source' => $this->settings['module_costs_yandex_utm_source'],
+                                'utm_medium' => $this->settings['module_costs_yandex_utm_medium'],
+                                'utm_campaign' => $campaign['Id'],
+                                'utm_content' => $banner_stat['BannerID'],
+                                'utm_term' => strripos($banner_stat['Phrase'], ' -') === false ? $banner_stat['Phrase'] : strstr($banner_stat['Phrase'],' -', true),
+                                'utm_compaing_desc' => $campaign['Name']
+                            ];
+                        }
                     }
                 }
                 

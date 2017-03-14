@@ -33,6 +33,7 @@ class DB {
                     case 'REGEXP':      $list[] = $val[0] . ' REGEXP "' . $val[2] . '"'; break;
                     case 'NOT REGEXP':  $list[] = $val[0] . ' NOT REGEXP "' . $val[2] . '"'; break;
                     case 'IS NOT':      $list[] = $val[0] . ' IS NOT ' . $val[2]; break;
+                    case 'IS':          $list[] = $val[0] . ' IS ' . $val[2]; break;
                     case 'IN':
                     case 'NOT IN':      $list[] = is_array($val[2]) ? $val[0] . ' ' . $val[1] . ' ("' . implode('","', $val[2]) . '")' : $val[0] . ' ' . $val[1] . ' (' . $val[2] . ')'; break;
                     default:            $list[] = $val[0] . ' ' . $val[1] . ' :' . str_replace(['.','(',')',',', '-', ' ', '"'], '', $val[0]); break;
@@ -55,6 +56,7 @@ class DB {
                     case 'REGEXP':
                     case 'NOT REGEXP':
                     case 'IS NOT':
+                    case 'IS':
                     case 'IN':
                     case 'NOT IN': break;
                     default: $sql->bindParam(':' . str_replace(['.','(',')',',','-',' ','"'], '', $val[0]), $val[2], $val[3]); break;
