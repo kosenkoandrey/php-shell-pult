@@ -133,13 +133,16 @@ foreach ($tmp_roi_period as $index => $values) {
             .cohorts-left-content td:last-of-type {
                 min-width: 140px;
             }
+            .cohorts-left-content{
+                overflow-y: hidden;
+            }
             .cohorts-right {
                 height: 100%;
                 overflow: hidden;
                 position: relative;
             }
             .cohorts-right-content {
-                width: 140px;
+                width: 200px;
             }
 
             #roi-chart {
