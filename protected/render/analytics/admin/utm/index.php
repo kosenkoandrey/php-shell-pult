@@ -61,192 +61,226 @@
 
             <section id="content">
                 <div class="container">
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>UTM-метки</h2>
-                            </div>
-                            <div class="card-body card-padding">
-                                <div id="utm-list"></div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>UTM-метки</h2>
+                                </div>
+                                <div class="card-body card-padding">
+                                    <div id="utm-list"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>Пользователи</h2>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_ref_all"><?= number_format($data['ref']['all'], 0, ' ', ' ') ?></span>
-                                                <p>Всего</p>
-                                                <p>100%</p>
+                        <div class="col-xs-9">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Пользователи</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_all"><?= number_format($data['users']['all'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Всего</p>
+                                                    <p>100%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_active"><?= number_format($data['users']['active'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Активные</p>
+                                                    <p id="value_users_active_pct" class="dyn_val"><?= round($data['users']['active'] / ($data['users']['all'] / 100), 2)  ?>%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_inactive"><?= number_format($data['users']['inactive'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Ожидают активации</p>
+                                                    <p id="value_users_inactive_pct" class="dyn_val"><?= round($data['users']['inactive'] / ($data['users']['all'] / 100), 2)  ?>%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_pause"><?= number_format($data['users']['pause'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Временно отписанные</p>
+                                                    <p id="value_users_pause_pct" class="dyn_val"><?= round($data['users']['pause'] / ($data['users']['all'] / 100), 2)  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_ref_active"><?= number_format($data['ref']['active'], 0, ' ', ' ') ?></span>
-                                                <p>Активированных</p>
-                                                <p id="value_ref_active_pct"><?= round($data['ref']['active'] / ($data['ref']['all'] / 100), 2)  ?>%</p>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_unsubscribe"><?= number_format($data['users']['unsubscribe'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Отписанные</p>
+                                                    <p id="value_users_unsubscribe_pct" class="dyn_val"><?= round($data['users']['unsubscribe'] / ($data['users']['all'] / 100), 2)  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_ref_wait"><?= number_format($data['ref']['wait'], 0, ' ', ' ') ?></span>
-                                                <p>Ожидают акт.</p>
-                                                <p id="value_ref_wait_pct"><?= round($data['ref']['wait'] / ($data['ref']['all'] / 100), 2)  ?>%</p>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_blacklist"><?= number_format($data['users']['blacklist'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">В блэк-листе</p>
+                                                    <p id="value_users_blacklist_pct" class="dyn_val"><?= round($data['users']['blacklist'] / ($data['users']['all'] / 100), 2)  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_ref_inactive"><?= number_format($data['ref']['inactive'], 0, ' ', ' ') ?></span>
-                                                <p>Неактивных</p>
-                                                <p id="value_ref_inactive_pct"><?= round($data['ref']['inactive'] / ($data['ref']['all'] / 100), 2)  ?>%</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_ref_unsubscribe"><?= number_format($data['ref']['unsubscribe'], 0, ' ', ' ') ?></span>
-                                                <p>Отписались</p>
-                                                <p id="value_ref_unsubscribe_pct"><?= round($data['ref']['unsubscribe'] / ($data['ref']['all'] / 100), 2)  ?>%</p>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_users_dropped"><?= number_format($data['users']['dropped'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Дропнутые</p>
+                                                    <p id="value_users_dropped_pct" class="dyn_val"><?= round($data['users']['dropped'] / ($data['users']['all'] / 100), 2)  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>Письма</h2>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_letters_all"><?= number_format($data['letters']['all'], 0, ' ', ' ') ?></span>
-                                                <p>Всего</p>
-                                                <p>100%</p>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Письма</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_letters_all"><?= number_format($data['letters']['all'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Всего</p>
+                                                    <p>100%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_letters_open"><?= number_format($data['letters']['open']['value'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Открыли</p>
+                                                    <p id="value_letters_open_pct" class="dyn_val"><?= $data['letters']['open']['pct']  ?>%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_letters_click"><?= number_format($data['letters']['click']['value'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Кликнули</p>
+                                                    <p id="value_letters_click_pct" class="dyn_val"><?= $data['letters']['click']['pct']  ?>%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_letters_bounce"><?= number_format($data['letters']['bounce']['value'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Bounce</p>
+                                                    <p id="value_letters_bounce_pct" class="dyn_val"><?= $data['letters']['bounce']['pct']  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_letters_open"><?= number_format($data['letters']['open']['value'], 0, ' ', ' ') ?></span>
-                                                <p>Открыто</p>
-                                                <p id="value_letters_open_pct"><?= $data['letters']['open']['pct']  ?>%</p>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_letters_unsubscribe"><?= number_format($data['letters']['unsubscribe']['value'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Отписались</p>
+                                                    <p id="value_letters_unsubscribe_pct" class="dyn_val"><?= $data['letters']['unsubscribe']['pct']  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_letters_click"><?= number_format($data['letters']['click']['value'], 0, ' ', ' ') ?></span>
-                                                <p>Клики</p>
-                                                <p id="value_letters_click_pct"><?= $data['letters']['click']['pct']  ?>%</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_letters_bounce"><?= number_format($data['letters']['bounce']['value'], 0, ' ', ' ') ?></span>
-                                                <p>Bounce</p>
-                                                <p id="value_letters_bounce_pct"><?= $data['letters']['bounce']['pct']  ?>%</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_letters_spam"><?= number_format($data['letters']['spamreport']['value'], 0, ' ', ' ') ?></span>
-                                                <p>СПАМ</p>
-                                                <p id="value_letters_spam_pct"><?= $data['letters']['spamreport']['pct']  ?>%</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value ">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_letters_unsubscribe"><?= number_format($data['letters']['unsubscribe']['value'], 0, ' ', ' ') ?></span>
-                                                <p>Отписались</p>
-                                                <p id="value_letters_unsubscribe_pct"><?= $data['letters']['unsubscribe']['pct']  ?>%</p>
+                                        <div class="col-xs-3">
+                                            <div class="value ">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_letters_spamreport"><?= number_format($data['letters']['spamreport']['value'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">СПАМ</p>
+                                                    <p id="value_letters_spamreport_pct" class="dyn_val"><?= $data['letters']['spamreport']['pct']  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>Заказы</h2>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value link" data-state="total">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_orders_all"><?= number_format($data['orders']['all'], 0, ' ', ' ') ?></span>
-                                                <p>Всего</p>
-                                                <p>100%</p>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Счета</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="value link" data-state="total">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_all"><?= number_format($data['invoices']['all'], 0, ' ', ' ') ?></span>
+                                                    <p class="m-0">Всего</p>
+                                                    <p>100%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value link" data-state="new">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_new"><?= $data['invoices']['new']['value'] ?></span>
+                                                    <p class="m-0">Новые</p>
+                                                    <p id="value_invoices_new_pct" class="dyn_val"><?= $data['invoices']['new']['pct']  ?>%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value link" data-state="processed">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_processed"><?= $data['invoices']['processed']['value'] ?></span>
+                                                    <p class="m-0">В обработке</p>
+                                                    <p id="value_invoices_processed_pct" class="dyn_val"><?= $data['invoices']['processed']['pct']  ?>%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="value link" data-state="success">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_success"><?= $data['invoices']['success']['value'] ?></span>
+                                                    <p class="m-0">Оплаченные</p>
+                                                    <p id="value_invoices_success_pct" class="dyn_val"><?= $data['invoices']['success']['pct']  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value link" data-state="success">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_orders_success"><?= $data['orders']['success']['value'] ?></span>
-                                                <p>Оплаченные</p>
-                                                <p id="value_orders_success_pct"><?= $data['orders']['success']['pct']  ?>%</p>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="value link" data-state="revoked">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_revoked"><?= $data['invoices']['revoked']['value'] ?></span>
+                                                    <p class="m-0">Аннулированные</p>
+                                                    <p id="value_invoices_revoked_pct" class="dyn_val"><?= $data['invoices']['revoked']['pct']  ?>%</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value link" data-state="processed">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_orders_processed"><?= $data['orders']['processed']['value'] ?></span>
-                                                <p>В обработке</p>
-                                                <p id="value_orders_processed_pct"><?= $data['orders']['processed']['pct']  ?>%</p>
+                                        <div class="col-xs-3">
+                                            <div class="value">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_total"><?= $data['invoices']['total'] ?></span>
+                                                    <p class="m-0">руб.</p>
+                                                    <p>Оплачено</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value link" data-state="new">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_orders_new"><?= $data['orders']['new']['value'] ?></span>
-                                                <p>Неоплаченные</p>
-                                                <p id="value_orders_new_pct"><?= $data['orders']['new']['pct']  ?>%</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_orders_total"><?= $data['orders']['total'] ?></span>
-                                                <p>руб.</p>
-                                                <p>Оплачено</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 col-md-3 col-lg-2">
-                                        <div class="value">
-                                            <div class="pad-all text-center">
-                                                <span class="f-20" id="value_orders_avg"><?= $data['orders']['avg'] ?></span>
-                                                <p>руб.</p>
-                                                <p>Средний чек</p>
+                                        <div class="col-xs-3">
+                                            <div class="value">
+                                                <div class="pad-all text-center">
+                                                    <span class="f-20 dyn_val" id="value_invoices_avg"><?= $data['invoices']['avg'] ?></span>
+                                                    <p class="m-0">руб.</p>
+                                                    <p>Средний чек</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -275,8 +309,6 @@
         <? APP::Render('core/widgets/js') ?>
         <script>
             function GetLabels(label, value, item) {
-                //$('#page-content').niftyOverlay('show');
-                
                 $.ajax({
                     type: 'post',
                     url: '<?= APP::Module('Routing')->root ?>admin/analytics/utm',
@@ -338,51 +370,7 @@
             }
             
             function GetHealth(label, value) {
-                //$('#page-content').niftyOverlay('show');
-                
-                $('#value_ref_all').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_active').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_active_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_wait').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_wait_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_inactive').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_inactive_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_unsubscribe').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_ref_unsubscribe_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-
-                $('#value_letters_all').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_open').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_open_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_click').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_click_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_bounce').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_bounce_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_spam').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_spam_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_unsubscribe').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_unsubscribe_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-
-                $('#value_letters_all30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_open30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_open_pct30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_click30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_click_pct30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_bounce30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_bounce_pct30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_spam30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_spam_pct30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_unsubscribe30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_letters_unsubscribe_pct30').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-
-                $('#value_orders_all').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_success').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_success_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_processed').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_processed_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_new').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_new_pct').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_total').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
-                $('#value_orders_avg').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
+                $('.dyn_val').html('<div class="preloader pl-xs"><svg class="pl-circular" viewBox="25 25 50 50"><circle class="plc-path" cx="50" cy="50" r="20"></circle></svg></div>');
                 
                 $.ajax({
                     type: 'post',
@@ -395,52 +383,44 @@
                         },
                         rules: '<?= json_encode($data["rules"]) ?>'
                     },
-                    success: function(res) {
-                        $('#value_ref_all').html(res.ref.all);
-                        $('#value_ref_active').html(res.ref.active.value);
-                        $('#value_ref_active_pct').html(res.ref.active.pct + '%');
-                        $('#value_ref_wait').html(res.ref.wait.value);
-                        $('#value_ref_wait_pct').html(res.ref.wait.pct + '%');
-                        $('#value_ref_inactive').html(res.ref.inactive.value);
-                        $('#value_ref_inactive_pct').html(res.ref.inactive.pct + '%');
-                        $('#value_ref_unsubscribe').html(res.ref.unsubscribe.value);
-                        $('#value_ref_unsubscribe_pct').html(res.ref.unsubscribe.pct + '%');
-                        
-                        $('#value_letters_all').html(res.letters.all);
-                        $('#value_letters_open').html(res.letters.open.value);
-                        $('#value_letters_open_pct').html(res.letters.open.pct + '%');
-                        $('#value_letters_click').html(res.letters.click.value);
-                        $('#value_letters_click_pct').html(res.letters.click.pct + '%');
-                        $('#value_letters_bounce').html(res.letters.bounce.value);
-                        $('#value_letters_bounce_pct').html(res.letters.bounce.pct + '%');
-                        $('#value_letters_spam').html(res.letters.spamreport.value);
-                        $('#value_letters_spam_pct').html(res.letters.spamreport.pct + '%');
-                        $('#value_letters_unsubscribe').html(res.letters.unsubscribe.value);
-                        $('#value_letters_unsubscribe_pct').html(res.letters.unsubscribe.pct + '%');
+                    success: function(data) {
+                        $('#value_users_all').html(data.users.all);
+                        $('#value_users_active').html(data.users.active);
+                        $('#value_users_active_pct').html(parseFloat(data.users.active / (data.users.all / 100)).toFixed(2) + '%');
+                        $('#value_users_inactive').html(data.users.inactive);
+                        $('#value_users_inactive_pct').html(parseFloat(data.users.inactive / (data.users.all / 100)).toFixed(2) + '%');
+                        $('#value_users_pause').html(data.users.pause);
+                        $('#value_users_pause_pct').html(parseFloat(data.users.pause / (data.users.all / 100)).toFixed(2) + '%');
+                        $('#value_users_unsubscribe').html(data.users.unsubscribe);
+                        $('#value_users_unsubscribe_pct').html(parseFloat(data.users.unsubscribe / (data.users.all / 100)).toFixed(2) + '%');
+                        $('#value_users_blacklist').html(data.users.blacklist);
+                        $('#value_users_blacklist_pct').html(parseFloat(data.users.blacklist / (data.users.all / 100)).toFixed(2) + '%');
+                        $('#value_users_dropped').html(data.users.dropped);
+                        $('#value_users_dropped_pct').html(parseFloat(data.users.dropped / (data.users.all / 100)).toFixed(2) + '%');
 
-                        $('#value_letters_all30').html(res.letters.all30);
-                        $('#value_letters_open30').html(res.letters.open30.value);
-                        $('#value_letters_open_pct30').html(res.letters.open30.pct + '%');
-                        $('#value_letters_click30').html(res.letters.click30.value);
-                        $('#value_letters_click_pct30').html(res.letters.click30.pct + '%');
-                        $('#value_letters_bounce30').html(res.letters.bounce30.value);
-                        $('#value_letters_bounce_pct30').html(res.letters.bounce30.pct + '%');
-                        $('#value_letters_spam30').html(res.letters.spamreport30.value);
-                        $('#value_letters_spam_pct30').html(res.letters.spamreport30.pct + '%');
-                        $('#value_letters_unsubscribe30').html(res.letters.unsubscribe30.value);
-                        $('#value_letters_unsubscribe_pct30').html(res.letters.unsubscribe30.pct + '%');
-                        
-                        $('#value_orders_all').html(res.orders.all);
-                        $('#value_orders_success').html(res.orders.success.value);
-                        $('#value_orders_success_pct').html(res.orders.success.pct + '%');
-                        $('#value_orders_processed').html(res.orders.processed.value);
-                        $('#value_orders_processed_pct').html(res.orders.processed.pct + '%');
-                        $('#value_orders_new').html(res.orders.new.value);
-                        $('#value_orders_new_pct').html(res.orders.new.pct + '%');
-                        $('#value_orders_total').html(res.orders.total);
-                        $('#value_orders_avg').html(res.orders.avg);
+                        $('#value_letters_all').html(data.letters.all);
+                        $('#value_letters_open').html(data.letters.open.value);
+                        $('#value_letters_open_pct').html(data.letters.open.pct);
+                        $('#value_letters_click').html(data.letters.click.value);
+                        $('#value_letters_click_pct').html(data.letters.click.pct);
+                        $('#value_letters_bounce').html(data.letters.bounce.value);
+                        $('#value_letters_bounce_pct').html(data.letters.bounce.pct);
+                        $('#value_letters_unsubscribe').html(data.letters.unsubscribe.value);
+                        $('#value_letters_unsubscribe_pct').html(data.letters.unsubscribe.pct);
+                        $('#value_letters_spamreport').html(data.letters.spamreport.value);
+                        $('#value_letters_spamreport_pct').html(data.letters.spamreport.pct);
 
-                        //$('#page-content').niftyOverlay('hide');
+                        $('#value_invoices_all').html(data.invoices.all);
+                        $('#value_invoices_new').html(data.invoices.new.value);
+                        $('#value_invoices_new_pct').html(data.invoices.new.pct);
+                        $('#value_invoices_processed').html(data.invoices.processed.value);
+                        $('#value_invoices_processed_pct').html(data.invoices.processed.pct);
+                        $('#value_invoices_success').html(data.invoices.success.value);
+                        $('#value_invoices_success_pct').html(data.invoices.success.pct);
+                        $('#value_invoices_revoked').html(data.invoices.revoked.value);
+                        $('#value_invoices_revoked_pct').html(data.invoices.revoked.pct);
+                        $('#value_invoices_total').html(data.invoices.total);
+                        $('#value_invoices_avg').html(data.invoices.avg);
                     }
                 });
             } 
