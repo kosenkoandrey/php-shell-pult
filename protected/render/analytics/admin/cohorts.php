@@ -85,13 +85,14 @@ foreach ($tmp_roi_period as $index => $values) {
         <link href="<?= APP::Module('Routing')->root ?>public/modules/users/rules.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/modules/tunnels/scheme/letter-selector/style.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/morris.min.css" rel="stylesheet">
+        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/chosen/chosen.min.css" rel="stylesheet">
         <!-- OPTIONAL -->
         <style>
             .dropdown-toggle.selectpicker {
                 height: 35px;
             }
             .date-head {
-                min-width: 210px;
+                min-width: 240px;
             }
             #results-table {
                 width: 100%;
@@ -158,7 +159,7 @@ foreach ($tmp_roi_period as $index => $values) {
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Когортный анализ' => 'admin/analytics/cohorts'
+            'Аналитика' => 'admin/analytics/cohorts'
         ]);
         ?>
         <section id="main">
@@ -238,6 +239,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                                             }
 
                                                             $total['orders'] = array_merge(isset($total['orders']) ? $total['orders'] : [], $l_values['indicators'][$index]['orders']);
+
                                                             ?>
                                                             <td>
                                                                 <?
@@ -262,7 +264,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                                                             $indicators_values[] = (int) $total[$key] . ' <sup>' . $sup_last_value . '</sup>';
                                                                             break;
                                                                         case 'total_orders':
-                                                                            $indicators_values[] = '<a class="link" target="_blank" href="' . APP::Module('Routing')->root . 'admin/billing/invoices/bm/' .  APP::Module('Crypt')->Encode(serialize(Array($total['orders'], 'cohort'))) . '">' . $total[$key] . '</a> <sup>' . $sup_last_value . '</sup>';
+                                                                            $indicators_values[] = '<a class="link" target="_blank" href="' . APP::Module('Routing')->root . 'admin/billing/invoices?filters=' .  APP::Module('Crypt')->Encode(json_encode(['logic'=>'intersect','rules'=>[['method'=>'id','settings'=>['logic'=>'IN','value'=>$total['orders']]]]])) . '">' . $total[$key] . '</a> <sup>' . $sup_last_value . '</sup>';
                                                                             break;
                                                                         case 'total_revenue':
                                                                         case 'ltv_client':
@@ -468,7 +470,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">Отображаемые данные</label>
                                     <div class="col-md-10">
-                                        <select name="indicators[]" id="select-indicators" data-placeholder="Выберите показатели" multiple>
+                                        <select name="indicators[]" id="select-indicators" class="chosen" data-placeholder="Выберите показатели" multiple>
                                             <?
                                             foreach ($indicators as $key => $value) {
                                                 ?><option value="<?= $key ?>" <? if(array_search($key, $post['indicators']) !== false) { ?>selected<? } ?>><?= $value ?></option><?
@@ -506,6 +508,7 @@ foreach ($tmp_roi_period as $index => $values) {
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/morris.js/morris.min.js"></script>
 	<script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/raphael/raphael.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/chosen/chosen.jquery.min.js"></script>
         
         <script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/morris.min.js"></script>
 	<script src="<?= APP::Module('Routing')->root ?>public/nifty/ui/plugins/morris-js/raphael-js/raphael.min.js"></script>
