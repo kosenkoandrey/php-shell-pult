@@ -12,7 +12,8 @@ class SendThis {
             'module_sendthis_ssh_connection',
             'module_sendthis_version',
             'module_sendthis_key',
-            'module_sendthis_tmp_dir'
+            'module_sendthis_tmp_dir',
+            'module_sendthis_soft_bounce_limit'
         ]);
     }
     
@@ -21,7 +22,7 @@ class SendThis {
     }
     
     
-    public function DefaultTransport($recepient, $letter, $params) {
+    public function DefaultTransport($recepient, $letter, $params, $save_copy = true) {
         $user = (int) APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
             ['id'], 'users', [['email', '=', $recepient, PDO::PARAM_STR]]
@@ -63,7 +64,7 @@ class SendThis {
         $letter['html'] = str_replace('[letter_hash]', $letter_hash, $letter['html']);
         $letter['plaintext'] = str_replace('[letter_hash]', $letter_hash, $letter['plaintext']);
 
-        if (APP::Module('Mail')->settings['module_mail_save_sent_email']) {
+        if (($save_copy) && (APP::Module('Mail')->settings['module_mail_save_sent_email'])) {
             APP::Module('DB')->Insert(
                 APP::Module('Mail')->settings['module_mail_db_connection'], 'mail_copies',
                 [
@@ -121,7 +122,7 @@ class SendThis {
         ];
     }
     
-    public function DaemonTransport($recepient, $letter, $params) {
+    public function DaemonTransport($recepient, $letter, $params, $save_copy = true) {
         $user = (int) APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
             ['id'], 'users', [['email', '=', $recepient, PDO::PARAM_STR]]
@@ -163,7 +164,7 @@ class SendThis {
         $letter['html'] = str_replace('[letter_hash]', $letter_hash, $letter['html']);
         $letter['plaintext'] = str_replace('[letter_hash]', $letter_hash, $letter['plaintext']);
 
-        if (APP::Module('Mail')->settings['module_mail_save_sent_email']) {
+        if (($save_copy) && (APP::Module('Mail')->settings['module_mail_save_sent_email'])) {
             APP::Module('DB')->Insert(
                 APP::Module('Mail')->settings['module_mail_db_connection'], 'mail_copies',
                 [
@@ -237,7 +238,15 @@ class SendThis {
                             'task' => $task
                         ]);
                         break;
-                    case 'delivered': 
+                    case 'delivered':
+                        APP::Module('DB')->Delete(
+                            APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
+                            [
+                                ['user', '=', $mail['user'], PDO::PARAM_INT],
+                                ['item', '=', 'soft_bounce_counter', PDO::PARAM_STR]
+                            ]
+                        );
+
                         APP::Module('Triggers')->Exec('mail_event_delivered', [
                             'id' => $mail['id'],
                             'task' => $task
@@ -347,11 +356,13 @@ class SendThis {
         APP::Module('Registry')->Update(['value' => $_POST['module_sendthis_version']], [['item', '=', 'module_sendthis_version', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_sendthis_key']], [['item', '=', 'module_sendthis_key', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_sendthis_tmp_dir']], [['item', '=', 'module_sendthis_tmp_dir', PDO::PARAM_STR]]);
+        APP::Module('Registry')->Update(['value' => $_POST['module_sendthis_soft_bounce_limit']], [['item', '=', 'module_sendthis_soft_bounce_limit', PDO::PARAM_STR]]);
         
         APP::Module('Triggers')->Exec('sendthis_update_settings', [
             'version' => $_POST['module_sendthis_version'],
             'key' => $_POST['module_sendthis_key'],
-            'tmp_dir' => $_POST['module_sendthis_tmp_dir']
+            'tmp_dir' => $_POST['module_sendthis_tmp_dir'],
+            'soft_bounce_limit' => $_POST['module_sendthis_soft_bounce_limit']
         ]);
         
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
@@ -522,6 +533,85 @@ class SendThis {
             'user' => $user,
             'label' => 'dropped'
         ]);
+    }
+    
+    public function SoftBounceMailEvent($id, $data) {
+        $user = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['user'], 'mail_log',
+            [['id', '=', $data['id'], PDO::PARAM_INT]]
+        );
+        
+        if (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['value'], 'users_about',
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'state', PDO::PARAM_STR]
+            ]
+        ) == 'dropped') {
+            return;
+        }
+        
+        if ($soft_bounce_counter = (int) APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+            ['value'], 'users_tags',
+            [
+                ['user', '=', $user, PDO::PARAM_INT],
+                ['item', '=', 'soft_bounce_counter', PDO::PARAM_STR]
+            ]
+        )) {
+            APP::Module('DB')->Update(
+                APP::Module('Users')->settings['module_users_db_connection'], 'users_tags', 
+                [
+                    'value' => $soft_bounce_counter + 1
+                ], 
+                [
+                    ['user', '=', $user, PDO::PARAM_INT],
+                    ['item', '=', 'soft_bounce_counter', PDO::PARAM_STR]
+                ]
+            );
+            
+            if ($soft_bounce_counter >= $this->settings['module_sendthis_soft_bounce_limit']) {
+                APP::Module('DB')->Insert(
+                    APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
+                    [
+                        'id' => 'NULL',
+                        'user' => [$user, PDO::PARAM_INT],
+                        'item' => ['dropped', PDO::PARAM_STR],
+                        'value' => ['soft_bounce_limit', PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+
+                APP::Module('DB')->Update(
+                    APP::Module('Users')->settings['module_users_db_connection'], 'users_about', 
+                    [
+                        'value' => 'dropped'
+                    ], 
+                    [
+                        ['user', '=', $user, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR]
+                    ]
+                );
+
+                APP::Module('Triggers')->Exec('user_dropped', [
+                    'user' => $user,
+                    'label' => 'dropped'
+                ]);
+            }
+        } else {
+            APP::Module('DB')->Insert(
+                APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
+                [
+                    'id' => 'NULL',
+                    'user' => [$user, PDO::PARAM_INT],
+                    'item' => ['soft_bounce_counter', PDO::PARAM_STR],
+                    'value' => [1, PDO::PARAM_STR],
+                    'cr_date' => 'NOW()'
+                ]
+            );
+        }
     }
 
 }

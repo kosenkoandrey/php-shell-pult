@@ -137,7 +137,7 @@ class Costs {
                                 'utm_medium' => $this->settings['module_costs_yandex_utm_medium'],
                                 'utm_campaign' => $campaign['Id'],
                                 'utm_content' => $banner_stat['BannerID'],
-                                'utm_term' => strripos($banner_stat['Phrase'], ' -') === false ? $banner_stat['Phrase'] : strstr($banner_stat['Phrase'],' -', true),
+                                'utm_term' => str_replace('+', '', strripos($banner_stat['Phrase'], ' -') === false ? $banner_stat['Phrase'] : strstr($banner_stat['Phrase'],' -', true)),
                                 'utm_compaing_desc' => $campaign['Name']
                             ];
                         }

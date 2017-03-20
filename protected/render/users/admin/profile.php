@@ -389,6 +389,7 @@
                                                         case 'wait': $mail_icon = ['Grey-400', 'time']; break;
                                                         case 'error': $mail_icon = ['Red-400', 'close']; break;
                                                         case 'success': $mail_icon = ['Teal-500', 'email']; break;
+                                                        case '': $mail_icon = ['Red-400', 'alert-polygon']; break;
                                                     }
                                                     
                                                     $mail_tags = array_reverse($item['tags']);
@@ -406,7 +407,7 @@
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/html/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/plaintext/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
                                                         </td>
-                                                    </tr>
+                                                    </tr> 
                                                     <?
                                                 }
                                                 ?>

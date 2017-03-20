@@ -28,6 +28,7 @@ return [
         ['admin\/mail\/log(\?.*)?',                                                                 'Mail', 'ManageLog'],           // Manage log
         ['admin\/mail\/queue(\?.*)?',                                                               'Mail', 'ManageQueue'],         // Manage queue
         ['admin\/mail\/fbl(\?.*)?',                                                                 'Mail', 'ManageFBLReports'],    // Manage FBL reports
+        ['admin\/mail\/domains(\?.*)?',                                                             'Mail', 'ManageDomains'],       // Manage domains
         
         ['admin\/mail\/spam_lists(\?.*)?',                                                          'Mail', 'ManageIPSpamLists'],   // Manage IP spam lists
         ['admin\/mail\/spam_lists\/ip\/add(\?.*)?',                                                 'Mail', 'AddIPSpamLists'],      // Add IP to monitoring spam lists
@@ -75,6 +76,7 @@ return [
         ['admin\/mail\/api\/queue\/remove\.json(\?.*)?',                'Mail', 'APIRemoveQueueEntry'],     // [API] Remove queue entry
         
         ['admin\/mail\/api\/events\/list\.json(\?.*)?',                 'Mail', 'APIListEvents'],           // [API] List events
+        ['admin\/mail\/api\/domains\/list\.json(\?.*)?',                'Mail', 'APIListDomains'],          // [API] List domains
         
         ['admin\/mail\/api\/spam_lists\/ip\/add\.json(\?.*)?',          'Mail', 'APIAddIPSpamLists'],       // [API] Add IP spam lists
         ['admin\/mail\/api\/spam_lists\/ip\/remove\.json(\?.*)?',       'Mail', 'APIRemoveIPSpamLists'],    // [API] Remove IP spam lists

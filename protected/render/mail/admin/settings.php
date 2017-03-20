@@ -19,7 +19,7 @@
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Mail settings' => 'admin/mail/settings'
+            'Почта' => 'admin/mail/settings'
         ]);
         ?>
         <section id="main">
@@ -30,15 +30,15 @@
                     <div class="card">
                         <form id="update-settings" class="form-horizontal" role="form">
                             <div class="card-header">
-                                <h2>Settings</h2>
+                                <h2>Настройки</h2>
                             </div>
 
                             <div class="card-body card-padding">
                                 <ul class="tab-nav m-b-15" role="tablist" data-tab-color="teal">
-                                    <li class="active"><a href="#settings-main" role="tab" data-toggle="tab">Main</a></li>
-                                    <li role="presentation"><a href="#settings-transport" role="tab" data-toggle="tab">Transport</a></li>
-                                    <li role="presentation"><a href="#settings-copies" role="tab" data-toggle="tab">Copies of sent emails</a></li>
-                                    <li role="presentation"><a href="#settings-fbl" role="tab" data-toggle="tab">FBL reports</a></li>
+                                    <li class="active"><a href="#settings-main" role="tab" data-toggle="tab">Основное</a></li>
+                                    <li role="presentation"><a href="#settings-transport" role="tab" data-toggle="tab">Транспорт</a></li>
+                                    <li role="presentation"><a href="#settings-copies" role="tab" data-toggle="tab">Копии писем</a></li>
+                                    <li role="presentation"><a href="#settings-fbl" role="tab" data-toggle="tab">FBL-отчеты</a></li>
                                 </ul>
 
                                 <div class="tab-content">
@@ -82,7 +82,7 @@
                                     </div>
                                     <div role="tabpanel" class="tab-pane animated fadeIn" id="settings-copies">
                                         <div class="form-group">
-                                            <label for="module_mail_save_sent_email" class="col-sm-2 control-label">Save</label>
+                                            <label for="module_mail_save_sent_email" class="col-sm-2 control-label">Сохранять копии</label>
                                             <div class="col-sm-1">
                                                 <div class="toggle-switch m-t-10">
                                                     <input id="module_mail_save_sent_email" name="module_mail_save_sent_email" type="checkbox" hidden="hidden">
@@ -91,7 +91,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="module_mail_sent_email_lifetime" class="col-sm-2 control-label">Lifetime</label>
+                                            <label for="module_mail_sent_email_lifetime" class="col-sm-2 control-label">Автоматически удалять через</label>
                                             <div class="col-sm-2">
                                                 <div class="fg-line">
                                                     <input type="text" class="form-control" name="module_mail_sent_email_lifetime" id="module_mail_sent_email_lifetime">
@@ -137,7 +137,7 @@
 
                                 <div class="form-group">
                                     <div class="col-sm-offset-2 col-sm-5">
-                                        <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Save changes</button>
+                                        <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Сохранить изменения</button>
                                     </div>
                                 </div>
                             </div>
