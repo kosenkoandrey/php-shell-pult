@@ -3333,6 +3333,17 @@ class UsersSearch {
         }
     }
     
+    public function group($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('Groups')->settings['module_groups_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['user_id'], 'groups_users',
+            [
+                ['group_id', '=', $settings['value'], PDO::PARAM_STR]
+            ]
+        );
+    }
+    
     public function tunnels($settings) {
         switch ($settings['logic']) {
             case 'exist':
@@ -4102,6 +4113,32 @@ class UsersActions {
             }
         }
         
+        return $out;
+    }
+    
+    public function add_group($id, $settings){
+        $out['status'] = 'success';
+        
+        foreach ($id as $user_id) {
+            if (!APP::Module('DB')->Select(
+                APP::Module('Groups')->settings['module_groups_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(id)'], 'groups_users',
+                [
+                    ['group_id', '=', $settings['group_id'], PDO::PARAM_INT],
+                    ['user_id', '=', $user_id, PDO::PARAM_INT]
+                ]
+            )){
+                $out['user_id'][] = APP::Module('DB')->Insert(
+                    APP::Module('Groups')->settings['module_groups_db_connection'], 'groups_users',
+                    [
+                        'id' => 'NULL',
+                        'group_id' => [$settings['group_id'], PDO::PARAM_INT],
+                        'user_id' => [$user_id, PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+            }
+        }
         return $out;
     }
     

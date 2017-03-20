@@ -25,7 +25,8 @@
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Группы' => 'admin/groups'
+            'Группы' => 'admin/groups',
+            'Группа "'.$data['name'].'"' => 'admin/groups/users/'.APP::Module('Routing')->get['group_id_hash']
         ]);
         ?>
         <section id="main">
@@ -125,7 +126,6 @@
 
                         swal({
                             title: 'Вы уверены?',
-                            text: 'После удаления пользователя восстановить его будет невозможно',
                             type: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#DD6B55',

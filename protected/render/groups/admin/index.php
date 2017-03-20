@@ -53,7 +53,7 @@
                                     <tr>
                                         <th data-column-id="id" data-visible="false" data-type="numeric" data-order="desc">ID</th>
                                         <th data-column-id="name" data-formatter="name">Группа</th>
-                                        <th data-column-id="users">Пользователи</th>
+                                        <th data-column-id="users" data-formatter="users">Пользователи</th>
                                         <th data-column-id="up_date">Дата обновления</th>
                                         <th data-column-id="actions" data-formatter="actions">Действия</th>
                                     </tr>
@@ -117,6 +117,9 @@
                         },
                         name: function(column, row) {
                             return '<a href="<?= APP::Module('Routing')->root ?>admin/groups/users/' + row.id_token + '">' + row.name + '</a> ';
+                        },
+                        users: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.user_filter + '" target="_blank">' + row.users + '</a> ';
                         }
                     }
                 }).on('loaded.rs.jquery.bootgrid', function () {
