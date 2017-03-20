@@ -172,7 +172,6 @@ class Analytics {
             'client_cost',                      // Расходы на покупателя (расходы / кол-во покупателей)
             'roi',                              // ROI ((доходы - расходы) / расходы)
         ];
-
         // Сохранение целевых пользователей во временную таблицу
         APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_cohorts_tmp (user) VALUES (' . implode('),(', $users) . ')');
 
@@ -209,17 +208,15 @@ class Analytics {
             );
         }
 
-
-        $orig_orders = APP::Module('DB')->Select(
-            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
-            ['id'],'billing_invoices',
+        /*$orig_orders = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+            ['SUM(amount)'],'billing_invoices',
             [
                 ['state', '=', 'success', PDO::PARAM_STR],
                 ['user_id', 'IN', 'SELECT analytics_cohorts_tmp.user FROM analytics_cohorts_tmp', PDO::PARAM_INT],
                 ['amount', '!=', '0', PDO::PARAM_INT]
             ]
-        );
-
+        );*/
 
         // Удаление целевых пользователей из временной таблицы
         APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_cohorts_tmp');
@@ -319,8 +316,8 @@ class Analytics {
                                 ]
                             );
 
-                            $out[$index]['indicators'][$l_index][$indicator] = count(array_diff($clients, isset($clients_buffer[$l_index]) ? (array) $clients_buffer[$l_index] : []));
-                            $clients_buffer[$l_index] = array_unique(array_merge(isset($clients_buffer[$l_index]) ? (array) $clients_buffer[$l_index] : [], $clients));
+                            $out[$index]['indicators'][$l_index][$indicator] = isset($clients_buffer[$l_index]) ? count(array_diff($clients, (array) $clients_buffer[$l_index])) : count($clients);
+                            $clients_buffer[$l_index] = isset($clients_buffer[$l_index]) ? array_unique(array_merge((array) $clients_buffer[$l_index], $clients)) : array_unique($clients);
                             break;
                         case 'total_clients':
                             $cohorts_total_clients = [];
@@ -370,7 +367,7 @@ class Analytics {
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
-                            
+       
                             // Удаление целевых пользователей из временной таблицы
                             APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_cohorts_tmp');
                             break;
@@ -404,7 +401,7 @@ class Analytics {
                 }
             }
         }
-     
+
         // Вычисление кол-ва пользователей
         foreach ($out as $index => $values) {
             $out[$index]['users'] = count($out[$index]['users']);
@@ -456,7 +453,6 @@ class Analytics {
             }
         }
         
-        $cost_utm = [];
         foreach ($utm_labels as $label => $value) {
             $cost_utm[] = ['utm_' . $label, '=', $value, PDO::PARAM_STR];
         }
@@ -464,20 +460,14 @@ class Analytics {
         foreach ($out as $index => $values) {
             $cost = (float) round(APP::Module('DB')->Select(
                 APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs',
-                array_merge(
-                    [
-                        ['cost_date', 'BETWEEN', '"' . date('Y-m-d', $values['date'][0]) . '" AND "' . date('Y-m-d', $values['date'][1]) . '"', PDO::PARAM_STR]
-                    ],
-                    $cost_utm
-                )
+                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs'
             ), 2);
-
+ 
             foreach (array_reverse($out) as $key => $date_value) {
                 if (isset($out[$key]['indicators'][$index])) {
                     $out[$key]['indicators'][$index]['cost'] = $cost;
-                    $out[$key]['indicators'][$index]['subscriber_cost'] = ($out[$key]['indicators'][$index]['total_subscribers_active'] ? round($cost / $out[$key]['indicators'][$index]['total_subscribers_active'], 2) : round($cost,2));
-                    $out[$key]['indicators'][$index]['client_cost'] = ($out[$key]['indicators'][$index]['total_clients'] ? round($cost / $out[$key]['indicators'][$index]['total_clients'], 2) : round($cost,2));
+                    $out[$key]['indicators'][$index]['subscriber_cost'] = ($out[$key]['indicators'][$index]['total_subscribers_active'] ? round($cost / $out[$key]['indicators'][$index]['total_subscribers_active'], 2) : 0);
+                    $out[$key]['indicators'][$index]['client_cost'] = ($out[$key]['indicators'][$index]['total_clients'] ? round($cost / $out[$key]['indicators'][$index]['total_clients'], 2) : 0);
                     $out[$key]['indicators'][$index]['roi'] = ($cost ? round((($out[$key]['indicators'][$index]['total_revenue'] - $cost) / $cost) * 100, 2) : 0);
                 }
             }
