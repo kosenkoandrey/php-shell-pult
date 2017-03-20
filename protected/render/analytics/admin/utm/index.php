@@ -64,9 +64,8 @@
                     <div class="col-md-3">
                         <div class="card">
                             <div class="card-header">
-                                <h2>UTM-анализ</h2>
+                                <h2>UTM-метки</h2>
                             </div>
-
                             <div class="card-body card-padding">
                                 <div id="utm-list"></div>
                             </div>
@@ -77,7 +76,6 @@
                             <div class="card-header">
                                 <h2>Пользователи</h2>
                             </div>
-
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-4 col-md-3 col-lg-2">
@@ -133,7 +131,6 @@
                             <div class="card-header">
                                 <h2>Письма</h2>
                             </div>
-
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-4 col-md-3 col-lg-2">
@@ -197,7 +194,6 @@
                             <div class="card-header">
                                 <h2>Заказы</h2>
                             </div>
-
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-4 col-md-3 col-lg-2">
@@ -290,7 +286,7 @@
                             label: label,
                             value: value
                         },
-                        rules: '<?= json_encode($data["rules"]) ?>'
+                        rules: '<?= json_encode($data['rules']) ?>'
                     },
                     success: function(res) {
                         switch(label) {
@@ -450,10 +446,6 @@
             } 
             
             $(document).ready(function() {
-                /*$('#page-content').niftyOverlay({
-                    title: 'Пожалуйста, подождите...'
-                });*/
- 
                 GetLabels('root', null, null);
 
                 $(document).on('click', '#utm-list > .utm-source > .item  > .control > .zmdi', function () {

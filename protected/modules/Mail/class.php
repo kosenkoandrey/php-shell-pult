@@ -2807,10 +2807,10 @@ class Mail {
             ]
         ) as $user) {
             $email = explode('@', $user['email']);
+
+            if (!isset($email[1])) continue;
             
-            if (!isset($email[1])) {
-                continue;
-            }
+            if (($request['search']) && (preg_match('/^' . $request['search'] . '/', $email[1]) === 0)) continue;
             
             if (!isset($domains[$email[1]])) {
                 $domains[$email[1]] = [

@@ -77,7 +77,7 @@
                 $('#domains-table').bootgrid({
                     requestHandler: function (request) {
                         var model = {
-                            search: $('#search').val(),
+                            search: $('.search-field').val(),
                             current: request.current,
                             rows: request.rowCount
                         };

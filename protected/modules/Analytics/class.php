@@ -2745,18 +2745,18 @@ class Analytics {
         $out = [];
         $create_date = time() - 2592000;
 
-        if(isset($_POST['rules'])){
+        if (isset($_POST['rules'])){
             $rules = json_decode($_POST['rules'], true);
             $uid = APP::Module('Users')->UsersSearch($rules);
-        }else{
+        } else {
             $rules = [
-                "logic" => "intersect",
-                "rules" => [
+                'logic' => 'intersect',
+                'rules' => [
                     [
-                        "method" => "email",
-                        "settings" => [
-                            "logic" => "LIKE",
-                            "value" => "%"
+                        'method' => 'email',
+                        'settings' => [
+                            'logic' => 'LIKE',
+                            'value' => '%'
                         ]
                     ]
                 ]
@@ -2772,12 +2772,11 @@ class Analytics {
                 switch ($_POST['settings']['label']) {
                     case 'root':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['DISTINCT(value)'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['DISTINCT(value)'], 'users_utm',
                             [
                                 ['num', '=', 1, PDO::PARAM_INT],
-                                ['item', '=', "source", PDO::PARAM_STR],
+                                ['item', '=', 'source', PDO::PARAM_STR],
                                 ['user', 'IN', $uid, PDO::PARAM_INT]
                             ]
                         );
@@ -3383,46 +3382,37 @@ class Analytics {
                 exit;
                 break;
             default:
+                // Пользователи
                 
-                
-                // ref
                 $users_all = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT id)'],
-                    'users',[['id', 'IN', $uid, PDO::PARAM_INT]]
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users',
+                    [['id', 'IN', $uid, PDO::PARAM_INT]]
                 );
                 
                 $users_active = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $uid, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'active', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'active', PDO::PARAM_STR]
                     ]
                 );
                 
-                $users_wait = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                $users_inactive = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $uid, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'wait', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'inactive', PDO::PARAM_STR]
                     ]
                 );
+                
+                
+                
+                
                 
                 $users_inactive = APP::Module('DB')->Select(
                     APP::Module('Users')->settings['module_users_db_connection'],
