@@ -18,11 +18,16 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet"> 
+        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/tableexport.js/dist/css/tableexport.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/modules/users/rules.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/modules/tunnels/scheme/letter-selector/style.css" rel="stylesheet">
+
         <style>
             #users-table-header .actionBar .actions > button {
                 display: none;
+            }
+            .btn-toolbar {
+                margin-left: 10px !important;
             }
         </style>
         
@@ -152,6 +157,11 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
         <script src="<?= APP::Module('Routing')->root ?>public/modules/tunnels/scheme/letter-selector/script.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/modules/tunnels/scheme/tunnel-selector/script.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/modules/users/rules.js"></script> 
+        
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/xlsx-js/xlsx.core.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/file-saverjs/FileSaver.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/tableexport.js/dist/js/tableexport.min.js"></script>
+        
         <? APP::Render('core/widgets/js') ?>
         <script>
             $(document).ready(function() {
@@ -360,9 +370,19 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                 form.append(
                                     [
                                         '<div class="form-group">',
-                                            '<div class="col-sm-12">',
+                                            '<label for="" class="col-sm-3 control-label">Письмо</label>',
+                                            '<div class="col-sm-9">',
                                                 '<div class="fg-line">',
                                                     '<input type="hidden" id="in_letter" value="" name="settings[letter]" class="form-control">',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>',
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-3 control-label">Сохранять копии</label>',
+                                            '<div class="col-sm-9">',
+                                                '<div class="toggle-switch m-t-10">',
+                                                    '<input id="settings_save_copy" name="settings[save_copy]" type="checkbox" hidden="hidden">',
+                                                    '<label for="settings_save_copy" class="ts-helper"></label>',
                                                 '</div>',
                                             '</div>',
                                         '</div>'
@@ -569,7 +589,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                 $('#user-modal').on('hide.bs.modal', function (event) {
                     $('#user-action-form', $(this)).html('');
                 });
-                
+
                 var users_table = $("#users-table").bootgrid({
                     requestHandler: function (request) {
                         var model = {
@@ -655,6 +675,8 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                         }
                     }
                 }).on('loaded.rs.jquery.bootgrid', function () {
+                    export_table.update();
+                    
                     users_table.find('.remove-user').on('click', function (e) {
                         var user_id = $(this).data('user-id');
                         swal({
@@ -687,6 +709,16 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                         });
                     });
                 });
+                
+                
+                var export_table = $("#users-table").tableExport({
+                    fileName: 'export_users',
+                    formats: ['xlsx', 'csv', 'txt']
+                });
+                
+                export_table.xlsx.buttonContent = 'Excel';
+                export_table.csv.buttonContent = 'CSV';
+                export_table.txt.buttonContent = 'TEXT';
             });
         </script>
     </body>

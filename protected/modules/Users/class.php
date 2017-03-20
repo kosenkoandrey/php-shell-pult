@@ -1355,6 +1355,11 @@ class Users {
         $request = json_decode(file_get_contents('php://input'), true);
         $out = $this->UsersSearch(json_decode($request['search'], 1));
         $rows = [];
+        
+        // Удаление системного пользователя из результатов поиска
+        if (array_search(0, $out) !== false) {
+            unset($out[array_search(0, $out)]);
+        }
 
         foreach (APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
@@ -1370,7 +1375,9 @@ class Users {
                 'phone.value as tel'
             ], 
             'users',
-            [['users.id', 'IN', $out, PDO::PARAM_INT]], 
+            [
+                ['users.id', 'IN', $out, PDO::PARAM_INT]
+            ], 
             [
                 'left join/users_about/state' => [
                     ['state.user', '=', 'users.id'],
@@ -3949,7 +3956,7 @@ class UsersActions {
                 ['state', '=', 'active', PDO::PARAM_STR]
             ]
         ) as $id){
-            if(APP::Module('DB')->Insert(
+            if (APP::Module('DB')->Insert(
                 APP::Module('Tunnels')->settings['module_tunnels_db_connection'], 'tunnels_tags',
                 [
                     'id' => 'NULL',
@@ -3994,6 +4001,7 @@ class UsersActions {
                     'cr_date' => 'NOW()'
                 ]
             );
+            
             APP::Module('DB')->Update(APP::Module('Tunnels')->settings['module_tunnels_db_connection'], 'tunnels_users', [
                 'state' => 'complete',
                 'resume_date' => '0000-00-00 00:00:00',
@@ -4003,6 +4011,7 @@ class UsersActions {
                 ['id', '=', $id, PDO::PARAM_INT]
             ]);
         }
+        
         return $out;
     }
     
@@ -4010,7 +4019,7 @@ class UsersActions {
         $out['status'] = 'success';
         
         foreach ($id as $user_id) {
-            if(!APP::Module('DB')->Select(
+            if (!APP::Module('DB')->Select(
                 APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
                 ['id'], 'tunnels_users', 
                 [
@@ -4018,7 +4027,7 @@ class UsersActions {
                     ['user_id', '=', $user_id, PDO::PARAM_INT]
                 ]
             )){
-                if($user_tunnel_id = APP::Module('DB')->Insert(
+                if ($user_tunnel_id = APP::Module('DB')->Insert(
                     APP::Module('Tunnels')->settings['module_tunnels_db_connection'], 'tunnels_users',
                     [
                         'id' => 'NULL',
@@ -4044,11 +4053,13 @@ class UsersActions {
                 }
             }
         }
+        
         return $out;
     }
     
     public function add_tag($id, $settings){
         $out['status'] = 'success';
+        
         foreach ($id as $user_id) {
             APP::Module('DB')->Insert(
                 APP::Module('Users')->settings['module_users_db_connection'], 'users_tags',
@@ -4061,20 +4072,22 @@ class UsersActions {
                 ]
             );
         }
+        
         return $out;
     }
     
     public function change_state($id, $settings){
         $out['status'] = 'error';
         
-        if(APP::Module('DB')->Delete(
+        if (APP::Module('DB')->Delete(
             APP::Module('Users')->settings['module_users_db_connection'], 'users_about',
             [
                 ['user', 'IN', $id, PDO::PARAM_INT],
                 ['item', '=', 'state', PDO::PARAM_STR]
             ]
-        )){
+        )) {
             $out['status'] = 'success';
+            
             foreach ($id as $user_id) {
                 $result = APP::Module('DB')->Insert(
                     APP::Module('Users')->settings['module_users_db_connection'], ' users_about',
@@ -4088,18 +4101,21 @@ class UsersActions {
                 );
             }
         }
+        
         return $out;
     }
     
     public function send_mail($id, $settings){
         $out['status'] = 'success';
+        
         foreach (APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
             ['email'], 'users',
             [['id', 'IN', $id, PDO::PARAM_INT]]
         ) as $email) {
-            APP::Module('Mail')->Send($email, $settings['letter'], false);
+            APP::Module('Mail')->Send($email, $settings['letter'], false, isset($settings['save_copy']));
         }
+        
         return $out;
     }
 }

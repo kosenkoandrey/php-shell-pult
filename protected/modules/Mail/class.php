@@ -109,7 +109,7 @@ class Mail {
         return $letter;
     }
     
-    public function Send($recepient, $letter, $params = []) {
+    public function Send($recepient, $letter, $params = [], $save_copy = true) {
         if (!filter_var($recepient, FILTER_VALIDATE_EMAIL)) return ['error', 1];
         
         if (!APP::Module('DB')->Select(
@@ -128,7 +128,7 @@ class Mail {
             [['id', '=', $letter['transport'], PDO::PARAM_INT]]
         );
         
-        $result = APP::Module($transport['module'])->{$transport['method']}($recepient, $letter, $params);
+        $result = APP::Module($transport['module'])->{$transport['method']}($recepient, $letter, $params, $save_copy);
 
         APP::Module('Triggers')->Exec('after_mail_send_letter', [
             'result' => $result,
@@ -140,7 +140,7 @@ class Mail {
         return $result;
     }
 
-    private function Transport($recepient, $letter, $params) {
+    private function Transport($recepient, $letter, $params, $save_copy = true) {
         $id = false;
         
         if (isset(APP::$modules['Users'])) {
@@ -177,7 +177,7 @@ class Mail {
                     $letter['html'] = str_replace('[letter_hash]', $letter_hash, $letter['html']);
                     $letter['plaintext'] = str_replace('[letter_hash]', $letter_hash, $letter['plaintext']);
 
-                    if ($this->settings['module_mail_save_sent_email']) {
+                    if (($save_copy) && ($this->settings['module_mail_save_sent_email'])) {
                         APP::Module('DB')->Insert(
                             $this->settings['module_mail_db_connection'], 'mail_copies',
                             [
@@ -969,6 +969,10 @@ class Mail {
     
     public function ManageFBLReports() {
         APP::Render('mail/admin/fbl');
+    }
+    
+    public function ManageDomains() {
+        APP::Render('mail/admin/domains');
     }
 
     
@@ -2780,6 +2784,67 @@ class Mail {
                 ]))
             )
         ]);
+    }
+    
+    public function APIListDomains() {
+        $domains = [];
+        $rows = [];
+
+        $request = json_decode(file_get_contents('php://input'), true);
+        
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'users.email', 
+                'users_about.value AS state',
+            ], 'users',
+            false,
+            [
+                'join/users_about' => [
+                    ['users_about.user', '=', 'users.id'],
+                    ['users_about.item', '=', '"state"']
+                ]
+            ]
+        ) as $user) {
+            $email = explode('@', $user['email']);
+            
+            if (!isset($email[1])) {
+                continue;
+            }
+            
+            if (!isset($domains[$email[1]])) {
+                $domains[$email[1]] = [
+                    'domain' => $email[1],
+                    'inactive' => 0,
+                    'active' => 0,
+                    'pause' => 0,
+                    'unsubscribe' => 0,
+                    'blacklist' => 0,
+                    'dropped' => 0
+                ];
+            }
+            
+            ++ $domains[$email[1]][$user['state']];
+        }
+        
+        $domains = array_values($domains);
+        
+        for ($x = ($request['current'] - 1) * $request['rows']; $x < $request['rows'] * $request['current']; $x ++) {
+            if (!isset($domains[$x])) continue;
+            array_push($rows, $domains[$x]);
+        }
+        
+        header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+        header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+        header('Content-Type: application/json');
+        
+        echo json_encode([
+            'current' => $request['current'],
+            'rowCount' => $request['rows'],
+            'rows' => $rows,
+            'total' => count($domains)
+        ]);
+        exit;
     }
     
     

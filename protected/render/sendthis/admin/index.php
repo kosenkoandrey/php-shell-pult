@@ -34,7 +34,7 @@
                             </div>
                             <div class="card-body card-padding">
                                 <div class="form-group">
-                                    <label for="module_sendthis_version" class="col-sm-1 control-label">Version</label>
+                                    <label for="module_sendthis_version" class="col-sm-2 control-label">Version</label>
                                     <div class="col-sm-1">
                                         <div class="fg-line">
                                             <input type="text" class="form-control" name="module_sendthis_version" id="module_sendthis_version">
@@ -42,7 +42,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="module_sendthis_key" class="col-sm-1 control-label">Key</label>
+                                    <label for="module_sendthis_key" class="col-sm-2 control-label">Key</label>
                                     <div class="col-sm-5">
                                         <div class="fg-line">
                                             <input type="text" class="form-control" name="module_sendthis_key" id="module_sendthis_key">
@@ -50,7 +50,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="module_sendthis_tmp_dir" class="col-sm-1 control-label">Temp dir</label>
+                                    <label for="module_sendthis_tmp_dir" class="col-sm-2 control-label">Temp dir</label>
                                     <div class="col-sm-3">
                                         <div class="fg-line">
                                             <input type="text" class="form-control" name="module_sendthis_tmp_dir" id="module_sendthis_tmp_dir">
@@ -58,7 +58,15 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <div class="col-sm-offset-1 col-sm-5">
+                                    <label for="module_sendthis_soft_bounce_limit" class="col-sm-2 control-label">Soft bounce limit</label>
+                                    <div class="col-sm-1">
+                                        <div class="fg-line">
+                                            <input type="text" class="form-control" name="module_sendthis_soft_bounce_limit" id="module_sendthis_soft_bounce_limit">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-5">
                                         <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Save changes</button>
                                     </div>
                                 </div>
@@ -89,6 +97,7 @@
                 $('#module_sendthis_version').val('<?= APP::Module('SendThis')->settings['module_sendthis_version'] ?>');
                 $('#module_sendthis_key').val('<?= APP::Module('SendThis')->settings['module_sendthis_key'] ?>');
                 $('#module_sendthis_tmp_dir').val('<?= APP::Module('SendThis')->settings['module_sendthis_tmp_dir'] ?>');
+                $('#module_sendthis_soft_bounce_limit').val('<?= APP::Module('SendThis')->settings['module_sendthis_soft_bounce_limit'] ?>');
 
                 $('#update-settings').submit(function(event) {
                     event.preventDefault();
@@ -96,14 +105,17 @@
                     var module_sendthis_version = $(this).find('#module_sendthis_version');
                     var module_sendthis_key = $(this).find('#module_sendthis_key');
                     var module_sendthis_tmp_dir = $(this).find('#module_sendthis_tmp_dir');
+                    var module_sendthis_soft_bounce_limit = $(this).find('#module_sendthis_soft_bounce_limit');
                     
                     module_sendthis_version.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_sendthis_key.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_sendthis_tmp_dir.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
+                    module_sendthis_soft_bounce_limit.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     
                     if (module_sendthis_version.val() === '') { module_sendthis_version.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-1').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_sendthis_key.val() === '') { module_sendthis_key.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-5').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_sendthis_tmp_dir.val() === '') { module_sendthis_tmp_dir.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
+                    if (module_sendthis_soft_bounce_limit.val() === '') { module_sendthis_soft_bounce_limit.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-1').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     
                     $(this).find('[type="submit"]').html('Processing...').attr('disabled', true);
 
