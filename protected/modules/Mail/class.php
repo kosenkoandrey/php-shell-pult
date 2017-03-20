@@ -2814,20 +2814,174 @@ class Mail {
             
             if (!isset($domains[$email[1]])) {
                 $domains[$email[1]] = [
-                    'domain' => $email[1],
-                    'inactive' => 0,
-                    'active' => 0,
-                    'pause' => 0,
-                    'unsubscribe' => 0,
-                    'blacklist' => 0,
-                    'dropped' => 0
+                    'domain' => [
+                        $email[1],
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ],
+                    'inactive' => [
+                        0,
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ],
+                                [
+                                    'method' => 'state',
+                                    'settings' => [
+                                        'logic' => '=',
+                                        'value' => 'inactive'
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ],
+                    'active' => [
+                        0,
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ],
+                                [
+                                    'method' => 'state',
+                                    'settings' => [
+                                        'logic' => '=',
+                                        'value' => 'active'
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ],
+                    'pause' => [
+                        0,
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ],
+                                [
+                                    'method' => 'state',
+                                    'settings' => [
+                                        'logic' => '=',
+                                        'value' => 'pause'
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ],
+                    'unsubscribe' => [
+                        0,
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ],
+                                [
+                                    'method' => 'state',
+                                    'settings' => [
+                                        'logic' => '=',
+                                        'value' => 'unsubscribe'
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ],
+                    'blacklist' => [
+                        0,
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ],
+                                [
+                                    'method' => 'state',
+                                    'settings' => [
+                                        'logic' => '=',
+                                        'value' => 'blacklist'
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ],
+                    'dropped' => [
+                        0,
+                        APP::Module('Crypt')->Encode(json_encode([
+                            'logic' => 'intersect',
+                            'rules' => [
+                                [
+                                    'method' => 'email',
+                                    'settings' => [
+                                        'logic' => 'LIKE',
+                                        'value' => '%@' . $email[1]
+                                    ]
+                                ],
+                                [
+                                    'method' => 'state',
+                                    'settings' => [
+                                        'logic' => '=',
+                                        'value' => 'dropped'
+                                    ]
+                                ]
+                            ]
+                        ]))
+                    ]
                 ];
             }
             
-            ++ $domains[$email[1]][$user['state']];
+            ++ $domains[$email[1]][$user['state']][0];
         }
         
         $domains = array_values($domains);
+        
+        if ((isset($request['sort_by'])) && (isset($request['sort_direction']))) {
+            foreach ($domains as $key => $row) {
+                $domain[$key]  = $row['domain'][0];
+                $inactive[$key]  = $row['inactive'][0];
+                $active[$key]  = $row['active'][0];
+                $pause[$key]  = $row['pause'][0];
+                $unsubscribe[$key]  = $row['unsubscribe'][0];
+                $blacklist[$key]  = $row['blacklist'][0];
+                $dropped[$key]  = $row['dropped'][0];
+            }
+
+            array_multisort(${$request['sort_by']}, $request['sort_direction'] == 'desc' ? SORT_DESC : SORT_ASC, $domains);
+        }
         
         for ($x = ($request['current'] - 1) * $request['rows']; $x < $request['rows'] * $request['current']; $x ++) {
             if (!isset($domains[$x])) continue;
