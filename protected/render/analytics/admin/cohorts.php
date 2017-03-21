@@ -178,6 +178,7 @@ foreach ($tmp_roi_period as $index => $values) {
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         <li><a id="cohorts-settings" href="javascript:void(0)"><i class="fa fa-cog"></i> Настройки</a></li>
+                                        <li><a id="cohorts-text" href="javascript:void(0)"><i class="fa fa-cog"></i> Описание</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -489,6 +490,26 @@ foreach ($tmp_roi_period as $index => $values) {
                 </div>
             </div>
             
+            <div id="cohorts-text-modal" role="dialog" class="modal fade" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button class="close" data-dismiss="modal" type="button"><span>&times;</span><span class="sr-only">Закрыть</span></button>
+                            <h4 class="modal-title">Описание</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Анализируя пользователей в когортном анализе делим их на когорты в зависимости от даты регистрации, начиная от самой ранней. Первая когорта это период самой раней регистрации.</p>
+                            <p>Покупатели - это пользователи из когорты которые совершили покупку. В каждом периоде отслеживается этот показатель прироста или падения для когорты.</p>
+                            <p>Выручка - это сумма всех заказов совершенных пользователями из когорыт за определенный период.</p>
+                            <p>Расходы - в каждой когорте одинаковые и это сумма всех расходов на пользователей. </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">Отмена</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <? APP::Render('admin/widgets/footer') ?>
         </section>
         <? APP::Render('core/widgets/page_loader') ?>
@@ -540,13 +561,16 @@ foreach ($tmp_roi_period as $index => $values) {
                 container.stop(true);
             });
             
+            $(document).on('click', '#cohorts-text', function(){
+                $('#cohorts-text-modal').modal('show');
+            });
+            
             $(document).on('click', '#cohorts-settings', function(){
                 $('#cohorts-settings-modal').modal('show');
             });
             
             $(document).on('click', '.save', function(){
                 $('#cohorts-settings-modal').modal('hide');
-                //$('#cohorts-panel').niftyOverlay('show');
                 $('#cohorts-settings-modal form').submit();
             }); 
             $('.cohorts-left-content').on('scroll', function (e) {
