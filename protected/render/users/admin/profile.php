@@ -240,16 +240,28 @@
                                         <div class="p-l-25">
                                             <div id="view-contact" class="pmbb-view">
                                                 <dl class="dl-horizontal">
+                                                    <dt>Имя</dt>
+                                                    <dd id="about-firstname-value"><?= isset($data['about']['firstname']) ? $data['about']['firstname'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>Фамилия</dt>
+                                                    <dd id="about-lastname-value"><?= isset($data['about']['lastname']) ? $data['about']['lastname'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>Страна</dt>
+                                                    <dd id="about-country-name_ru-value"><?= isset($data['about']['country_name_ru']) ? $data['about']['country_name_ru'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>Регион</dt>
+                                                    <dd id="about-region-name-ru-value"><?= isset($data['about']['region_name_ru']) ? $data['about']['region_name_ru'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>Город</dt>
+                                                    <dd id="about-city-name-ru-value"><?= isset($data['about']['city_name_ru']) ? $data['about']['city_name_ru'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
                                                     <dt>Телефон</dt>
-                                                    <dd id="about-mobile-phone-value"><?= isset($data['about']['mobile_phone']) ? $data['about']['mobile_phone'] : 'нет' ?></dd>
-                                                </dl>
-                                                <dl class="dl-horizontal">
-                                                    <dt>Twitter</dt>
-                                                    <dd id="about-twitter-value"><?= isset($data['about']['twitter']) ? $data['about']['twitter'] : 'нет' ?></dd>
-                                                </dl>
-                                                <dl class="dl-horizontal">
-                                                    <dt>Skype</dt>
-                                                    <dd id="about-skype-value"><?= isset($data['about']['skype']) ? $data['about']['skype'] : 'нет' ?></dd>
+                                                    <dd id="about-tel-value"><?= isset($data['about']['tel']) ? $data['about']['tel'] : 'нет' ?></dd>
                                                 </dl>
                                             </div>
 
@@ -257,32 +269,192 @@
                                                 <input type="hidden" name="user" value="<?= APP::Module('Crypt')->Encode($data['user']['id']) ?>">
                                                 
                                                 <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Имя</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_firstname" name="about[firstname]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Фамилия</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_lastname" name="about[lastname]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Страна</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_country_name_ru" name="about[country_name_ru]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Регион</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_region_name_ru" name="about[region_name_ru]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Город</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_city_name_ru" name="about[city_name_ru]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
                                                     <dt class="p-t-10">Телефон</dt>
                                                     <dd>
                                                         <div class="fg-line">
-                                                            <input type="text" id="about_mobile_phone" name="about[mobile_phone]" class="form-control input-mask" data-mask="+000000000000" maxlength="15" autocomplete="off">
-                                                        </div>
-                                                    </dd>
-                                                </dl>
-                                                <dl class="dl-horizontal">
-                                                    <dt class="p-t-10">Twitter</dt>
-                                                    <dd>
-                                                        <div class="fg-line">
-                                                            <input type="text" id="about_twitter" name="about[twitter]" class="form-control">
-                                                        </div>
-                                                    </dd>
-                                                </dl>
-                                                <dl class="dl-horizontal">
-                                                    <dt class="p-t-10">Skype</dt>
-                                                    <dd>
-                                                        <div class="fg-line">
-                                                            <input type="text" id="about_skype" name="about[skype]" class="form-control">
+                                                            <input type="text" id="about_tel" name="about[tel]" class="form-control input-mask" data-mask="+000000000000" maxlength="15" autocomplete="off">
                                                         </div>
                                                     </dd>
                                                 </dl>
                                                 <div class="m-t-30">
                                                     <button type="submit" class="btn palette-Teal bg waves-effect">Сохранить</button>
                                                     <button type="button" class="toggle-contact btn btn-link c-black">Отмена</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pmb-block">
+                                        <div class="pmbb-header">
+                                            <h2><i class="zmdi zmdi-assignment m-r-5"></i> Разное</h2>
+
+                                            <ul class="actions">
+                                                <li class="dropdown">
+                                                    <a href="javascript:void(0)" data-toggle="dropdown"><i class="zmdi zmdi-more-vert"></i></a>
+                                                    <ul class="dropdown-menu dropdown-menu-right">
+                                                        <li><a class="toggle-assignment" href="javascript:void(0)">Редактировать</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="p-l-25">
+                                            <div id="view-assignment" class="pmbb-view">
+                                                <dl class="dl-horizontal">
+                                                    <dt>Источник</dt>
+                                                    <dd id="about-source-value"><?= isset($data['about']['source']) ? $data['about']['source'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>Браузер</dt>
+                                                    <dd id="about-http-user-agent-value"><?= isset($data['about']['http_user_agent']) ? $data['about']['http_user_agent'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>HTTP-реферер</dt>
+                                                    <dd id="about-http-referer-value"><?= isset($data['about']['http_referer']) ? $data['about']['http_referer'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>IP</dt>
+                                                    <dd id="about-remote-addr-value"><?= isset($data['about']['remote_addr']) ? $data['about']['remote_addr'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>Self URL</dt>
+                                                    <dd id="about-self-url-value"><?= isset($data['about']['self_url']) ? $data['about']['self_url'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>yadevice</dt>
+                                                    <dd id="about-yadevice-value"><?= isset($data['about']['yadevice']) ? $data['about']['yadevice'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>yageo</dt>
+                                                    <dd id="about-yageo-value"><?= isset($data['about']['yageo']) ? $data['about']['yageo'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>yaregion</dt>
+                                                    <dd id="about-yaregion-value"><?= isset($data['about']['yaregion']) ? $data['about']['yaregion'] : 'нет' ?></dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt>yaregionid</dt>
+                                                    <dd id="about-yaregionid-value"><?= isset($data['about']['yaregionid']) ? $data['about']['yaregionid'] : 'нет' ?></dd>
+                                                </dl>
+                                            </div>
+
+                                            <form id="form-assignment" class="pmbb-edit">
+                                                <input type="hidden" name="user" value="<?= APP::Module('Crypt')->Encode($data['user']['id']) ?>">
+
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Источник</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_source" name="about[source]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Браузер</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_http_user_agent" name="about[http_user_agent]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">HTTP-реферер</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_http_referer" name="about[http_referer]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">IP</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_remote_addr" name="about[remote_addr]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">Self URL</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_self_url" name="about[self_url]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">yadevice</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_yadevice" name="about[yadevice]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">yageo</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_yageo" name="about[yageo]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">yaregion</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_yaregion" name="about[yaregion]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <dl class="dl-horizontal">
+                                                    <dt class="p-t-10">yaregionid</dt>
+                                                    <dd>
+                                                        <div class="fg-line">
+                                                            <input type="text" id="about_yaregionid" name="about[yaregionid]" class="form-control">
+                                                        </div>
+                                                    </dd>
+                                                </dl>
+                                                <div class="m-t-30">
+                                                    <button type="submit" class="btn palette-Teal bg waves-effect">Сохранить</button>
+                                                    <button type="button" class="toggle-assignment btn btn-link c-black">Отмена</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -1363,9 +1535,23 @@
                 
                 $('#about_username').val('<?= isset($data['about']['username']) ? $data['about']['username'] : '' ?>');
                 $('#about_state').val('<?= isset($data['about']['state']) ? $data['about']['state'] : 'unknown' ?>');
-                $('#about_mobile_phone').val('<?= isset($data['about']['mobile_phone']) ? $data['about']['mobile_phone'] : '' ?>');
-                $('#about_twitter').val('<?= isset($data['about']['twitter']) ? $data['about']['twitter'] : '' ?>');
-                $('#about_skype').val('<?= isset($data['about']['skype']) ? $data['about']['skype'] : '' ?>');
+                
+                $('#about_firstname').val('<?= isset($data['about']['firstname']) ? $data['about']['firstname'] : '' ?>');
+                $('#about_lastname').val('<?= isset($data['about']['lastname']) ? $data['about']['lastname'] : '' ?>');
+                $('#about_country_name_ru').val('<?= isset($data['about']['country_name_ru']) ? $data['about']['country_name_ru'] : '' ?>');
+                $('#about_region_name_ru').val('<?= isset($data['about']['region_name_ru']) ? $data['about']['region_name_ru'] : '' ?>');
+                $('#about_city_name_ru').val('<?= isset($data['about']['city_name_ru']) ? $data['about']['city_name_ru'] : '' ?>');
+                $('#about_tel').val('<?= isset($data['about']['tel']) ? $data['about']['tel'] : '' ?>');
+                
+                $('#about_source').val('<?= isset($data['about']['source']) ? $data['about']['source'] : '' ?>');
+                $('#about_http_user_agent').val('<?= isset($data['about']['http_user_agent']) ? $data['about']['http_user_agent'] : '' ?>');
+                $('#about_http_referer').val('<?= isset($data['about']['http_referer']) ? $data['about']['http_referer'] : '' ?>');
+                $('#about_remote_addr').val('<?= isset($data['about']['remote_addr']) ? $data['about']['remote_addr'] : '' ?>');
+                $('#about_self_url').val('<?= isset($data['about']['self_url']) ? $data['about']['self_url'] : '' ?>');
+                $('#about_yadevice').val('<?= isset($data['about']['yadevice']) ? $data['about']['yadevice'] : '' ?>');
+                $('#about_yageo').val('<?= isset($data['about']['yageo']) ? $data['about']['yageo'] : '' ?>');
+                $('#about_yaregion').val('<?= isset($data['about']['yaregion']) ? $data['about']['yaregion'] : '' ?>');
+                $('#about_yaregionid').val('<?= isset($data['about']['yaregionid']) ? $data['about']['yaregionid'] : '' ?>');
 
                 $('body').on('click', '.toggle-basic', function() {
                     $('#view-basic').toggle();
@@ -1375,6 +1561,11 @@
                 $('body').on('click', '.toggle-contact', function() {
                     $('#view-contact').toggle();
                     $('#form-contact').toggle();
+                });
+                
+                $('body').on('click', '.toggle-assignment', function() {
+                    $('#view-assignment').toggle();
+                    $('#form-assignment').toggle();
                 });
 
                 $('#form-basic').submit(function(event) {
@@ -1441,16 +1632,69 @@
                             $('#form-contact').find('[type="submit"]').html('Сохранить').attr('disabled', false);
                             $('#form-contact').find('.toggle-contact').show();
                             
-                            var about_mobile_phone = $('#about_mobile_phone').val();
-                            var about_twitter = $('#about_twitter').val();
-                            var about_skype = $('#about_skype').val();
-                            
-                            $('#about-mobile-phone-value').html(about_mobile_phone ? about_mobile_phone : 'нет');
-                            $('#about-twitter-value').html(about_twitter ? about_twitter : 'нет');
-                            $('#about-skype-value').html(about_skype ? about_skype : 'нет');
-                            
+                            var about_firstname = $('#about_firstname').val();
+                            var about_lastname = $('#about_lastname').val();
+                            var about_country_name_ru = $('#about_country_name_ru').val();
+                            var about_region_name_ru = $('#about_region_name_ru').val();
+                            var about_city_name_ru = $('#about_city_name_ru').val();
+                            var about_tel = $('#about_tel').val();
+
+                            $('#about-firstname-value').html(about_firstname ? about_firstname : 'нет');
+                            $('#about-lastname-value').html(about_lastname ? about_lastname : 'нет');
+                            $('#about-country-name_ru-value').html(about_country_name_ru ? about_country_name_ru : 'нет');
+                            $('#about-region-name-ru-value').html(about_region_name_ru ? about_region_name_ru : 'нет');
+                            $('#about-city-name-ru-value').html(about_city_name_ru ? about_city_name_ru : 'нет');
+                            $('#about-tel-value').html(about_tel ? about_tel : 'нет');
+
                             $('#view-contact').toggle();
                             $('#form-contact').toggle();
+                        }
+                    });
+                });
+                
+                $('#form-assignment').submit(function(event) {
+                    event.preventDefault();
+
+                    $(this).find('[type="submit"]').html('Подождите...').attr('disabled', true);
+                    $(this).find('.toggle-assignment').hide();
+                    
+                    $.ajax({
+                        type: 'post',
+                        url: '<?= APP::Module('Routing')->root ?>admin/users/api/about/update.json',
+                        data: $(this).serialize(),
+                        success: function() {
+                            swal({
+                                title: 'Дополнительная информация была обновлена',
+                                type: 'success',
+                                timer: 2500,
+                                showConfirmButton: false
+                            });
+
+                            $('#form-assignment').find('[type="submit"]').html('Сохранить').attr('disabled', false);
+                            $('#form-assignment').find('.toggle-assignment').show();
+
+                            var about_source = $('#about_source').val();
+                            var about_http_user_agent = $('#about_http_user_agent').val();
+                            var about_http_referer = $('#about_http_referer').val();
+                            var about_remote_addr = $('#about_remote_addr').val();
+                            var about_self_url = $('#about_self_url').val();
+                            var about_yadevice = $('#about_yadevice').val();
+                            var about_yageo = $('#about_yageo').val();
+                            var about_yaregion = $('#about_yaregion').val();
+                            var about_yaregionid = $('#about_yaregionid').val();
+
+                            $('#about-source-value').html(about_source ? about_source : 'нет');
+                            $('#about-http-user-agent-value').html(about_http_user_agent ? about_http_user_agent : 'нет');
+                            $('#about-http-referer-value').html(about_http_referer ? about_http_referer : 'нет');
+                            $('#about-remote-addr-value').html(about_remote_addr ? about_remote_addr : 'нет');
+                            $('#about-self-url-value').html(about_self_url ? about_self_url : 'нет');
+                            $('#about-yadevice-value').html(about_yadevice ? about_yadevice : 'нет');
+                            $('#about-yageo-value').html(about_yageo ? about_yageo : 'нет');
+                            $('#about-yaregion-value').html(about_yaregion ? about_yaregion : 'нет');
+                            $('#about-yaregionid-value').html(about_yaregionid ? about_yaregionid : 'нет');
+
+                            $('#view-assignment').toggle();
+                            $('#form-assignment').toggle();
                         }
                     });
                 });

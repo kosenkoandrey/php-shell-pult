@@ -5,12 +5,40 @@ class Users {
     private $users_search;
     private $users_actions;
     public $user = [];
+    
     public $about = [
         'username',
         'state',
-        'mobile_phone',
-        'twitter',
-        'skype'
+        'city_id',
+        'city_lat',
+        'city_lon',
+        'city_name_en',
+        'city_name_ru',
+        'country_id',
+        'country_iso',
+        'country_lat',
+        'country_lon',
+        'country_name_en',
+        'country_name_ru',
+        'http_accept_language',
+        'http_referer',
+        'http_user_agent',
+        'region_id',
+        'region_iso',
+        'region_name_en',
+        'region_name_ru',
+        'remote_addr',
+        'self_url',
+        'source',
+        'city_country_id',
+        'company',
+        'firstname',
+        'lastname',
+        'tel',
+        'yadevice',
+        'yageo',
+        'yaregion',
+        'yaregionid'
     ];
 
     function __construct($conf) {
@@ -3128,6 +3156,7 @@ class Users {
             }
         }
     }
+    
 }
 
 class UsersSearch {
