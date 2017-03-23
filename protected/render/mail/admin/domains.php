@@ -41,13 +41,13 @@
                             <table class="table table-hover table-vmiddle" id="domains-table">
                                 <thead>
                                     <tr>
-                                        <th data-column-id="domain">Домен</th>
-                                        <th data-column-id="inactive">Ожидают активации</th>
-                                        <th data-column-id="active">Активные</th>
-                                        <th data-column-id="pause">На паузе</th>
-                                        <th data-column-id="unsubscribe">Отписанные</th>
-                                        <th data-column-id="blacklist">ЧС</th>
-                                        <th data-column-id="dropped">Дропнутые</th>
+                                        <th data-column-id="domain" data-formatter="domain">Домен</th>
+                                        <th data-column-id="inactive" data-formatter="inactive">Ожидают активации</th>
+                                        <th data-column-id="active" data-formatter="active">Активные</th>
+                                        <th data-column-id="pause" data-formatter="pause">Временно отписан</th>
+                                        <th data-column-id="unsubscribe" data-formatter="unsubscribe">Отписанные</th>
+                                        <th data-column-id="blacklist" data-formatter="blacklist">ЧС</th>
+                                        <th data-column-id="dropped" data-formatter="dropped" data-order="desc">Дропнутые</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -77,7 +77,7 @@
                 $('#domains-table').bootgrid({
                     requestHandler: function (request) {
                         var model = {
-                            search: $('#search').val(),
+                            search: $('.search-field').val(),
                             current: request.current,
                             rows: request.rowCount
                         };
@@ -102,6 +102,29 @@
                         iconDown: 'zmdi-chevron-down pull-left',
                         iconRefresh: 'zmdi-refresh',
                         iconUp: 'zmdi-chevron-up pull-left'
+                    },
+                    formatters: {
+                        domain: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.domain[1] + '" target="_blank">' + row.domain[0] + '</a>';
+                        },
+                        inactive: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.inactive[1] + '" target="_blank">' + row.inactive[0] + '</a>';
+                        },
+                        active: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.active[1] + '" target="_blank">' + row.active[0] + '</a>';
+                        },
+                        pause: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.pause[1] + '" target="_blank">' + row.pause[0] + '</a>';
+                        },
+                        unsubscribe: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.unsubscribe[1] + '" target="_blank">' + row.unsubscribe[0] + '</a>';
+                        },
+                        blacklist: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.blacklist[1] + '" target="_blank">' + row.blacklist[0] + '</a>';
+                        },
+                        dropped: function(column, row) {
+                            return '<a href="<?= APP::Module('Routing')->root ?>admin/users?filters=' + row.dropped[1] + '" target="_blank">' + row.dropped[0] + '</a>';
+                        }
                     }
                 });
             });

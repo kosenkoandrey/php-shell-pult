@@ -37,7 +37,13 @@ class Groups {
     }
     
     public function Users() {
-        APP::Render('groups/admin/users/index');
+        $group_id = (int) APP::Module('Crypt')->Decode(APP::Module('Routing')->get['group_id_hash']);
+        
+        APP::Render('groups/admin/users/index', 'include', APP::Module('DB')->Select(
+            $this->settings['module_groups_db_connection'], ['fetch', PDO::FETCH_ASSOC], 
+            ['id', 'name', 'up_date'], 'groups',
+            [['id', '=', $group_id, PDO::PARAM_INT]]
+        ));
     }
     
     public function AddUser() {
@@ -57,18 +63,29 @@ class Groups {
                 'COUNT(DISTINCT groups_users.user_id) as users'
             ], 
             'groups',
-            $_POST['search'] ? [['name', 'LIKE', '%' . $_POST['search'] . '%' ]] : false,
+            isset($_POST['search']) ? [['name', 'LIKE', '%' . $_POST['search'] . '%' ]] : false,
             [
-                'join/groups_users' => [
+                'left join/groups_users' => [
                     ['groups_users.group_id','=','groups.id']
                 ]
             ],
             ['groups.id'], 
             false,
-            [$_POST['sort_by'], $_POST['sort_direction']],
-            $_POST['rows'] === -1 ? false : [($_POST['current'] - 1) * $_POST['rows'], $_POST['rows']]
+            isset($_POST['sort_by']) ? [$_POST['sort_by'], $_POST['sort_direction']] : false,
+            $_POST['rows'] == -1 ? false : [($_POST['current'] - 1) * $_POST['rows'], $_POST['rows']]
         ) as $row) {
             $row['id_token'] = APP::Module('Crypt')->Encode($row['id']);
+            $row['user_filter'] = APP::Module('Crypt')->Encode(json_encode([
+                'logic' => 'intersect',
+                'rules' => [
+                    [
+                        'method' => 'group',
+                        'settings' => [
+                            'value' => $row['id']
+                        ]
+                    ]
+                ]
+            ]));
             array_push($rows, $row);
         }
         
@@ -80,7 +97,7 @@ class Groups {
             'current' => $_POST['current'],
             'rowCount' => $_POST['rows'],
             'rows' => $rows,
-            'total' => APP::Module('DB')->Select($this->settings['module_groups_db_connection'], ['fetchColumn', 0], ['COUNT(id)'], 'groups', $_POST['search'] ? [['name', 'LIKE', $_POST['search'] . '%' ]] : false)
+            'total' => APP::Module('DB')->Select($this->settings['module_groups_db_connection'], ['fetchColumn', 0], ['COUNT(id)'], 'groups', isset($_POST['search']) ? [['name', 'LIKE', $_POST['search'] . '%' ]] : false)
         ]);
         exit;
     }

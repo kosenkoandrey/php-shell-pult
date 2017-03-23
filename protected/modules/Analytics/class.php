@@ -172,7 +172,6 @@ class Analytics {
             'client_cost',                      // Расходы на покупателя (расходы / кол-во покупателей)
             'roi',                              // ROI ((доходы - расходы) / расходы)
         ];
-
         // Сохранение целевых пользователей во временную таблицу
         APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_cohorts_tmp (user) VALUES (' . implode('),(', $users) . ')');
 
@@ -209,17 +208,15 @@ class Analytics {
             );
         }
 
-
-        $orig_orders = APP::Module('DB')->Select(
-            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN],
-            ['id'],'billing_invoices',
+        /*$orig_orders = APP::Module('DB')->Select(
+            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+            ['SUM(amount)'],'billing_invoices',
             [
                 ['state', '=', 'success', PDO::PARAM_STR],
                 ['user_id', 'IN', 'SELECT analytics_cohorts_tmp.user FROM analytics_cohorts_tmp', PDO::PARAM_INT],
                 ['amount', '!=', '0', PDO::PARAM_INT]
             ]
-        );
-
+        );*/
 
         // Удаление целевых пользователей из временной таблицы
         APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_cohorts_tmp');
@@ -319,8 +316,8 @@ class Analytics {
                                 ]
                             );
 
-                            $out[$index]['indicators'][$l_index][$indicator] = count(array_diff($clients, isset($clients_buffer[$l_index]) ? (array) $clients_buffer[$l_index] : []));
-                            $clients_buffer[$l_index] = array_unique(array_merge(isset($clients_buffer[$l_index]) ? (array) $clients_buffer[$l_index] : [], $clients));
+                            $out[$index]['indicators'][$l_index][$indicator] = isset($clients_buffer[$l_index]) ? count(array_diff($clients, (array) $clients_buffer[$l_index])) : count($clients);
+                            $clients_buffer[$l_index] = isset($clients_buffer[$l_index]) ? array_unique(array_merge((array) $clients_buffer[$l_index], $clients)) : array_unique($clients);
                             break;
                         case 'total_clients':
                             $cohorts_total_clients = [];
@@ -370,7 +367,7 @@ class Analytics {
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
-                            
+       
                             // Удаление целевых пользователей из временной таблицы
                             APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('TRUNCATE TABLE analytics_cohorts_tmp');
                             break;
@@ -404,7 +401,7 @@ class Analytics {
                 }
             }
         }
-     
+
         // Вычисление кол-ва пользователей
         foreach ($out as $index => $values) {
             $out[$index]['users'] = count($out[$index]['users']);
@@ -456,7 +453,6 @@ class Analytics {
             }
         }
         
-        $cost_utm = [];
         foreach ($utm_labels as $label => $value) {
             $cost_utm[] = ['utm_' . $label, '=', $value, PDO::PARAM_STR];
         }
@@ -464,20 +460,14 @@ class Analytics {
         foreach ($out as $index => $values) {
             $cost = (float) round(APP::Module('DB')->Select(
                 APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs',
-                array_merge(
-                    [
-                        ['cost_date', 'BETWEEN', '"' . date('Y-m-d', $values['date'][0]) . '" AND "' . date('Y-m-d', $values['date'][1]) . '"', PDO::PARAM_STR]
-                    ],
-                    $cost_utm
-                )
+                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs'
             ), 2);
-
+ 
             foreach (array_reverse($out) as $key => $date_value) {
                 if (isset($out[$key]['indicators'][$index])) {
                     $out[$key]['indicators'][$index]['cost'] = $cost;
-                    $out[$key]['indicators'][$index]['subscriber_cost'] = ($out[$key]['indicators'][$index]['total_subscribers_active'] ? round($cost / $out[$key]['indicators'][$index]['total_subscribers_active'], 2) : round($cost,2));
-                    $out[$key]['indicators'][$index]['client_cost'] = ($out[$key]['indicators'][$index]['total_clients'] ? round($cost / $out[$key]['indicators'][$index]['total_clients'], 2) : round($cost,2));
+                    $out[$key]['indicators'][$index]['subscriber_cost'] = ($out[$key]['indicators'][$index]['total_subscribers_active'] ? round($cost / $out[$key]['indicators'][$index]['total_subscribers_active'], 2) : 0);
+                    $out[$key]['indicators'][$index]['client_cost'] = ($out[$key]['indicators'][$index]['total_clients'] ? round($cost / $out[$key]['indicators'][$index]['total_clients'], 2) : 0);
                     $out[$key]['indicators'][$index]['roi'] = ($cost ? round((($out[$key]['indicators'][$index]['total_revenue'] - $cost) / $cost) * 100, 2) : 0);
                 }
             }
@@ -2755,18 +2745,18 @@ class Analytics {
         $out = [];
         $create_date = time() - 2592000;
 
-        if(isset($_POST['rules'])){
+        if (isset($_POST['rules'])){
             $rules = json_decode($_POST['rules'], true);
             $uid = APP::Module('Users')->UsersSearch($rules);
-        }else{
+        } else {
             $rules = [
-                "logic" => "intersect",
-                "rules" => [
+                'logic' => 'intersect',
+                'rules' => [
                     [
-                        "method" => "email",
-                        "settings" => [
-                            "logic" => "LIKE",
-                            "value" => "%"
+                        'method' => 'email',
+                        'settings' => [
+                            'logic' => 'LIKE',
+                            'value' => '%'
                         ]
                     ]
                 ]
@@ -2782,13 +2772,12 @@ class Analytics {
                 switch ($_POST['settings']['label']) {
                     case 'root':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['DISTINCT(value)'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['DISTINCT(value)'], 'users_utm',
                             [
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
                                 ['num', '=', 1, PDO::PARAM_INT],
-                                ['item', '=', "source", PDO::PARAM_STR],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['item', '=', 'source', PDO::PARAM_STR]
                             ]
                         );
 
@@ -2798,12 +2787,11 @@ class Analytics {
                         break;
                     case 'source':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -2825,12 +2813,11 @@ class Analytics {
                         break;
                     case 'medium':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -2852,12 +2839,11 @@ class Analytics {
                         break;
                     case 'campaign':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -2879,12 +2865,11 @@ class Analytics {
                         break;
                     case 'term':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
                         
@@ -2917,12 +2902,11 @@ class Analytics {
                 switch ($_POST['settings']['label']) {
                     case 'source':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -2946,12 +2930,11 @@ class Analytics {
                         break;
                     case 'medium':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -2974,12 +2957,11 @@ class Analytics {
                         break;
                     case 'campaign':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -3002,12 +2984,11 @@ class Analytics {
                         break;
                     case 'term':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -3030,12 +3011,11 @@ class Analytics {
                         break;
                     case 'content':
                         $users_utm = APP::Module('DB')->Select(
-                            APP::Module('Users')->settings['module_users_db_connection'],
-                            ['fetchAll',PDO::FETCH_ASSOC], ['value', 'item', 'user'],
-                            'users_utm',
+                            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                            ['value', 'item', 'user'], 'users_utm',
                             [
-                                ['num', '=', 1, PDO::PARAM_INT],
-                                ['user', 'IN', $uid, PDO::PARAM_INT]
+                                ['user', 'IN', $uid, PDO::PARAM_INT],
+                                ['num', '=', 1, PDO::PARAM_INT]
                             ]
                         );
 
@@ -3057,659 +3037,508 @@ class Analytics {
                         }
                         break;
                 }
+
+                // Пользователи
                 
-                // ref
                 $users_all = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT id)'],
-                    'users',[['id', 'IN', $label_users, PDO::PARAM_INT]]
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users',
+                    [['id', 'IN', $label_users, PDO::PARAM_INT]]
                 );
                 
                 $users_active = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $label_users, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'active', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
-                    ]
-                );
-                
-                $users_wait = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
-                    [
-                        ['users.id', 'IN', $label_users, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'wait', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'active', PDO::PARAM_STR]
                     ]
                 );
                 
                 $users_inactive = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $label_users, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'inactive', PDO::PARAM_STR]
-                    ],
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'inactive', PDO::PARAM_STR]
+                    ]
+                );
+                
+                $users_pause = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'pause', PDO::PARAM_STR]
                     ]
                 );
                 
                 $users_unsubscribe = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $label_users, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'unsubscribe', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
-                    ]
-                );
-
-                // orders
-                $orders_all = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
-                    [
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'unsubscribe', PDO::PARAM_STR]
                     ]
                 );
                 
-                $orders_new = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
+                $users_blacklist = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['state', '=', 'new', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'blacklist', PDO::PARAM_STR]
                     ]
                 );
                 
-                $orders_processed = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
+                $users_dropped = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['state', '=', 'processed', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'dropped', PDO::PARAM_STR]
                     ]
                 );
                 
-                $orders_success = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
-                    [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $label_users, PDO::PARAM_INT]
-                    ]
-                );
-
-                $orders_cost = [];
+                // Письма
                 
-                $orders_cost_raw = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetchAll',PDO::FETCH_ASSOC], ['amount'],
-                    'billing_invoices',
-                    [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $label_users, PDO::PARAM_INT]
-                    ]
-                );
-
-                foreach ($orders_cost_raw as $user_order) {
-                    array_push($orders_cost, $user_order['amount']);
-                }
-
-
-                // letters
-                //$letters = $this->Model('EmailTracking')->GetLettersStatsByUsersCache($label_users);
                 $letters['count'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'mail_log',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['user', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['event', '=', 'delivered', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['open'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_open_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['event', '=', 'open', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['click'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_click_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['event', '=', 'click', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['bounce'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_bounce_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['event', '=', 'bounce', PDO::PARAM_STR],
+                        
+                    ]
+                );
+                
+                $letters['unsubscribe'] = APP::Module('DB')->Select(
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
+                    [
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['event', '=', 'unsubscribe', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['spamreport'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_spamreport_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $label_users, PDO::PARAM_INT]
-                    ]
-                );
-                 
-                $letters['unsubscribe'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_unsubscribe_pct',
-                    [
-                        ['user', 'IN', $label_users, PDO::PARAM_INT]
+                        ['user', 'IN', $label_users, PDO::PARAM_INT],
+                        ['event', '=', 'spamreport', PDO::PARAM_STR],
+                        
                     ]
                 );
 
-                //30
-                $letters30['count'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(id)'],
-                    'mail_log',
+                // Заказы
+                
+                $invoices_all = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
                     [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['user', 'IN', $label_users, PDO::PARAM_INT],
-                        ['cr_date', '>=', $create_date, PDO::PARAM_INT]
+                        ['user_id', 'IN', $label_users, PDO::PARAM_INT],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
                     ]
                 );
                 
-                $letters30['count'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(id)'],
-                    'mail_log',
+                $invoices_new = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
                     [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['user', 'IN', $label_users, PDO::PARAM_INT],
-                        ['cr_date', '>=', $create_date, PDO::PARAM_INT]
+                        ['user_id', 'IN', $label_users, PDO::PARAM_INT],
+                        ['state', '=', 'new', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
                     ]
                 );
                 
-                $letters30['open'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_open_pct30',[['user', 'IN', $label_users, PDO::PARAM_INT]]
+                $invoices_processed = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $label_users, PDO::PARAM_INT],
+                        ['state', '=', 'processed', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
                 
-                $letters30['click'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_click_pct30',[['user', 'IN', $label_users, PDO::PARAM_INT]]
+                $invoices_success = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $label_users, PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
                 
-                
-                $letters30['bounce'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_bounce_pct30',[['user', 'IN', $label_users, PDO::PARAM_INT]]
-                );
-                
-                $letters30['spamreport'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_spamreport_pct30',[['user', 'IN', $label_users, PDO::PARAM_INT]]
-                );
-                
-                $letters30['unsubscribe'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_unsubscribe_pct30',[['user', 'IN', $label_users, PDO::PARAM_INT]]
+                $invoices_revoked = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $label_users, PDO::PARAM_INT],
+                        ['state', '=', 'revoked', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
 
-                $out = [
-                    'ref' => [
-                        'all' => $users_all,
-                        'active' => [
-                            'value' => $users_active,
-                            'pct' => round($users_active / ($users_all / 100), 2)
-                        ],
-                        'wait' => [
-                            'value' => $users_wait,
-                            'pct' => round($users_wait / ($users_all / 100), 2)
-                        ],
-                        'inactive' => [
-                            'value' => $users_inactive,
-                            'pct' => round($users_inactive / ($users_all / 100), 2)
-                        ],
-                        'unsubscribe' => [
-                            'value' => $users_unsubscribe,
-                            'pct' => round($users_unsubscribe / ($users_all / 100), 2)
-                        ],
-                    ],
-                    'letters' => [
-                        'all' => $letters['count'],
-                        'open' => [
-                            'value' => $letters['open']['count'],
-                            'pct' => $letters['open']['count'] ? round($letters['open']['sum_pct'] / $letters['open']['count'], 2) : 0
-                        ],
-                        'click' => [
-                            'value' => $letters['click']['count'],
-                            'pct' => $letters['click']['count'] ? round($letters['click']['sum_pct'] / $letters['click']['count'], 2) : 0
-                        ],
-                        'bounce' => [
-                            'value' => $letters['bounce']['count'],
-                            'pct' => $letters['bounce']['count'] ? round($letters['bounce']['sum_pct'] / $letters['bounce']['count'], 2): 0
-                        ],
-                        'spamreport' => [
-                            'value' => $letters['spamreport']['count'],
-                            'pct' => $letters['spamreport']['count'] ? round($letters['spamreport']['sum_pct'] / $letters['spamreport']['count'], 2): 0
-                        ],
-                        'unsubscribe' => [
-                            'value' => $letters['unsubscribe']['count'],
-                            'pct' => $letters['unsubscribe']['count'] ? round($letters['unsubscribe']['sum_pct'] / $letters['unsubscribe']['count'], 2): 0
-                        ],
-                        'all30' => $letters30['count'],
-                        'open30' => [
-                            'value' => $letters30['open']['count'],
-                            'pct' => $letters30['open']['count'] ? round($letters30['open']['sum_pct'] / $letters30['open']['count'], 2): 0
-                        ],
-                        'click30' => [
-                            'value' => $letters30['click']['count'],
-                            'pct' => $letters30['click']['count'] ? round($letters30['click']['sum_pct'] / $letters30['click']['count'], 2): 0
-                        ],
-                        'bounce30' => [
-                            'value' => $letters30['bounce']['count'],
-                            'pct' => $letters30['bounce']['count'] ? round($letters30['bounce']['sum_pct'] / $letters30['bounce']['count'], 2): 0
-                        ],
-                        'spamreport30' => [
-                            'value' => $letters30['spamreport']['count'],
-                            'pct' => $letters30['spamreport']['count'] ? round($letters30['spamreport']['sum_pct'] / $letters30['spamreport']['count'], 2): 0
-                        ],
-                        'unsubscribe30' => [
-                            'value' => $letters30['unsubscribe']['count'],
-                            'pct' => $letters30['unsubscribe']['count'] ? round($letters30['unsubscribe']['sum_pct'] / $letters30['unsubscribe']['count'], 2): 0
-                        ],
-                    ],
-                    'orders' => [
-                        'all' => $orders_all,
-                        'new' => [
-                            'value' => $orders_new,
-                            'pct' => ($orders_all / 100) ? round($orders_new / ($orders_all / 100), 2) : 0
-                        ],
-                        'processed' => [
-                            'value' => $orders_processed,
-                            'pct' => ($orders_all / 100) ? round($orders_processed / ($orders_all / 100), 2): 0
-                        ],
-                        'success' => [
-                            'value' => $orders_success,
-                            'pct' => ($orders_all / 100) ? round($orders_success / ($orders_all / 100), 2): 0
-                        ],
-                        'total' => money_format('%!.0n', array_sum($orders_cost)),
-                        'avg' => money_format('%!.2n', array_sum($orders_cost) / count($orders_cost))
+                $invoices_succes_sum = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                    ['amount'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $label_users, PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
                     ]
-                ];
+                );
 
                 header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
                 header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
                 header('Content-Type: application/json');
 
-                echo json_encode($out);
+                echo json_encode([
+                    'users' => [
+                        'all' => $users_all,
+                        'active' => $users_active,
+                        'inactive' => $users_inactive,
+                        'pause' => $users_pause,
+                        'unsubscribe' => $users_unsubscribe,
+                        'blacklist' => $users_blacklist,
+                        'dropped' => $users_dropped
+                    ],
+                    'letters' => [
+                        'all' => $letters['count'],
+                        'open' => [
+                            'value' => $letters['open'],
+                            'pct' => $letters['open'] ? round($letters['open'] / ($letters['count'] / 100), 2) : 0
+                        ],
+                        'click' => [
+                            'value' => $letters['click'],
+                            'pct' => $letters['click'] ? round($letters['click'] / ($letters['count'] / 100), 2) : 0
+                        ],
+                        'bounce' => [
+                            'value' => $letters['bounce'],
+                            'pct' => $letters['bounce'] ? round($letters['bounce'] / ($letters['count'] / 100), 2) : 0
+                        ],
+                        'unsubscribe' => [
+                            'value' => $letters['unsubscribe'],
+                            'pct' => $letters['unsubscribe'] ? round($letters['unsubscribe'] / ($letters['count'] / 100), 2) : 0
+                        ],
+                        'spamreport' => [
+                            'value' => $letters['spamreport'],
+                            'pct' => $letters['spamreport'] ? round($letters['spamreport'] / ($letters['count'] / 100), 2) : 0
+                        ]
+                    ],
+                    'invoices' => [
+                        'all' => number_format($invoices_all, 0, ' ', ' '),
+                        'new' => [
+                            'value' => number_format($invoices_new, 0, ' ', ' '),
+                            'pct' => ($invoices_all / 100) ? round($invoices_new / ($invoices_all / 100), 2) : 0
+                        ],
+                        'processed' => [
+                            'value' => number_format($invoices_processed, 0, ' ', ' '),
+                            'pct' => ($invoices_all / 100) ? round($invoices_processed / ($invoices_all / 100), 2) : 0
+                        ],
+                        'success' => [
+                            'value' => number_format($invoices_success, 0, ' ', ' '),
+                            'pct' => ($invoices_all / 100) ? round($invoices_success / ($invoices_all / 100), 2) : 0
+                        ],
+                        'revoked' => [
+                            'value' => number_format($invoices_revoked, 0, ' ', ' '),
+                            'pct' => ($invoices_all / 100) ? round($invoices_revoked / ($invoices_all / 100), 2) : 0
+                        ],
+                        'total' => number_format(array_sum($invoices_succes_sum), 0, ' ', ' '),
+                        'avg' => count($invoices_succes_sum) ? number_format(array_sum($invoices_succes_sum) / count($invoices_succes_sum), 0, ' ', ' ') : 0
+                    ],
+                    'rules' => $settings['rules']
+                ]);
                 exit;
                 break;
             default:
+                // Пользователи
                 
-                
-                // ref
                 $users_all = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT id)'],
-                    'users',[['id', 'IN', $uid, PDO::PARAM_INT]]
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users',
+                    [['id', 'IN', $uid, PDO::PARAM_INT]]
                 );
                 
                 $users_active = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $uid, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'active', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
-                    ]
-                );
-                
-                $users_wait = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
-                    [
-                        ['users.id', 'IN', $uid, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'wait', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'active', PDO::PARAM_STR]
                     ]
                 );
                 
                 $users_inactive = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $uid, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'inactive', PDO::PARAM_STR]
-                    ],
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'inactive', PDO::PARAM_STR]
+                    ]
+                );
+                
+                $users_pause = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'pause', PDO::PARAM_STR]
                     ]
                 );
                 
                 $users_unsubscribe = APP::Module('DB')->Select(
-                    APP::Module('Users')->settings['module_users_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(DISTINCT users.id)'],
-                    'users',
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['users.id', 'IN', $uid, PDO::PARAM_INT],
-                        ['users_about.item', '=', 'state', PDO::PARAM_STR],
-                        ['users_about.value', '=', 'unsubscribe', PDO::PARAM_STR]
-                    ],
-                    [
-                        'join/users_about' => [
-                            ['users_about.user', '=', 'users.id']
-                        ]
-                    ]
-                );
-
-                // orders
-                $orders_all = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
-                    [
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'unsubscribe', PDO::PARAM_STR]
                     ]
                 );
                 
-                $orders_new = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
+                $users_blacklist = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['state', '=', 'new', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'blacklist', PDO::PARAM_STR]
                     ]
                 );
                 
-                $orders_processed = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
+                $users_dropped = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT id)'], 'users_about',
                     [
-                        ['state', '=', 'processed', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['item', '=', 'state', PDO::PARAM_STR],
+                        ['value', '=', 'dropped', PDO::PARAM_STR]
                     ]
                 );
                 
-                $orders_success = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'billing_invoices',
-                    [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $uid, PDO::PARAM_INT]
-                    ]
-                );
-
-                $orders_cost = [];
+                // Письма
                 
-                $orders_cost_raw = APP::Module('DB')->Select(
-                    APP::Module('Billing')->settings['module_billing_db_connection'],
-                    ['fetchAll',PDO::FETCH_ASSOC], ['amount'],
-                    'billing_invoices',
-                    [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['amount', '!=', '0', PDO::PARAM_INT],
-                        ['user_id', 'IN', $uid, PDO::PARAM_INT]
-                    ]
-                );
-
-                foreach ($orders_cost_raw as $user_order) {
-                    array_push($orders_cost, $user_order['amount']);
-                }
-
-                // letters
-                //$letters = $this->Model('EmailTracking')->GetLettersStatsByUsersCache($uid);
-
                 $letters['count'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_COLUMN], ['COUNT(id)'],
-                    'mail_log',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['user', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['event', '=', 'delivered', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['open'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_open_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['event', '=', 'open', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['click'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_click_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['event', '=', 'click', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['bounce'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_bounce_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['event', '=', 'bounce', PDO::PARAM_STR],
+                        
+                    ]
+                );
+                
+                $letters['unsubscribe'] = APP::Module('DB')->Select(
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
+                    [
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['event', '=', 'unsubscribe', PDO::PARAM_STR],
+                        
                     ]
                 );
                 
                 $letters['spamreport'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_spamreport_pct',
+                    APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(DISTINCT log)'], 'mail_events',
                     [
-                        ['user', 'IN', $uid, PDO::PARAM_INT]
-                    ]
-                );
-                 
-                $letters['unsubscribe'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user) as count', 'SUM(pct) as sum_pct'],
-                    'mail_unsubscribe_pct',
-                    [
-                        ['user', 'IN', $uid, PDO::PARAM_INT]
+                        ['user', 'IN', $uid, PDO::PARAM_INT],
+                        ['event', '=', 'spamreport', PDO::PARAM_STR],
+                        
                     ]
                 );
 
-                //30
-                $letters30['count'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(id)'],
-                    'mail_log',
+                // Заказы
+                
+                $invoices_all = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
                     [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['user', 'IN', $uid, PDO::PARAM_INT],
-                        ['cr_date', '>=', $create_date, PDO::PARAM_INT]
+                        ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
                     ]
                 );
                 
-                $letters30['count'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(id)'],
-                    'mail_log',
+                $invoices_new = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
                     [
-                        ['state', '=', 'success', PDO::PARAM_STR],
-                        ['user', 'IN', $uid, PDO::PARAM_INT],
-                        ['cr_date', '>=', $create_date, PDO::PARAM_INT]
+                        ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                        ['state', '=', 'new', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
                     ]
                 );
                 
-                $letters30['open'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_open_pct30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+                $invoices_processed = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                        ['state', '=', 'processed', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
                 
-                $letters30['click'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_click_pct30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+                $invoices_success = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
                 
-                
-                $letters30['bounce'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_bounce_pct30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+                $invoices_revoked = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                    ['COUNT(id)'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                        ['state', '=', 'revoked', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
-                
-                $letters30['spamreport'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_spamreport_pct30',[['user', 'IN', $uid, PDO::PARAM_INT]]
-                );
-                
-                $letters30['unsubscribe'] = APP::Module('DB')->Select(
-                    APP::Module('Mail')->settings['module_mail_db_connection'],
-                    ['fetch',PDO::FETCH_ASSOC], ['COUNT(user_id) as count', 'SUM(pct) as sum_pct'],
-                    'mail_unsubscribe_pct30',[['user', 'IN', $uid, PDO::PARAM_INT]]
+
+                $invoices_succes_sum = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                    ['amount'], 'billing_invoices',
+                    [
+                        ['user_id', 'IN', $uid, PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR],
+                        ['amount', '!=', 0, PDO::PARAM_INT]
+                    ]
                 );
                 
                 APP::Render(
                     'analytics/admin/utm/index',
                     'include',
                     [
-                        'ref' => [
+                        'users' => [
                             'all' => $users_all,
                             'active' => $users_active,
-                            'wait' => $users_wait,
                             'inactive' => $users_inactive,
-                            'unsubscribe' => $users_unsubscribe
+                            'pause' => $users_pause,
+                            'unsubscribe' => $users_unsubscribe,
+                            'blacklist' => $users_blacklist,
+                            'dropped' => $users_dropped
                         ],
                         'letters' => [
                             'all' => $letters['count'],
                             'open' => [
-                                'value' => $letters['open']['count'],
-                                'pct' => $letters['open']['count'] ? round($letters['open']['sum_pct'] / $letters['open']['count'], 2) : 0
+                                'value' => $letters['open'],
+                                'pct' => $letters['open'] ? round($letters['open'] / ($letters['count'] / 100), 2) : 0
                             ],
                             'click' => [
-                                'value' => $letters['click']['count'],
-                                'pct' => $letters['click']['count'] ? round($letters['click']['sum_pct'] / $letters['click']['count'], 2) : 0
+                                'value' => $letters['click'],
+                                'pct' => $letters['click'] ? round($letters['click'] / ($letters['count'] / 100), 2) : 0
                             ],
                             'bounce' => [
-                                'value' => $letters['bounce']['count'],
-                                'pct' => $letters['bounce']['count'] ? round($letters['bounce']['sum_pct'] / $letters['bounce']['count'], 2): 0
-                            ],
-                            'spamreport' => [
-                                'value' => $letters['spamreport']['count'],
-                                'pct' => $letters['spamreport']['count'] ? round($letters['spamreport']['sum_pct'] / $letters['spamreport']['count'], 2): 0
+                                'value' => $letters['bounce'],
+                                'pct' => $letters['bounce'] ? round($letters['bounce'] / ($letters['count'] / 100), 2) : 0
                             ],
                             'unsubscribe' => [
-                                'value' => $letters['unsubscribe']['count'],
-                                'pct' => $letters['unsubscribe']['count'] ? round($letters['unsubscribe']['sum_pct'] / $letters['unsubscribe']['count'], 2): 0
+                                'value' => $letters['unsubscribe'],
+                                'pct' => $letters['unsubscribe'] ? round($letters['unsubscribe'] / ($letters['count'] / 100), 2) : 0
                             ],
-                            'all30' => $letters30['count'],
-                            'open30' => [
-                                'value' => $letters30['open']['count'],
-                                'pct' => $letters30['open']['count'] ? round($letters30['open']['sum_pct'] / $letters30['open']['count'], 2): 0
-                            ],
-                            'click30' => [
-                                'value' => $letters30['click']['count'],
-                                'pct' => $letters30['click']['count'] ? round($letters30['click']['sum_pct'] / $letters30['click']['count'], 2): 0
-                            ],
-                            'bounce30' => [
-                                'value' => $letters30['bounce']['count'],
-                                'pct' => $letters30['bounce']['count'] ? round($letters30['bounce']['sum_pct'] / $letters30['bounce']['count'], 2): 0
-                            ],
-                            'spamreport30' => [
-                                'value' => $letters30['spamreport']['count'],
-                                'pct' => $letters30['spamreport']['count'] ? round($letters30['spamreport']['sum_pct'] / $letters30['spamreport']['count'], 2): 0
-                            ],
-                            'unsubscribe30' => [
-                                'value' => $letters30['unsubscribe']['count'],
-                                'pct' => $letters30['unsubscribe']['count'] ? round($letters30['unsubscribe']['sum_pct'] / $letters30['unsubscribe']['count'], 2): 0
-                            ],
+                            'spamreport' => [
+                                'value' => $letters['spamreport'],
+                                'pct' => $letters['spamreport'] ? round($letters['spamreport'] / ($letters['count'] / 100), 2) : 0
+                            ]
                         ],
-                        'orders' => [
-                            'all' => number_format($orders_all, 0, ' ', ' '),
+                        'invoices' => [
+                            'all' => number_format($invoices_all, 0, ' ', ' '),
                             'new' => [
-                                'value' => number_format($orders_new, 0, ' ', ' '),
-                                'pct' => ($orders_all / 100) ? round($orders_new / ($orders_all / 100), 2) : 0
+                                'value' => number_format($invoices_new, 0, ' ', ' '),
+                                'pct' => ($invoices_all / 100) ? round($invoices_new / ($invoices_all / 100), 2) : 0
                             ],
                             'processed' => [
-                                'value' => number_format($orders_processed, 0, ' ', ' '),
-                                'pct' => ($orders_all / 100) ? round($orders_processed / ($orders_all / 100), 2): 0
+                                'value' => number_format($invoices_processed, 0, ' ', ' '),
+                                'pct' => ($invoices_all / 100) ? round($invoices_processed / ($invoices_all / 100), 2) : 0
                             ],
                             'success' => [
-                                'value' => number_format($orders_success, 0, ' ', ' '),
-                                'pct' => ($orders_all / 100) ? round($orders_success / ($orders_all / 100), 2): 0
+                                'value' => number_format($invoices_success, 0, ' ', ' '),
+                                'pct' => ($invoices_all / 100) ? round($invoices_success / ($invoices_all / 100), 2) : 0
                             ],
-                            'total' => money_format('%!.0n', array_sum($orders_cost)),
-                            'avg' => money_format('%!.2n', array_sum($orders_cost) / count($orders_cost))
+                            'revoked' => [
+                                'value' => number_format($invoices_revoked, 0, ' ', ' '),
+                                'pct' => ($invoices_all / 100) ? round($invoices_revoked / ($invoices_all / 100), 2) : 0
+                            ],
+                            'total' => number_format(array_sum($invoices_succes_sum), 0, ' ', ' '),
+                            'avg' => count($invoices_succes_sum) ? number_format(array_sum($invoices_succes_sum) / count($invoices_succes_sum), 0, ' ', ' ') : 0
                         ],
                         'rules' => $settings['rules']
                     ]

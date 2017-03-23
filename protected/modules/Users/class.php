@@ -5,12 +5,40 @@ class Users {
     private $users_search;
     private $users_actions;
     public $user = [];
+    
     public $about = [
         'username',
         'state',
-        'mobile_phone',
-        'twitter',
-        'skype'
+        'city_id',
+        'city_lat',
+        'city_lon',
+        'city_name_en',
+        'city_name_ru',
+        'country_id',
+        'country_iso',
+        'country_lat',
+        'country_lon',
+        'country_name_en',
+        'country_name_ru',
+        'http_accept_language',
+        'http_referer',
+        'http_user_agent',
+        'region_id',
+        'region_iso',
+        'region_name_en',
+        'region_name_ru',
+        'remote_addr',
+        'self_url',
+        'source',
+        'city_country_id',
+        'company',
+        'firstname',
+        'lastname',
+        'tel',
+        'yadevice',
+        'yageo',
+        'yaregion',
+        'yaregionid'
     ];
 
     function __construct($conf) {
@@ -3128,6 +3156,7 @@ class Users {
             }
         }
     }
+    
 }
 
 class UsersSearch {
@@ -3331,6 +3360,17 @@ class UsersSearch {
                 );
                 break;
         }
+    }
+    
+    public function group($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('Groups')->settings['module_groups_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['user_id'], 'groups_users',
+            [
+                ['group_id', '=', $settings['value'], PDO::PARAM_STR]
+            ]
+        );
     }
     
     public function tunnels($settings) {
@@ -4102,6 +4142,32 @@ class UsersActions {
             }
         }
         
+        return $out;
+    }
+    
+    public function add_group($id, $settings){
+        $out['status'] = 'success';
+        
+        foreach ($id as $user_id) {
+            if (!APP::Module('DB')->Select(
+                APP::Module('Groups')->settings['module_groups_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(id)'], 'groups_users',
+                [
+                    ['group_id', '=', $settings['group_id'], PDO::PARAM_INT],
+                    ['user_id', '=', $user_id, PDO::PARAM_INT]
+                ]
+            )){
+                $out['user_id'][] = APP::Module('DB')->Insert(
+                    APP::Module('Groups')->settings['module_groups_db_connection'], 'groups_users',
+                    [
+                        'id' => 'NULL',
+                        'group_id' => [$settings['group_id'], PDO::PARAM_INT],
+                        'user_id' => [$user_id, PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+            }
+        }
         return $out;
     }
     

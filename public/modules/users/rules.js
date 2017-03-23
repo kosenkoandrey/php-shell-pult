@@ -229,6 +229,15 @@
                                         default: settings[id] = param_value;
                                     }
                                     break;
+                                case 'group': 
+                                    switch(id) {
+                                        case 'value': 
+                                            if (settings.value === undefined) settings.value = new Object();
+                                            settings.value = param_value; 
+                                            break;
+                                        default: settings[id] = param_value;
+                                    }
+                                    break;
                                 case 'utm': 
                                     switch(id) {
                                         case 'item': 
@@ -922,9 +931,11 @@
                                 '</td>',
                                 '<td style="width: 125px">',
                                     '<select data-id="value" class="form-control selectpicker">',
+                                        '<option value="inactive">ожидает активации</option>',
                                         '<option value="active">активный</option>',
-                                        '<option value="inactive">неактивный</option>',
-                                        '<option value="blacklist">в черном списке</option>',
+                                        '<option value="pause">временно отписан</option>',
+                                        '<option value="unsubscribe">отписан</option>',
+                                        '<option value="blacklist">в блэк-листе (пожаловался на спам)</option>',
                                         '<option value="dropped">невозможно доставить почту</option>',
                                     '</select>',
                                 '</td>',
@@ -1260,12 +1271,12 @@
                         '</table>'
                     ].join(''));
                     
-                    if (rule.settings.tunnel_id !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.tunnel_id);
+                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $(document).on('change', $('.trigger_settings select[data-id="value"]', $trigger_rule_item), function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).TunnelSelector({'url':settings.url});
 
-                    if (rule.settings.value !== undefined) $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).val(rule.settings.value);
+                    if (rule.settings.logic !== undefined) $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
                     $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
@@ -1293,7 +1304,7 @@
                     if (rule.settings.logic !== undefined) $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
                     $('.trigger_settings select[data-id="logic"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
-                    if (rule.settings.logic !== undefined) $('.trigger_settings select[data-id="value"]', $trigger_rule_item).val(rule.settings.logic);
+                    if (rule.settings.value !== undefined) $('.trigger_settings select[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $('.trigger_settings select[data-id="value"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
                     break;
@@ -1312,10 +1323,10 @@
                         '</table>'
                     ].join(''));
 
-                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="token"]', $trigger_rule_item).val(rule.settings.value);
+                    if (rule.settings.token !== undefined) $('.trigger_settings input[data-id="token"]', $trigger_rule_item).val(rule.settings.token);
                     $('.trigger_settings input[data-id="token"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
-                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="label"]', $trigger_rule_item).val(rule.settings.value);
+                    if (rule.settings.label !== undefined) $('.trigger_settings input[data-id="label"]', $trigger_rule_item).val(rule.settings.label);
                     $('.trigger_settings input[data-id="label"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
@@ -1353,12 +1364,12 @@
                         '</table>'
                     ].join(''));
 
-                    if (rule.settings.tunnel_id !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
+                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $(document).on('change', $('.trigger_settings select[data-id="value"]', $trigger_rule_item), function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).TunnelSelector({'url':settings.url});
                     
-                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="object"]', $trigger_rule_item).val(rule.settings.object);
+                    if (rule.settings.object !== undefined) $('.trigger_settings input[data-id="object"]', $trigger_rule_item).val(rule.settings.object);
                     $('.trigger_settings input[data-id="object"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
@@ -1896,6 +1907,23 @@
                     if (rule.settings.units_to !== undefined) $('.trigger_settings input[data-id="units_to"]', $trigger_rule_item).val(rule.settings.units_to);
                     $('.trigger_settings input[data-id="units_to"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
 
+                    break;
+                case 'group':
+                    $('.trigger_settings', $trigger_rule_item).append([
+                        '<table>',
+                            '<tr>Группы</tr>',
+                            '<tr>',
+                                '<td style="width: 200px">',
+                                    '<input data-id="value" class="form-control m-l-5" type="text" placeholder="group_id">',
+                                '</td>',
+                            '</tr>',
+                        '</table>'
+                    ].join(''));
+
+                    if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
+                    $(document).on('change', $('.trigger_settings select[data-id="value"]', $trigger_rule_item), function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    
+                    $('.trigger_settings input[data-id="value"]', $trigger_rule_item).GroupSelector({'url':settings.url});
                     break;
             }
         }
