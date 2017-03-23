@@ -666,8 +666,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_events" href="javascript:void(0)">Событие в письме</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct" href="javascript:void(0)">Процент открытия писем</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct30" href="javascript:void(0)">Процент открытия писем за 30 дней</a></li>',
-                //'<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
-                /*
+                /*'<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_buy" href="javascript:void(0)">Product buy</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',
