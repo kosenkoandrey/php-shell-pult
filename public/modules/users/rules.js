@@ -641,6 +641,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">Состояние</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="reg_date" href="javascript:void(0)">Дата регистрации</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tags" href="javascript:void(0)">Метка</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="group" href="javascript:void(0)">Группа</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="source" href="javascript:void(0)">Источник</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="about" href="javascript:void(0)">Доп. информация</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="utm" href="javascript:void(0)">UTM-метка</a></li>',
