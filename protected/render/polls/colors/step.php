@@ -21,10 +21,10 @@
         <section id="main" class="center">
             <section id="content">
                 <div class="container">
-                    <? APP::Render('core/widgets/template/header', 'include', [
-                        $data['poll'] => 'polls/colors/' . APP::Module('Routing')->get['token']
-                    ]) ?>
-                    <div class="card" style="margin-bottom: 1px;">
+                    <div class="card" style="margin-bottom: 1px; margin-top: 30px; padding: 40px 30px;">
+                        <img src="<?= APP::Module('Routing')->root ?>public/ui/img/logo.png" style="width: 500px;">
+                    </div>
+                    <div class="card p-t-30 p-b-30" style="margin-bottom: 1px;">
                         <div class="card-header"><h2><?= $data['poll'] ?></h2></div>
                         <div class="card-body card-padding">
                             <form method="post" id="step<?= $data['step'] ?>">
@@ -32,15 +32,15 @@
                                 switch ($data['step']) {
                                     case 1:
                                         ?>
-                                        <input type="hidden" name="step" value="1">
+                                        <input type="hidden" name="step" value="1" >
                                         Напишите top-5 проблем при выборе цвета в одежде и как они влияют на ваш гардероб, настроение и жизнь.
                                         <br><br>
-                                        <div class="alert alert-warning" role="alert">
+                                        <div class="alert alert-warning" role="alert" style="margin-bottom:50px;">
                                             Пожалуйста в ответе будьте максимально подробны, насколько это возможно. 
                                             Напишите больше, чем просто "не знаю, с чем сочетать" или "скучные цвета". 
                                             Чем более детально вы опишите ситуацию, тем более вероятно, что я её помогу решить.
                                         </div>
-                                        <textarea class="form-control" name="answers[1]"></textarea>
+                                        <textarea class="form-control" name="answers[1]" placeholder="Напишите Ваш ответ"></textarea>
                                         <?
                                         break;
                                     case 2:
@@ -48,7 +48,7 @@
                                         <input type="hidden" name="step" value="2">
                                         Какой результат вы хотите увидеть после обучения по цвету?
                                         <br><br>
-                                        <textarea class="form-control" name="answers[2]"></textarea>
+                                        <textarea class="form-control" name="answers[2]" placeholder="Напишите Ваш ответ"></textarea>
                                         <?
                                         break;
                                 }
@@ -98,7 +98,8 @@
                             title: 'Напишите top-5 проблем при выборе цвета в одежде и как они влияют на ваш гардероб, настроение и жизнь.',
                             type: 'error',
                             timer: 4000,
-                            showConfirmButton: false
+                            showConfirmButton: false,
+                            allowOutsideClick: true
                         });
                         return false; 
                     }
@@ -116,7 +117,8 @@
                             title: 'Какой результат вы хотите увидеть после обучения по цвету?',
                             type: 'error',
                             timer: 4000,
-                            showConfirmButton: false
+                            showConfirmButton: false,
+                            allowOutsideClick: true
                         });
                         return false; 
                     }
