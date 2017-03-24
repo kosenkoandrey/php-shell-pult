@@ -16,7 +16,7 @@
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
-        
+        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
         <? APP::Render('core/widgets/css') ?>
         
         <style>
@@ -573,7 +573,47 @@
                                                         <td style="font-size: 16px;">
                                                             <a class="mail_events" data-id="<?= $item['log']['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)"><?= $item['log']['letter_subject'] ?></a>
                                                             <div style="font-size: 11px;"><?= $item['log']['cr_date'] ?></div>
-                                                            <div style="font-size: 12px; margin-top: 5px;"><?= count($mail_tags) ? implode(' <i class="zmdi zmdi-long-arrow-right"></i> ', $mail_tags) : 'Нет событий' ?></div>
+                                                            <div style="font-size: 12px; margin-top: 5px;">
+                                                                <? if(count($mail_tags)){
+                                                                    $mail_events = [];
+                                                                    foreach ($mail_tags as $tag){
+                                                                        switch ($tag) {
+                                                                            case 'processed':
+                                                                                $mail_events[] = '<i class="zmdi zmdi-mail-send" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'delivered':
+                                                                                $mail_events[] = '<i class="zmdi zmdi-email" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'open':
+                                                                                $mail_events[] = '<i class="zmdi zmdi-email-open" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'click':
+                                                                                $mail_events[] = '<i class="fa fa-hand-pointer-o" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'unsubscribe':
+                                                                                $mail_events[] = '<i class="fa fa-times" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'spamreport':
+                                                                                $mail_events[] = '<i class="fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'pause':
+                                                                                $mail_events[] = '<i class="fa fa-pause" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'bounce':
+                                                                                $mail_events[] = '<i class="fa fa-share" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            default:
+                                                                                $mail_events[] = $tag;
+                                                                                break;
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    echo implode(' <i class="zmdi zmdi-long-arrow-right"></i> ', $mail_events);
+                                                                }else{
+                                                                    echo 'Нет событий';
+                                                                } ?>
+                                                                
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/html/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
