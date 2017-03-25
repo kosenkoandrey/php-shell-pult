@@ -716,6 +716,7 @@
                                                     <tbody>
                                                         <?
                                                         foreach ($data['tunnels']['subscriptions'] as $item) {
+                                  
                                                             $tunnel_icon = false;
                                                             $tunnel_actions = [
                                                                 'play' => true,
@@ -759,6 +760,7 @@
                                                                     <div style="font-size: 11px;"><?= count($item['tags']) ?> событий</div>
                                                                 </td>
                                                                 <td style="width: 300px;">
+                                                                    <a data-toggle="tooltip" data-placement="top" data-object="<?= $item['info']['object'] ?>" data-original-title="Продвинуть туннель" data-id="<?= $item['info']['id'] ?>" data-action="move_on" href="javascript:void(0)" class="tunnel_actions move_on btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5"><span class="zmdi zmdi-redo"></span></a>
                                                                     <a data-toggle="tooltip" data-placement="top" data-original-title="Остановить" data-id="<?= $item['info']['id'] ?>" data-action="stop" href="javascript:void(0)" class="tunnel_actions stop btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['stop']) { ?>disabled<? } ?>"><span class="zmdi zmdi-close-circle"></span></a>
                                                                     <a data-toggle="tooltip" data-placement="top" data-original-title="На паузу" data-id="<?= $item['info']['id'] ?>" data-action="pause" href="javascript:void(0)" class="tunnel_actions pause btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['pause']) { ?>disabled<? } ?>"><span class="zmdi zmdi-hourglass-alt"></span></a>
                                                                     <a data-toggle="tooltip" data-placement="top" data-original-title="Возобновить" data-id="<?= $item['info']['id'] ?>" data-action="play" href="javascript:void(0)" class="tunnel_actions play btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['play']) { ?>disabled<? } ?>"><span class="zmdi zmdi-power"></span></a>
@@ -1918,6 +1920,38 @@
                                         swal({
                                             title: 'Готово!',
                                             text: 'Подписка на туннель успешно остановлена',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonText: 'Ok',
+                                            closeOnConfirm: false
+                                        });
+                                    });
+                                }
+                            });
+                            break;
+                        case 'move_on':
+                            var now = new Date();
+                            var date  = now.getDate()+'-'+(now.getMonth()+1 > 9 ? (now.getMonth()+1) : '0'+(now.getMonth()+1))+'-'+now.getFullYear()+' '+now.getHours()+':'+now.getMinutes();
+                            var object = $(this).data('object');
+                            swal({
+                                title: 'Вы уверены?',
+                                text: 'Продвинуть туннель на '+date+"\n"+'Объкт туннелья '+object,
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#DD6B55',
+                                confirmButtonText: 'Да',
+                                cancelButtonText: 'Отменить',
+                                closeOnConfirm: true,
+                                closeOnCancel: true
+                            }, function(isConfirm){
+                                if (isConfirm) {
+                                    $.post('<?= APP::Module('Routing')->root ?>admin/tunnels/api/users/state.json', {
+                                        action: 'move_on',
+                                        tunnel: id
+                                    }, function() { 
+                                        swal({
+                                            title: 'Готово!',
+                                            text: 'Туннель успешно продвинут',
                                             type: 'success',
                                             showCancelButton: false,
                                             confirmButtonText: 'Ok',
