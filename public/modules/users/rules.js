@@ -650,6 +650,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">Состояние</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="reg_date" href="javascript:void(0)">Дата регистрации</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="tags" href="javascript:void(0)">Метка</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="group" href="javascript:void(0)">Группа</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="source" href="javascript:void(0)">Источник</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="about" href="javascript:void(0)">Доп. информация</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="utm" href="javascript:void(0)">UTM-метка</a></li>',
@@ -674,8 +675,7 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_events" href="javascript:void(0)">Событие в письме</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct" href="javascript:void(0)">Процент открытия писем</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_open_pct30" href="javascript:void(0)">Процент открытия писем за 30 дней</a></li>',
-                //'<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
-                /*
+                /*'<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="mail_user_inactive" href="javascript:void(0)">User inactive</a></li>',
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_buy" href="javascript:void(0)">Product buy</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',

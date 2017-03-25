@@ -16,7 +16,7 @@
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
-        
+        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
         <? APP::Render('core/widgets/css') ?>
         
         <style>
@@ -573,7 +573,47 @@
                                                         <td style="font-size: 16px;">
                                                             <a class="mail_events" data-id="<?= $item['log']['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)"><?= $item['log']['letter_subject'] ?></a>
                                                             <div style="font-size: 11px;"><?= $item['log']['cr_date'] ?></div>
-                                                            <div style="font-size: 12px; margin-top: 5px;"><?= count($mail_tags) ? implode(' <i class="zmdi zmdi-long-arrow-right"></i> ', $mail_tags) : 'Нет событий' ?></div>
+                                                            <div style="font-size: 12px; margin-top: 5px;">
+                                                                <? if(count($mail_tags)){
+                                                                    $mail_events = [];
+                                                                    foreach ($mail_tags as $tag){
+                                                                        switch ($tag) {
+                                                                            case 'processed':
+                                                                                $mail_events[] = '<i class="zmdi zmdi-mail-send" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'delivered':
+                                                                                $mail_events[] = '<i class="zmdi zmdi-email" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'open':
+                                                                                $mail_events[] = '<i class="zmdi zmdi-email-open" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'click':
+                                                                                $mail_events[] = '<i class="fa fa-hand-pointer-o" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'unsubscribe':
+                                                                                $mail_events[] = '<i class="fa fa-times" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'spamreport':
+                                                                                $mail_events[] = '<i class="fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'pause':
+                                                                                $mail_events[] = '<i class="fa fa-pause" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            case 'bounce':
+                                                                                $mail_events[] = '<i class="fa fa-share" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                break;
+                                                                            default:
+                                                                                $mail_events[] = $tag;
+                                                                                break;
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    echo implode(' <i class="zmdi zmdi-long-arrow-right"></i> ', $mail_events);
+                                                                }else{
+                                                                    echo 'Нет событий';
+                                                                } ?>
+                                                                
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/html/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
@@ -676,6 +716,7 @@
                                                     <tbody>
                                                         <?
                                                         foreach ($data['tunnels']['subscriptions'] as $item) {
+                                  
                                                             $tunnel_icon = false;
                                                             $tunnel_actions = [
                                                                 'play' => true,
@@ -719,6 +760,7 @@
                                                                     <div style="font-size: 11px;"><?= count($item['tags']) ?> событий</div>
                                                                 </td>
                                                                 <td style="width: 300px;">
+                                                                    <a data-toggle="tooltip" data-placement="top" data-object="<?= $item['info']['object'] ?>" data-original-title="Продвинуть туннель" data-id="<?= $item['info']['id'] ?>" data-action="move_on" href="javascript:void(0)" class="tunnel_actions move_on btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5"><span class="zmdi zmdi-redo"></span></a>
                                                                     <a data-toggle="tooltip" data-placement="top" data-original-title="Остановить" data-id="<?= $item['info']['id'] ?>" data-action="stop" href="javascript:void(0)" class="tunnel_actions stop btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['stop']) { ?>disabled<? } ?>"><span class="zmdi zmdi-close-circle"></span></a>
                                                                     <a data-toggle="tooltip" data-placement="top" data-original-title="На паузу" data-id="<?= $item['info']['id'] ?>" data-action="pause" href="javascript:void(0)" class="tunnel_actions pause btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['pause']) { ?>disabled<? } ?>"><span class="zmdi zmdi-hourglass-alt"></span></a>
                                                                     <a data-toggle="tooltip" data-placement="top" data-original-title="Возобновить" data-id="<?= $item['info']['id'] ?>" data-action="play" href="javascript:void(0)" class="tunnel_actions play btn btn-sm btn-default btn-icon waves-effect waves-circle pull-right m-l-5 <? if (!$tunnel_actions['play']) { ?>disabled<? } ?>"><span class="zmdi zmdi-power"></span></a>
@@ -1878,6 +1920,38 @@
                                         swal({
                                             title: 'Готово!',
                                             text: 'Подписка на туннель успешно остановлена',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonText: 'Ok',
+                                            closeOnConfirm: false
+                                        });
+                                    });
+                                }
+                            });
+                            break;
+                        case 'move_on':
+                            var now = new Date();
+                            var date  = now.getDate()+'-'+(now.getMonth()+1 > 9 ? (now.getMonth()+1) : '0'+(now.getMonth()+1))+'-'+now.getFullYear()+' '+now.getHours()+':'+now.getMinutes();
+                            var object = $(this).data('object');
+                            swal({
+                                title: 'Вы уверены?',
+                                text: 'Продвинуть туннель на '+date+"\n"+'Объкт туннелья '+object,
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#DD6B55',
+                                confirmButtonText: 'Да',
+                                cancelButtonText: 'Отменить',
+                                closeOnConfirm: true,
+                                closeOnCancel: true
+                            }, function(isConfirm){
+                                if (isConfirm) {
+                                    $.post('<?= APP::Module('Routing')->root ?>admin/tunnels/api/users/state.json', {
+                                        action: 'move_on',
+                                        tunnel: id
+                                    }, function() { 
+                                        swal({
+                                            title: 'Готово!',
+                                            text: 'Туннель успешно продвинут',
                                             type: 'success',
                                             showCancelButton: false,
                                             confirmButtonText: 'Ok',
