@@ -153,6 +153,7 @@ foreach (APP::$modules as $key => $value) {
                             <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/queue">Очередь</a></li>
                             <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/spam_lists">СПАМ-листы</a></li>
                             <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/fbl">FBL-отчеты</a></li>
+                            <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/domains">Домены</a></li>
                         </ul>
                     </li>
                     <li class="sub-menu">

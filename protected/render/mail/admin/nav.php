@@ -6,4 +6,5 @@
 <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/queue">Очередь</a></li>
 <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/spam_lists">СПАМ-листы</a></li>
 <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/fbl">FBL-отчеты</a></li>
+<li><a href="<?= APP::Module('Routing')->root ?>admin/mail/domains">Домены</a></li>
 <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/settings">Настройки</a></li>

@@ -743,6 +743,7 @@ class Tunnels {
             'activation'        => $_POST['activation'],
             'source'            => isset($_POST['source']) ? substr($_POST['source'], 0, 100) : 'APISubscribe',
             'roles_tunnel'      => isset($_POST['roles_tunnel']) ? $_POST['roles_tunnel'] : false,
+            'states_tunnel'     => isset($_POST['states_tunnel']) ? $_POST['states_tunnel'] : false,
             'welcome'           => isset($_POST['welcome']) ? $_POST['welcome'] : false,
             'queue_timeout'     => isset($_POST['queue_timeout']) ? $_POST['queue_timeout'] : $this->settings['module_tunnels_default_queue_timeout'],
             'complete_tunnels'  => isset($_POST['complete_tunnels']) ? $_POST['complete_tunnels'] : false,
@@ -750,7 +751,8 @@ class Tunnels {
             'input_data'        => isset($_POST['input_data']) ? $_POST['input_data'] : [],
             'about_user'        => isset($_POST['about_user']) ? $_POST['about_user'] : [],
             'auto_save_about'   => isset($_POST['auto_save_about']) ? $_POST['auto_save_about'] : false,
-            'save_utm'          => isset($_POST['save_utm']) ? $_POST['save_utm'] : false
+            'save_utm'          => isset($_POST['save_utm']) ? $_POST['save_utm'] : false,
+            'debug'             => isset($_POST['debug'])
         ]));
     }
     
@@ -806,7 +808,7 @@ class Tunnels {
             'reg_date' => time(),
             'state' => 'inactive'
         ];
-        
+
         $source = isset($input['source']) ? substr($input['source'], 0, 100) : 'Subscribe';
         
         if (!APP::Module('DB')->Select(
@@ -834,6 +836,12 @@ class Tunnels {
         if (isset($input['roles_tunnel'])) {
             if (isset($input['roles_tunnel'][$user['role']])) {
                 $tunnel = $input['roles_tunnel'][$user['role']];
+            }
+        }
+        
+        if (isset($input['states_tunnel'])) {
+            if (isset($input['states_tunnel'][$user['state']])) {
+                $tunnel = $input['states_tunnel'][$user['state']];
             }
         }
         
@@ -3035,6 +3043,7 @@ class Tunnels {
                     ],
                     'source'            => 'process',
                     'roles_tunnel'      => isset($object['settings']['roles_tunnel']) ? $object['settings']['roles_tunnel'] : false,
+                    'states_tunnel'     => isset($object['settings']['states_tunnel']) ? $object['settings']['states_tunnel'] : false,
                     'welcome'           => isset($object['settings']['welcome']) ? $object['settings']['welcome'] : false,
                     'queue_timeout'     => isset($object['settings']['queue_timeout']) ? $object['settings']['queue_timeout'] : $this->settings['module_tunnels_default_queue_timeout'],
                     'complete_tunnels'  => isset($object['settings']['complete_tunnels']) ? $object['settings']['complete_tunnels'] : false,
@@ -3094,6 +3103,7 @@ class Tunnels {
                     ],
                     'source'            => 'process',
                     'roles_tunnel'      => isset($available_tunnels[0]['roles_tunnel']) ? $available_tunnels[0]['roles_tunnel'] : false,
+                    'states_tunnel'     => isset($available_tunnels[0]['states_tunnel']) ? $available_tunnels[0]['states_tunnel'] : false,
                     'welcome'           => isset($available_tunnels[0]['welcome']) ? $available_tunnels[0]['welcome'] : false,
                     'queue_timeout'     => isset($available_tunnels[0]['queue_timeout']) ? $available_tunnels[0]['queue_timeout'] : $this->settings['module_tunnels_default_queue_timeout'],
                     'complete_tunnels'  => isset($available_tunnels[0]['complete_tunnels']) ? $available_tunnels[0]['complete_tunnels'] : false,

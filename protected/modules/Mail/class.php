@@ -2983,11 +2983,15 @@ class Mail {
             array_multisort(${$request['sort_by']}, $request['sort_direction'] == 'desc' ? SORT_DESC : SORT_ASC, $domains);
         }
         
-        for ($x = ($request['current'] - 1) * $request['rows']; $x < $request['rows'] * $request['current']; $x ++) {
-            if (!isset($domains[$x])) continue;
-            array_push($rows, $domains[$x]);
+        if ($request['rows'] == -1) {
+            $rows = $domains; 
+        } else {
+            for ($x = ($request['current'] - 1) * $request['rows']; $x < $request['rows'] * $request['current']; $x ++) {
+                if (!isset($domains[$x])) continue;
+                array_push($rows, $domains[$x]);
+            }
         }
-        
+
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
         header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
         header('Content-Type: application/json');
