@@ -692,6 +692,27 @@ class Tunnels {
                     ]
                 );
                 break;
+            case 'move_on':
+                APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                    'resume_date' => date('Y-m-d H:i:s')
+                ], [
+                    ['id', '=', $_POST['tunnel'], PDO::PARAM_INT]
+                ]);
+                
+                APP::Module('DB')->Insert(
+                    $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                    [
+                        'id' => 'NULL',
+                        'user_tunnel_id' => [$_POST['tunnel'], PDO::PARAM_INT],
+                        'label_id' => ['move_on', PDO::PARAM_STR],
+                        'token' => 'NULL',
+                        'info' => [json_encode([
+                            'user' => APP::Module('Users')->user['id']
+                        ]), PDO::PARAM_STR],
+                        'cr_date' => 'NOW()'
+                    ]
+                );
+                break;
         }
 
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');

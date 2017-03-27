@@ -1034,6 +1034,7 @@ class Users {
                 'tunnels_users.id', 
                 'tunnels_users.tunnel_id', 
                 'tunnels_users.state', 
+                'tunnels_users.object', 
                 
                 'tunnels.type AS tunnel_type',
                 'tunnels.name AS tunnel_name'
