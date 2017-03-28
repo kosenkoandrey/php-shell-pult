@@ -14,12 +14,12 @@
 
 // Common settings
 #define CONNECTION_TIMOUT 10L
-//#define DEBUG // Comment this line to disable debug messages
+#define DEBUG // Comment this line to disable debug messages
 
 // Internal defines
 #define MAX_MAIN_QUERY_STR_LEN 400
 #define MAIN_ERROR_CODE 1
-#define MAX_START_DB_ROW_LEN 500
+#define MAX_START_DB_ROW_LEN 1
 #define MAX_KEY_LEN 20
 #define ERROR_STR_LEN 100
 // Macros
@@ -416,13 +416,18 @@ void* thread_routine(void* param)
         part_len = MAX_START_DB_ROW_LEN;
         post_fields = (char*) malloc(post_fields_len);
         post_fields_part = (char*) malloc(part_len);
+        
         sprintf(post_fields, "key=%s", conf_api_key);
+        
+        printf("post_fields_len = %d\n", post_fields_len);
 
         for (i = 0; i < my_ntasks; i++) {
             curr_task = &tasks[my_id*conf_pack_size + i];
             new_part_len = strlen(curr_task->sender_name) + strlen(curr_task->sender_email) + strlen(curr_task->recepient) + strlen(curr_task->subject) + strlen(curr_task->html) + strlen(curr_task->plaintext) + strlen(curr_task->log);
 
             if (new_part_len > part_len) {
+                printf("new_part_len > part_len\n");
+                
                 part_len = new_part_len + 500;
                 post_fields_part = (char*) realloc (post_fields_part, part_len);
             }
@@ -458,10 +463,20 @@ void* thread_routine(void* param)
             curl_free(plaintext);
             curl_free(log);
 
+            printf("post_fields_len = %d\n", post_fields_len);
+            printf("post_fields = %s\n", post_fields);
+            printf("+post_fields_part = %s\n", post_fields_part);
+            
             strcat(post_fields, post_fields_part);
+            
+            printf("point30\n");
         }
 
+        printf("point\n");
+        
         free(post_fields_part);
+        
+        printf("free point\n");
 
 #ifdef DEBUG
     printf("post: %s\n", post_fields);

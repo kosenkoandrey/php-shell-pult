@@ -22,7 +22,7 @@ foreach ($data['path'] as $key => $value) {
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/croppie/croppie.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/select2/dist/css/select2.min.css" rel="stylesheet">
-        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/summernote/dist/summernote.css" rel="stylesheet">
+        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/summernote/dist/summernote.css" rel="stylesheet">
 
         <style>
             .croppie-container {
@@ -169,7 +169,7 @@ foreach ($data['path'] as $key => $value) {
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/autosize/dist/autosize.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/croppie/croppie.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/select2/dist/js/select2.full.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/summernote/dist/summernote-updated.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/summernote/dist/summernote.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/fileinput/fileinput.min.js"></script>
 
         <? APP::Render('core/widgets/js') ?>
@@ -180,10 +180,11 @@ foreach ($data['path'] as $key => $value) {
                 autosize($('#description'));
                 
                 $('#html-content-editor').summernote({
-                    onChange: function(contents, $editable) {
-                        $('#html_content').val(contents);
-                    },
                     height: 300
+                });
+                
+                $('#html-content-editor').on("summernote.change", function (event, contents) {   // callback as jquery custom event 
+                    $('#html_content').val(contents);
                 });
 
                 var $image_crop;

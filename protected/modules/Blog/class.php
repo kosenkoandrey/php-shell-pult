@@ -1,7 +1,7 @@
 <?
 class Blog {
     
-    const URI = 'blog';
+    const URI = 'admin/blog';
     
     public $settings;
     public $uri;

@@ -3,7 +3,7 @@
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
 <!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
 <head>
-    <title>Ladonta.ru</title>
+    <title>Glamurnenko.ru</title>
 
     <!-- Meta -->
     <meta charset="utf-8">
@@ -179,7 +179,7 @@
                             data-splitout="none"
                             data-responsive_offset="on"
                             data-responsive="off"
-                            style="z-index: 8; white-space: nowrap;outline:none;box-shadow:none;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;font-family: 'Roboto Slab'; font-size: 14px;">Read more
+                            style="z-index: 8; white-space: nowrap;outline:none;box-shadow:none;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;font-family: 'Roboto Slab'; font-size: 14px;">Читать
                         </a>
                     </li>
                     <?
@@ -195,20 +195,12 @@
     <!-- Container Part -->
     <div class="container content-sm">
         <div class="row">
-            <div class="col-md-3">
-                <!-- Social Shares -->
-                <div class="margin-bottom-50">
-                    <h2 class="title-v4">Social networks</h2>
-                    <?= APP::Render('social_networks/widgets/blog') ?>
-                </div>
-                <!-- End Social Shares -->
-            </div>
-            <div class="col-md-9 md-margin-bottom-50">
+            <div class="col-md-12 md-margin-bottom-50">
                 <!-- Tab v4 -->
                 <div class="tab-v4 margin-bottom-40">
                     <!-- Tab Heading -->
                     <div class="tab-heading">
-                            <h2>Last news</h2>
+                            <h2>Последние публикации</h2>
                             <ul id="last-groups" class="nav nav-tabs" role="tablist">
                                 <?
                                 foreach ($data['articles'] as $group) {
@@ -240,84 +232,7 @@
                                                 <li><i class="fa fa-heart"></i> <?= $value[3][0]['likes'] ?></li>
                                             </ul>
                                             <p><?= $value[3][0]['annotation'] ?></p>
-                                            <a class="r-more" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][0]['uri'] ?>">Read more</a>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-5">
-                                        <div class="blog-thumb margin-bottom-20">
-                                            <div class="blog-thumb-hover">
-                                                <img src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/120x76/<?= $value[3][1]['uri'] ?>.<?= $value[3][1]['image_type'] ?>">
-                                                <a class="hover-grad" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][1]['uri'] ?>"><i class="fa fa-eye"></i></a>
-                                            </div>
-                                            <div class="blog-thumb-desc">
-                                                <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][1]['uri'] ?>"><?= $value[3][1]['page_title'] ?></a></h3>
-                                                <ul class="blog-thumb-info">
-                                                    <li><?= date('d.m.Y', $value[3][1]['up_date']) ?></li>
-                                                    <li><i class="fa fa-comments"></i> <?= $value[3][1]['comments'] ?></li>
-                                                    <li><i class="fa fa-heart"></i> <?= $value[3][1]['likes'] ?></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <div class="blog-thumb margin-bottom-20">
-                                            <div class="blog-thumb-hover">
-                                                <img src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/120x76/<?= $value[3][2]['uri'] ?>.<?= $value[3][2]['image_type'] ?>">
-                                                <a class="hover-grad" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][2]['uri'] ?>"><i class="fa fa-eye"></i></a>
-                                            </div>
-                                            <div class="blog-thumb-desc">
-                                                <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][2]['uri'] ?>"><?= $value[3][2]['page_title'] ?></a></h3>
-                                                <ul class="blog-thumb-info">
-                                                    <li><?= date('d.m.Y', $value[3][2]['up_date']) ?></li>
-                                                    <li><i class="fa fa-comments"></i> <?= $value[3][2]['comments'] ?></li>
-                                                    <li><i class="fa fa-heart"></i> <?= $value[3][2]['likes'] ?></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <div class="blog-thumb margin-bottom-20">
-                                            <div class="blog-thumb-hover">
-                                                <img src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/120x76/<?= $value[3][3]['uri'] ?>.<?= $value[3][3]['image_type'] ?>">
-                                                <a class="hover-grad" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][3]['uri'] ?>"><i class="fa fa-eye"></i></a>
-                                            </div>
-                                            <div class="blog-thumb-desc">
-                                                <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][3]['uri'] ?>"><?= $value[3][3]['page_title'] ?></a></h3>
-                                                <ul class="blog-thumb-info">
-                                                    <li><?= date('d.m.Y', $value[3][3]['up_date']) ?></li>
-                                                    <li><i class="fa fa-comments"></i> <?= $value[3][3]['comments'] ?></li>
-                                                    <li><i class="fa fa-heart"></i> <?= $value[3][3]['likes'] ?></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <div class="blog-thumb margin-bottom-20">
-                                            <div class="blog-thumb-hover">
-                                                <img src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/120x76/<?= $value[3][4]['uri'] ?>.<?= $value[3][4]['image_type'] ?>">
-                                                <a class="hover-grad" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][4]['uri'] ?>"><i class="fa fa-eye"></i></a>
-                                            </div>
-                                            <div class="blog-thumb-desc">
-                                                <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][4]['uri'] ?>"><?= $value[3][4]['page_title'] ?></a></h3>
-                                                <ul class="blog-thumb-info">
-                                                    <li><?= date('d.m.Y', $value[3][4]['up_date']) ?></li>
-                                                    <li><i class="fa fa-comments"></i> <?= $value[3][4]['comments'] ?></li>
-                                                    <li><i class="fa fa-heart"></i> <?= $value[3][4]['likes'] ?></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <div class="blog-thumb margin-bottom-20">
-                                            <div class="blog-thumb-hover">
-                                                <img src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/120x76/<?= $value[3][5]['uri'] ?>.<?= $value[3][5]['image_type'] ?>">
-                                                <a class="hover-grad" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][5]['uri'] ?>"><i class="fa fa-eye"></i></a>
-                                            </div>
-                                            <div class="blog-thumb-desc">
-                                                <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][5]['uri'] ?>"><?= $value[3][5]['page_title'] ?></a></h3>
-                                                <ul class="blog-thumb-info">
-                                                    <li><?= date('d.m.Y', $value[3][5]['up_date']) ?></li>
-                                                    <li><i class="fa fa-comments"></i> <?= $value[3][5]['comments'] ?></li>
-                                                    <li><i class="fa fa-heart"></i> <?= $value[3][5]['likes'] ?></li>
-                                                </ul>
-                                            </div>
+                                            <a class="r-more" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][0]['uri'] ?>">Читать</a>
                                         </div>
                                     </div>
                                 </div><!--/end row-->
@@ -330,49 +245,7 @@
                 </div>
                 <!-- End Tab v4 -->
 
-                <!-- Blog Carousel Heading -->
-                <div class="blog-cars-heading">
-                    <h2>Most commented</h2>
-                    <div class="owl-navigation">
-                        <div class="customNavigation">
-                            <a class="owl-btn prev-v3"><i class="fa fa-angle-left"></i></a>
-                            <a class="owl-btn next-v3"><i class="fa fa-angle-right"></i></a>
-                        </div>
-                    </div><!--/navigation-->
-                </div>
-                <!-- End Blog Carousel Heading -->
-
-                <!-- Blog Carousel -->
-                <div class="blog-carousel margin-bottom-50">
-                    <?
-                    foreach ($data['most_commented'] as $article) {
-                        ?>
-                        <!-- Blog Grid -->
-                        <div class="item">
-                            <div class="row">
-                                <div class="col-sm-5 sm-margin-bottom-20">
-                                    <img class="img-responsive" src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/336x212/<?= $article['uri'] ?>.<?= $article['image_type'] ?>">
-                                </div>
-                                <div class="col-sm-7">
-                                    <div class="blog-grid">
-                                        <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $article['uri'] ?>"><?= $article['page_title'] ?></a></h3>
-                                        <ul class="blog-grid-info">
-                                            <li><?= date('F j, Y', $article['up_date']) ?></li>
-                                            <li><i class="fa fa-comments"></i> <?= $article['comments'] ?></li>
-                                            <li><i class="fa fa-heart"></i> <?= $article['likes'] ?></li>
-                                        </ul>
-                                        <p><?= $article['annotation'] ?></p>
-                                        <a class="r-more" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $article['uri'] ?>">Read more</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End Blog Grid -->
-                        <?
-                    }
-                    ?>
-                </div>
-                <!-- End Blog Carousel -->
+               
             </div>
         </div>
     </div>

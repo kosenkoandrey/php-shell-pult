@@ -39,7 +39,7 @@
                         ]
                     },
                     success: function(letters) {
-                        $('> .btn-group > .letter-preview', letters_manager.next()).attr('href', settings.url + '/admin/mail/letters/preview/' + letters[0].token).removeClass('disabled');
+                        $('> .btn-group > .letter-preview', letters_manager.next()).attr('href', settings.url + 'admin/mail/letters/preview/' + letters[0].token).removeClass('disabled');
                         $('> .btn-group > .letter-subject', letters_manager.next()).html('<span class="label label-warning">' + letters[0].id + '</span> ' + letters[0].subject);
                     }
                 });

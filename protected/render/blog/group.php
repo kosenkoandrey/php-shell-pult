@@ -98,38 +98,7 @@
             </div>
 
             <div class="col-md-3">
-                <!-- Social Shares -->
-                <div class="margin-bottom-50">
-                    <h2 class="title-v4">Social networks</h2>
-                    <?= APP::Render('social_networks/widgets/blog') ?>
-                </div>
-                <!-- End Social Shares -->
-
-                <!-- Blog Thumb v2 -->
-                <div class="margin-bottom-50">
-                    <h2 class="title-v4">Most commented</h2>
-                    <?
-                    foreach ($data['most_commented'] as $item) {
-                        ?>
-                        <div class="blog-thumb blog-thumb-circle margin-bottom-15">
-                            <div class="blog-thumb-hover">
-                                <img class="rounded-x" src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/80x50/<?= $item['uri'] ?>.<?= $item['image_type'] ?>">
-                                <a class="hover-grad" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $item['uri'] ?>"><i class="fa fa-link"></i></a>
-                            </div>
-                            <div class="blog-thumb-desc">
-                                <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $item['uri'] ?>"><?= $item['page_title'] ?></a></h3>
-                                <ul class="blog-thumb-info">
-                                    <li><?= date('d.m.Y', $item['up_date']) ?></li>
-                                    <li><i class="fa fa-comments"></i> <?= $item['comments'] ?></li>
-                                    <li><i class="fa fa-heart"></i> <?= $item['likes'] ?></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <?
-                    }
-                    ?>
-                </div>
-                <!-- End Blog Thumb v2 -->
+                
             </div>
         </div><!--/end row-->
     </div>

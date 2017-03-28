@@ -3264,6 +3264,27 @@ class Tunnels {
             $method = 'Exec_' . $object['child_object'][0];
             $property = 't_' . $object['child_object'][0];
             $this->{$method}($this->{$property}[$object['child_object'][1]], $tunnel);
+        } else {
+            APP::Module('DB')->Insert(
+                $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                [
+                    'id' => 'NULL',
+                    'user_tunnel_id' => [$tunnel['id'], PDO::PARAM_INT],
+                    'label_id' => ['terminate', PDO::PARAM_STR],
+                    'token' => '""',
+                    'info' => '""',
+                    'cr_date' => 'NOW()'
+                ]
+            );
+
+            APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                'state' => 'complete',
+                'resume_date' => '0000-00-00 00:00:00',
+                'object' => '',
+                'input_data' => ''
+            ], [
+                ['id', '=', $tunnel['id'], PDO::PARAM_INT]
+            ]);
         }
     }
     
@@ -3294,6 +3315,27 @@ class Tunnels {
             $method = 'Exec_' . $child_object[0];
             $property = 't_' . $child_object[0];
             $this->{$method}($this->{$property}[$child_object[1]], $tunnel);
+        } else {
+            APP::Module('DB')->Insert(
+                $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                [
+                    'id' => 'NULL',
+                    'user_tunnel_id' => [$tunnel['id'], PDO::PARAM_INT],
+                    'label_id' => ['terminate', PDO::PARAM_STR],
+                    'token' => '""',
+                    'info' => '""',
+                    'cr_date' => 'NOW()'
+                ]
+            );
+
+            APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                'state' => 'complete',
+                'resume_date' => '0000-00-00 00:00:00',
+                'object' => '',
+                'input_data' => ''
+            ], [
+                ['id', '=', $tunnel['id'], PDO::PARAM_INT]
+            ]);
         }
     }
     
@@ -3364,6 +3406,27 @@ class Tunnels {
             APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
                 'resume_date' => date('Y-m-d H:i:s', (time() + $timeout)),
                 'object' => $object['child_object']
+            ], [
+                ['id', '=', $tunnel['id'], PDO::PARAM_INT]
+            ]);
+        } else {
+            APP::Module('DB')->Insert(
+                $this->settings['module_tunnels_db_connection'], 'tunnels_tags',
+                [
+                    'id' => 'NULL',
+                    'user_tunnel_id' => [$tunnel['id'], PDO::PARAM_INT],
+                    'label_id' => ['terminate', PDO::PARAM_STR],
+                    'token' => '""',
+                    'info' => '""',
+                    'cr_date' => 'NOW()'
+                ]
+            );
+
+            APP::Module('DB')->Update($this->settings['module_tunnels_db_connection'], 'tunnels_users', [
+                'state' => 'complete',
+                'resume_date' => '0000-00-00 00:00:00',
+                'object' => '',
+                'input_data' => ''
             ], [
                 ['id', '=', $tunnel['id'], PDO::PARAM_INT]
             ]);
