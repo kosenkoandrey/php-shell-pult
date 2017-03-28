@@ -66,6 +66,7 @@ return [
         ['admin\/users\/api\/timeouts\/update\.json(\?.*)?',                    'Users', 'APIUpdateTimeoutsSettings'],      // [API] Update timeouts settings
         ['admin\/users\/api\/settings\/update\.json(\?.*)?',                    'Users', 'APIUpdateOtherSettings'],         // [API] Update other settings
         ['admin\/users\/api\/about\/update\.json(\?.*)?',                       'Users', 'APIAdminUpdateAbout'],            // [API] Update about any users
+        ['admin\/users\/api\/about\/item\/list\.json(\?.*)?',                   'Users', 'APIAdminAboutItemList'],          // [API] About item list
         
         ['users\/update\/utm\-index',                                           'Users', 'UpdateUtmIndex'],                 // [CRON] Update user utm index
     ],

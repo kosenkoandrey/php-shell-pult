@@ -14,7 +14,7 @@
             $target_rules = $(this);
 
             settings = $.extend( {
-                'utl': 'http://pult2.glamurnenko.ru/',
+                'url': 'http://pult2.glamurnenko.ru/',
                 'rules': $.evalJSON($(this).val()),
                 'debug': false
             }, options);
@@ -872,7 +872,7 @@
                             '<tr>Доп. информация</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
-                                    '<input data-id="item" class="form-control m-l-5" type="text" placeholder="Метка">',
+                                    '<select class="form-control m-t-10" data-id="item"></select>',
                                 '</td>',
                                 '<td style="width: 125px">',
                                     '<input data-id="logic" class="form-control m-l-5" type="hidden" value="=">',
@@ -881,6 +881,14 @@
                             '</tr>',
                         '</table>'
                     ].join(''));
+                    
+                    $.post(settings.url+'admin/users/api/about/item/list.json', function(res){
+                        $.each(res, function(j, i){
+                            $('.trigger_settings select[data-id="item"]', $trigger_rule_item).append('<option value="'+i+'">'+i+'</option>');
+                        });
+                    });
+                    
+                    $('.trigger_settings select[data-id="item"]', $trigger_rule_item).selectpicker('refresh');
 
                     if (rule.settings.logic !== undefined) $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
                     $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
@@ -888,8 +896,8 @@
                     if (rule.settings.value !== undefined) $('.trigger_settings input[data-id="value"]', $trigger_rule_item).val(rule.settings.value);
                     $('.trigger_settings input[data-id="value"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
-                    if (rule.settings.item !== undefined) $('.trigger_settings input[data-id="item"]', $trigger_rule_item).val(rule.settings.item);
-                    $('.trigger_settings input[data-id="item"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
+                    if (rule.settings.item !== undefined) $('.trigger_settings select[data-id="item"]', $trigger_rule_item).val(rule.settings.item);
+                    $('.trigger_settings select[data-id="item"]', $trigger_rule_item).on('change', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
                     
                     break;
                 case 'source':

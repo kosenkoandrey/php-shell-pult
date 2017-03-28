@@ -78,7 +78,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <li><a data-action="change_state" href="javascript:void(0)">Изменить состояние</a></li>
                                         <li><a data-action="add_tag" href="javascript:void(0)">Добавить метку</a></li>
                                         <li><a data-action="add_group" href="javascript:void(0)">Добавить в группу</a></li>
-                                        <li><a data-action="remove" href="javascript:void(0)">Удалить</a></li>
+                                        <li><a data-action="delete_group" href="javascript:void(0)">Удалить из группы</a></li>
                                         <li class="divider"></li>
                                         <li><a data-action="send_mail" href="javascript:void(0)">Отправить письмо</a></li>
                                         <li class="divider"></li>
@@ -529,6 +529,26 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                             case 'add_group' :
                                 $('.modal-title', modal).html('Добавить в группу');
                                 $('#exec_action').html('Добавить');
+                                
+                                form.append(
+                                    [
+                                        '<div class="form-group">',
+                                            '<label for="" class="col-sm-3 control-label">Группа</label>',
+                                            '<div class="col-sm-9">',
+                                                '<div class="fg-line">',
+                                                    '<input type="hidden" id="group_id" value="" name="settings[group_id]" class="form-control">',
+                                                '</div>',
+                                            '</div>',
+                                        '</div>'
+                                    ].join('')
+                                );
+                        
+                                $('#group_id', modal).GroupSelector({'url':'<?= APP::Module('Routing')->root ?>'});
+                                modal.modal('show');
+                                break;
+                            case 'delete_group' :
+                                $('.modal-title', modal).html('Удалить из группы');
+                                $('#exec_action').html('Удалить');
                                 
                                 form.append(
                                     [

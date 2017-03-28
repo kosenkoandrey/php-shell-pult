@@ -1401,7 +1401,8 @@ class Users {
                 'users.last_visit', 
                 
                 'state.value as state',
-                'phone.value as tel'
+                'phone.value as tel',
+                'yaregion.value as yaregion'
             ], 
             'users',
             [
@@ -1415,6 +1416,10 @@ class Users {
                 'left join/users_about/phone' => [
                     ['phone.user', '=', 'users.id'],
                     ['phone.item', '=', '"mobile_phone"']
+                ],
+                'left join/users_about/yaregion' => [
+                    ['phone.user', '=', 'users.id'],
+                    ['phone.item', '=', '"yaregion"']
                 ]
             ], 
             false, false,
@@ -3158,6 +3163,19 @@ class Users {
         }
     }
     
+    public function APIAdminAboutItemList(){
+        $data = APP::Module('DB')->Select(
+            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+            ['DISTINCT(item)'], 'users_about'
+        );
+        
+        header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+        header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+    
 }
 
 class UsersSearch {
@@ -4165,6 +4183,30 @@ class UsersActions {
                         'group_id' => [$settings['group_id'], PDO::PARAM_INT],
                         'user_id' => [$user_id, PDO::PARAM_STR],
                         'cr_date' => 'NOW()'
+                    ]
+                );
+            }
+        }
+        return $out;
+    }
+    
+    public function delete_group($id, $settings){
+        $out['status'] = 'success';
+        
+        foreach ($id as $user_id) {
+            if (APP::Module('DB')->Select(
+                APP::Module('Groups')->settings['module_groups_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(id)'], 'groups_users',
+                [
+                    ['group_id', '=', $settings['group_id'], PDO::PARAM_INT],
+                    ['user_id', '=', $user_id, PDO::PARAM_INT]
+                ]
+            )){
+                APP::Module('DB')->Delete(
+                    APP::Module('Groups')->settings['module_groups_db_connection'], 'groups_users',
+                    [
+                        ['group_id', '=', $settings['group_id'], PDO::PARAM_INT],
+                        ['user_id', '=', $user_id, PDO::PARAM_INT]
                     ]
                 );
             }

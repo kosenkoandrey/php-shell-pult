@@ -38,6 +38,11 @@
             .table .table {
                 background-color: #f5f5f5;
             }
+            
+            .icon-mail-event{
+                margin-right: 10px;
+                margin-top: 5px;
+            }
         </style>
     </head>
     <body data-ma-header="teal">
@@ -579,28 +584,28 @@
                                                                     foreach ($mail_tags as $tag){
                                                                         switch ($tag) {
                                                                             case 'processed':
-                                                                                $mail_events[] = '<i class="zmdi zmdi-mail-send" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-paper-plane fa-lg icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'delivered':
-                                                                                $mail_events[] = '<i class="zmdi zmdi-email" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-envelope fa-lg icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'open':
-                                                                                $mail_events[] = '<i class="zmdi zmdi-email-open" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-envelope-open fa-lg  icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'click':
-                                                                                $mail_events[] = '<i class="fa fa-hand-pointer-o" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-hand-pointer-o fa-lg  icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'unsubscribe':
-                                                                                $mail_events[] = '<i class="fa fa-times" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-times fa-lg  icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'spamreport':
-                                                                                $mail_events[] = '<i class="fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-exclamation-triangle fa-lg  icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'pause':
-                                                                                $mail_events[] = '<i class="fa fa-pause" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-pause fa-lg  icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             case 'bounce':
-                                                                                $mail_events[] = '<i class="fa fa-share" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
+                                                                                $mail_events[] = '<i class="fa fa-share fa-lg  icon-mail-event" data-toggle="tooltip" data-placement="top" title="'.$tag.'"></i>';
                                                                                 break;
                                                                             default:
                                                                                 $mail_events[] = $tag;
@@ -608,7 +613,7 @@
                                                                         }
                                                                     }
                                                                     
-                                                                    echo implode(' <i class="zmdi zmdi-long-arrow-right"></i> ', $mail_events);
+                                                                    echo implode('', $mail_events);
                                                                 }else{
                                                                     echo 'Нет событий';
                                                                 } ?>
