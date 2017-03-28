@@ -105,6 +105,8 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                         <th data-column-id="id" data-type="numeric" data-order="desc">ID</th>
                                         <th data-column-id="email" data-formatter="email">E-Mail</th>
                                         <th data-column-id="tel" data-visible="false">Телефон</th>
+                                        <th data-column-id="yaregion" data-visible="false">Регион</th>
+                                        <th data-column-id="amount" data-visible="false">Выручка</th>
                                         <th data-column-id="social" data-formatter="social" data-visible="false">Social</th>
                                         <th data-column-id="role" data-formatter="role">Роль</th>
                                         <th data-column-id="state" data-formatter="state">Состояние</th>

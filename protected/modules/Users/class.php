@@ -1398,31 +1398,13 @@ class Users {
                 'users.password', 
                 'users.role', 
                 'users.reg_date', 
-                'users.last_visit', 
-                
-                'state.value as state',
-                'phone.value as tel',
-                'yaregion.value as yaregion'
+                'users.last_visit',
             ], 
             'users',
             [
                 ['users.id', 'IN', $out, PDO::PARAM_INT]
-            ], 
-            [
-                'left join/users_about/state' => [
-                    ['state.user', '=', 'users.id'],
-                    ['state.item', '=', '"state"']
-                ],
-                'left join/users_about/phone' => [
-                    ['phone.user', '=', 'users.id'],
-                    ['phone.item', '=', '"mobile_phone"']
-                ],
-                'left join/users_about/yaregion' => [
-                    ['phone.user', '=', 'users.id'],
-                    ['phone.item', '=', '"yaregion"']
-                ]
-            ], 
-            false, false,
+            ],
+            false,false, false,
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
@@ -1433,6 +1415,21 @@ class Users {
                 ['extra', 'service'], 'users_accounts',
                 [['user_id', '=', $row['id'], PDO::PARAM_INT]]
             );
+            
+            $row['amount'] = APP::Module('DB')->Select(
+                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['SUM(amount)'], 'billing_invoices',
+                [['user_id', '=', $row['id'], PDO::PARAM_INT],['state', '=', 'success', PDO::PARAM_STR]]
+            );
+            
+            foreach(APP::Module('DB')->Select(
+                $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+                ['item', 'value'], 'users_about',
+                [['user', '=', $row['id'], PDO::PARAM_INT]]
+            ) as $item){
+                $row[$item['item']] = $item['value'];
+            }
+            
             array_push($rows, $row);
         }
         
