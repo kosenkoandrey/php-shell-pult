@@ -816,6 +816,8 @@ ob_end_clean();
         $('#mail-stat-calendar-to-block').data('DateTimePicker').date(moment(to_date));
     });
     
+    $('.selectpicker').selectpicker({size:12,'liveSearch':true});
+    
     $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/letters/get.json', {select:['subject', 'id'], where: [['subject', 'LIKE', '%']]}, function(resp){
         $('#mail-report-letter').append('<option value="0">Выбрать письмо</option>');
         $.each(resp, function(i,j){
