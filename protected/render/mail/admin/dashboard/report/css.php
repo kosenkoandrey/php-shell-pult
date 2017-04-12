@@ -3,4 +3,12 @@ APP::$insert['css_datetimepicker'] = ['css', 'file', 'after', '</title>', APP::M
 ?>
 <style>
     
+    .select-mail, .select-sender{
+        height: 30px;
+        padding-left: 12px!important;
+    }
+    
+    .select-mail-block .bootstrap-select > .btn-default{
+        border-bottom: none!important;
+    }
 </style>

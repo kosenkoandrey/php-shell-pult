@@ -295,6 +295,10 @@ ob_end_clean();
                 date: {
                     from: $('#mail-stat-date-from').val(),
                     to: $('#mail-stat-date-to').val()
+                },
+                form: {
+                    letter: !$('#mail-report-letter').val() ? '' : [$('#mail-report-letter').val()],
+                    sender: !$('#mail-report-sender').val() ? '' : [$('#mail-report-sender').val()]
                 }
             },
             type: 'POST',
@@ -808,6 +812,34 @@ ob_end_clean();
 
         $('#mail-stat-calendar-from-block').data('DateTimePicker').date(moment(from_date));
         $('#mail-stat-calendar-to-block').data('DateTimePicker').date(moment(to_date));
+    });
+    
+    $('.selectpicker').selectpicker({size:12,'liveSearch':true});
+    
+    $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/letters/get.json', {select:['subject', 'id'], where: [['subject', 'LIKE', '%']]}, function(resp){
+        $('#mail-report-letter').append('<option value="">Выбрать письмо</option>');
+        $.each(resp, function(i,j){
+            $('#mail-report-letter').append('<option value="'+j.id+'">'+j.subject+'</option>');
+        });
+
+        $('#mail-report-letter').selectpicker('refresh');
+    });
+    
+    $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/senders/get.json', {select:['name', 'id'], where: [['name', 'LIKE', '%']]}, function(resp){
+        $('#mail-report-sender').append('<option value="">Выбрать отправителя</option>');
+        $.each(resp, function(i,j){
+            $('#mail-report-sender').append('<option value="'+j.id+'">'+j.name+'</option>');
+        });
+
+        $('#mail-report-sender').selectpicker('refresh');
+    });
+    
+    $(document).on('change', '#mail-report-letter', function(){
+        GetMailStat(false);
+    });
+    
+    $(document).on('change', '#mail-report-sender', function(){
+        GetMailStat(false);
     });
     
     $(document).on('click', '#tab-nav-<?= $data['hash'] ?> > a',function() {
