@@ -5,6 +5,7 @@ APP::$insert['js_flot_time'] = ['js', 'file', 'before', '</body>', APP::Module('
 APP::$insert['js_moment'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/moment/min/moment.min.js'];
 APP::$insert['js_datetimepicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js'];
 APP::$insert['js_selectpicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js'];
+
 ob_start();
 ?>
 <script>
@@ -298,7 +299,8 @@ ob_end_clean();
                     to: $('#mail-stat-date-to').val()
                 },
                 form: {
-                    letter: !$('#mail-report-letter').val() ? '' : [$('#mail-report-letter').val()]
+                    letter: !$('#mail-report-letter').val() ? '' : [$('#mail-report-letter').val()],
+                    sender: !$('#mail-report-sender').val() ? '' : [$('#mail-report-sender').val()]
                 }
             },
             type: 'POST',
@@ -816,18 +818,31 @@ ob_end_clean();
         $('#mail-stat-calendar-to-block').data('DateTimePicker').date(moment(to_date));
     });
     
-    $('.selectpicker').selectpicker({size:12,'liveSearch':true});
+    $('.selectpicker').selectpicker({size:12,liveSearch:true, width:'250px'});
     
     $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/letters/get.json', {select:['subject', 'id'], where: [['subject', 'LIKE', '%']]}, function(resp){
-        $('#mail-report-letter').append('<option value="0">Выбрать письмо</option>');
+        $('#mail-report-letter').append('<option value="">Выбрать письмо</option>');
         $.each(resp, function(i,j){
             $('#mail-report-letter').append('<option value="'+j.id+'">'+j.subject+'</option>');
         });
 
-        $('.selectpicker').selectpicker('refresh');
+        $('#mail-report-letter').selectpicker('refresh');
+    });
+    
+    $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/senders/get.json', {select:['name', 'id'], where: [['name', 'LIKE', '%']]}, function(resp){
+        $('#mail-report-sender').append('<option value="">Выбрать отправителя</option>');
+        $.each(resp, function(i,j){
+            $('#mail-report-sender').append('<option value="'+j.id+'">'+j.name+'</option>');
+        });
+
+        $('#mail-report-sender').selectpicker('refresh');
     });
     
     $(document).on('change', '#mail-report-letter', function(){
+        GetMailStat(false);
+    });
+    
+    $(document).on('change', '#mail-report-sender', function(){
         GetMailStat(false);
     });
     

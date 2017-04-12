@@ -9,6 +9,14 @@
 <div class="btn-group m-b-15 m-r-15">
     <button id="mail-stat-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="mail-stat-calendar-from">...</span> - <span id="mail-stat-calendar-to">...</span></button>
 </div>
+<div class="btn-group m-b-15 select-mail-block m-r-15">
+    <select class="form-control select-sender selectpicker" id="mail-report-sender">
+    </select>
+</div>
+<div class="btn-group m-b-15 select-mail-block m-r-15">
+    <select class="form-control select-mail selectpicker" id="mail-report-letter">
+    </select>
+</div>
 <div class="btn-group m-b-15 select-mail-block">
     <select class="form-control select-mail selectpicker" id="mail-report-letter">
     </select>
