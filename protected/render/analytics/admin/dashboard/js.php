@@ -322,8 +322,10 @@ ob_end_clean();
                             show: true
                         }
                     },
-                    legend: {
-                        noColumns: 2
+                    legend : {
+                        show : true,
+                        noColumns:0,
+                        container: $('#analytics-chart-legend')
                     },
                     grid : {
                         borderWidth: 1,

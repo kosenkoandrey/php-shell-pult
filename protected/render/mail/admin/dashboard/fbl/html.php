@@ -9,7 +9,7 @@
 <div class="btn-group m-b-15">
     <button id="fbl-reports-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="fbl-reports-calendar-from">...</span> - <span id="fbl-reports-calendar-to">...</span></button>
 </div>
-<div id="fbl-log-chart">
+<div id="fbl-log-chart" class="m-b-20">
     <div class="text-center">
         <div class="preloader pl-xxl">
             <svg class="pl-circular" viewBox="25 25 50 50">
@@ -18,5 +18,6 @@
         </div>
     </div>
 </div>
+<div id="fbl-log-legend"></div>
 <input id="fbl-log-date-from" type="hidden">
 <input id="fbl-log-date-to" type="hidden">
