@@ -4,6 +4,8 @@ APP::$insert['js_flot_resize'] = ['js', 'file', 'before', '</body>', APP::Module
 APP::$insert['js_flot_time'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.time.js'];
 APP::$insert['js_moment'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/moment/min/moment.min.js'];
 APP::$insert['js_datetimepicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js'];
+APP::$insert['js_selectpicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js'];
+
 ob_start();
 ?>
 <script>
@@ -814,7 +816,7 @@ ob_end_clean();
         $('#mail-stat-calendar-to-block').data('DateTimePicker').date(moment(to_date));
     });
     
-    $('.selectpicker').selectpicker({size:12,'liveSearch':true});
+    $('.selectpicker').selectpicker({size:12,liveSearch:true, width:'250px'});
     
     $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/letters/get.json', {select:['subject', 'id'], where: [['subject', 'LIKE', '%']]}, function(resp){
         $('#mail-report-letter').append('<option value="">Выбрать письмо</option>');

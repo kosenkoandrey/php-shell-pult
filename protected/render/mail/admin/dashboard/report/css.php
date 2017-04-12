@@ -1,5 +1,7 @@
 <?
 APP::$insert['css_datetimepicker'] = ['css', 'file', 'after', '</title>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'];
+APP::$insert['css_selectpicker'] = ['css', 'file', 'after', '</title>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css'];
+
 ?>
 <style>
     
