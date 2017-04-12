@@ -24,7 +24,7 @@ class Polls {
     public function Colors() {
         $poll = 1;
         $step = 1;
-
+        
         $token = json_decode(APP::Module('Crypt')->Decode(APP::Module('Routing')->get['token']), true);
 
         if (!APP::Module('DB')->Select(
