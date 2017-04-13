@@ -169,9 +169,9 @@
 
             // ADD PRODUCT
             $('#add-product').click(function () {
-                products_counter ++;
+                var counter = ++products_counter; 
 
-                $('#products').append('<div class="row m-b-10"><div class="col-md-6"><select class="form-control selectpicker" id="inv-prod-id-' + products_counter + '" name="products[' + products_counter + '][id]" data-placeholder="Select product"></select></div><div class="col-md-4"><div class="input-group"><input id="inv-prod-amount-' + products_counter + '" name="products[' + products_counter + '][amount]" type="number" class="inv-prod-amount form-control"><span class="input-group-addon" style="font-size: 14px;">руб.</span></div></div><div class="col-md-2 mar-btm"><button type="button" class="remove-invoice-product btn palette-Teal btn-icon bg waves-effect waves-circle waves-float zmdi zmdi-close"></button></div></div>');
+                $('#products').append('<div class="row m-b-10"><div class="col-md-6"><select class="form-control selectpicker" id="inv-prod-id-' + counter + '" name="products[' + counter + '][id]" data-placeholder="Select product"></select></div><div class="col-md-4"><div class="input-group"><input id="inv-prod-amount-' + counter + '" name="products[' + counter + '][amount]" type="number" class="inv-prod-amount form-control"><span class="input-group-addon" style="font-size: 14px;">руб.</span></div></div><div class="col-md-2 mar-btm"><button type="button" class="remove-invoice-product btn palette-Teal btn-icon bg waves-effect waves-circle waves-float zmdi zmdi-close"></button></div></div>');
 
                 var products_options = [];
                 
@@ -179,19 +179,18 @@
                     products_options.push('<option data-amount="' + this.amount + '" value="' + this.id + '">' + this.name + ' (' + this.amount + ' руб.)</option>');
                 });
 
-                $('#inv-prod-id-' + products_counter).append(products_options.join(''));
-                $('#inv-prod-id-' + products_counter).selectpicker('render');
-
-                $('#inv-prod-id-' + products_counter).on('changed.bs.select', function(e) {
-                    $('#inv-prod-amount-' + products_counter)
-                    .val($(this).find('option:selected').data('amount'))
-                    .trigger('change');
-                });
+                $('#inv-prod-id-' + counter).append(products_options.join(''));
+                $('#inv-prod-id-' + counter).selectpicker('render');
                 
+                $('#inv-prod-id-' + counter)
+                .on('changed.bs.select', function (e) {
+                    $('#inv-prod-amount-' + counter)
+                        .val($(this).find('option:selected').data('amount'))
+                        .trigger('change');
+                });
                 CalcInvoiceAmount();
             });
-
-
+            
             // REMOVE PRODUCT
             $(document).on('click', '.remove-invoice-product', function () {
                 $(this).closest('.row').remove();
