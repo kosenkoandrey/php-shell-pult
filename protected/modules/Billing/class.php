@@ -514,6 +514,108 @@ class Billing {
     public function Settings() {
         APP::Render('billing/admin/settings');
     }
+    
+    public function ImportInvoices() {
+        if (isset($_FILES['source'])) {
+            $client = false;
+        
+            switch ($_POST['client']) {
+                case 'orekhov': $client = ['phpshell_orekhov', 'd-e-s-i-g-n.ru']; break;
+                case 'yurkovskaya': $client = ['phpshell_yurkovskaya', 'yurkovskaya.com']; break;
+            }
+
+            if (!$client) {
+                echo 'Invalid client'; exit;
+            }
+
+            $users = [];
+            $invoices = [];
+
+            foreach (file($_FILES['source']['tmp_name']) as $string) {
+                $item = explode(',', trim($string));
+
+                preg_match('/\<(.*)\>/', $item[1], $email_match);
+
+                if (!isset($email_match[1])) {
+                    continue;
+                }
+
+                $pult_user = APP::Module('DB')->Select(
+                    $client[0], ['fetch', PDO::FETCH_COLUMN],
+                    ['id'], 'users',
+                    [
+                        ['email', '=', $email_match[1], PDO::PARAM_STR]
+                    ]
+                );
+
+                if (!$pult_user) {
+                    continue;
+                }
+
+                $users[$email_match[1] . '|' . $pult_user][] = $item[4];
+
+                $invoices[$pult_user][] = [
+                    $item[2], $item[3], $item[4], $item[5], $item[8], $item[9], $item[10], $item[11]
+                ];
+            }
+            ?>
+            <table border="1" width="100%">
+                <tr>
+                    <td>E-Mail</td>
+                    <td>Сумма из отчета</td>
+                    <td>Сумма всех счетов у нас</td>
+                    <td>Не хватает</td>
+                    <td>Счета из отчета</td>
+                </tr>
+                <?
+                foreach ($users as $usr_item => $sum) {
+                    $id = explode('|', $usr_item);
+                    $sum2 = APP::Module('DB')->Select(
+                        $client[0], ['fetch', PDO::FETCH_COLUMN],
+                        ['SUM(amount)'], 'billing_invoices',
+                        [
+                            ['user_id', '=', $id[1], PDO::PARAM_INT],
+                            ['state', '=', 'success', PDO::PARAM_STR]
+                        ]
+                    );
+
+                    if ((int) $sum2 >= (int) array_sum($sum)) {
+                        continue;
+                    }
+                    ?>
+                    <tr>
+                        <td><?= $id[0] ?></td>
+                        <td><?= array_sum($sum) ?></td>
+                        <td><?= $sum2 ?></td>
+                        <td><?= array_sum($sum) - $sum2 ?></td>
+                        <td>
+                            <table border="1" width="100%">
+                                <?
+                                foreach ($invoices[$id[1]] as $invoice) {
+                                    echo '<tr><td width="11%">' . implode('</td><td width="11%">', $invoice) . '</td><td width="11%"><a target="_blank" href="http://pult.' . $client[1] . '/admin/billing/invoices/add?user=' . $id[0] . '&state=success&comment=import' . date('Ymd') . '">Добавить</a></td></tr>';
+                                }
+                                ?>
+                            </table>
+                        </td>
+                    </tr>
+                    <?
+                }
+            ?>
+            </table>
+            <?
+        } else {
+            ?>
+            <form enctype="multipart/form-data" method="POST">
+                <select name="client">
+                    <option value="orekhov">orekhov</option>
+                    <option value="yurkovskaya">yurkovskaya</option>
+                </select>
+                <input name="source" type="file">
+                <input type="submit" value="Send File" />
+            </form>
+            <?
+        }
+    }
 
     
     public function APIDashboard() {
