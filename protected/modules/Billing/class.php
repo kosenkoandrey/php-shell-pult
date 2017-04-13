@@ -109,7 +109,7 @@ class Billing {
     }
     
     
-    public function CreateInvoice($user_id, $author, $products, $state, $comment = false) {
+    public function CreateInvoice($user_id, $author, $products, $state, $comment = false, $timestamp = false) {
         $amount = 0;
         $invoice_products = [];
 
@@ -125,8 +125,8 @@ class Billing {
                 'amount'  => [$amount, PDO::PARAM_INT],
                 'state'   => [$state, PDO::PARAM_STR],
                 'author'  => [$author, PDO::PARAM_INT],
-                'up_date' => 'NOW()',
-                'cr_date' => 'NOW()'
+                'up_date' => $timestamp ? [date('Y-m-d H:i:s', $timestamp), PDO::PARAM_STR] : 'NOW()',
+                'cr_date' => $timestamp ? [date('Y-m-d H:i:s', $timestamp), PDO::PARAM_STR] : 'NOW()'
             ]
         );
 
@@ -138,7 +138,7 @@ class Billing {
                     'type' => ['primary', PDO::PARAM_STR],
                     'product' => [$product['id'], PDO::PARAM_INT],
                     'amount' => [$product['amount'], PDO::PARAM_INT],
-                    'cr_date' => 'NOW()'
+                    'cr_date' => $timestamp ? [date('Y-m-d H:i:s', $timestamp), PDO::PARAM_STR] : 'NOW()'
                 ]
             );
         }
@@ -158,7 +158,7 @@ class Billing {
                 'invoice' => [$invoice_id, PDO::PARAM_INT],
                 'action' => ['create_invoice', PDO::PARAM_STR],
                 'action_data' => [json_encode($invoice_data), PDO::PARAM_STR],
-                'cr_date' => 'NOW()'
+                'cr_date' => $timestamp ? [date('Y-m-d H:i:s', $timestamp), PDO::PARAM_STR] : 'NOW()'
             ]
         );
         
@@ -169,7 +169,7 @@ class Billing {
                     'id' => 'NULL',
                     'invoice' => [$invoice_id, PDO::PARAM_INT],
                     'method' => ['admin', PDO::PARAM_STR],
-                    'cr_date' => 'NOW()'
+                    'cr_date' => $timestamp ? [date('Y-m-d H:i:s', $timestamp), PDO::PARAM_STR] : 'NOW()'
                 ]
             );
         }
@@ -187,7 +187,7 @@ class Billing {
                     'object_id' => [$invoice_id, PDO::PARAM_INT],
                     'message' => [$comment, PDO::PARAM_STR],
                     'url' => [APP::Module('Routing')->root . 'admin/billing/invoices/details/' . $invoice_id, PDO::PARAM_STR],
-                    'up_date' => 'NOW()'
+                    'up_date' => $timestamp ? [date('Y-m-d H:i:s', $timestamp), PDO::PARAM_STR] : 'NOW()'
                 ]
             );
         }

@@ -11,15 +11,15 @@
 #include <jansson.h>
 #include <sched.h>
 #include <assert.h>
+#include <locale.h>
 
 // Common settings
 #define CONNECTION_TIMOUT 10L
-#define DEBUG // Comment this line to disable debug messages
+//#define DEBUG // Comment this line to disable debug messages
 
 // Internal defines
 #define MAX_MAIN_QUERY_STR_LEN 400
 #define MAIN_ERROR_CODE 1
-#define MAX_START_DB_ROW_LEN 1
 #define MAX_KEY_LEN 20
 #define ERROR_STR_LEN 100
 // Macros
@@ -412,30 +412,17 @@ void* thread_routine(void* param)
     printf("%d thread started iteration.\n", my_id);
 #endif
         my_ntasks = ntasks[my_id];
-        post_fields_len = strlen(conf_api_key) + 20;
-        part_len = MAX_START_DB_ROW_LEN;
+        
+        post_fields_len = strlen(conf_api_key) + 4;
         post_fields = (char*) malloc(post_fields_len);
-        post_fields_part = (char*) malloc(part_len);
-        
         sprintf(post_fields, "key=%s", conf_api_key);
-        
-        printf("post_fields_len = %d\n", post_fields_len);
+
+#ifdef DEBUG        
+    printf("post_fields_len = %d\n", post_fields_len);
+#endif
 
         for (i = 0; i < my_ntasks; i++) {
             curr_task = &tasks[my_id*conf_pack_size + i];
-            new_part_len = strlen(curr_task->sender_name) + strlen(curr_task->sender_email) + strlen(curr_task->recepient) + strlen(curr_task->subject) + strlen(curr_task->html) + strlen(curr_task->plaintext) + strlen(curr_task->log);
-
-            if (new_part_len > part_len) {
-                printf("new_part_len > part_len\n");
-                
-                part_len = new_part_len + 500;
-                post_fields_part = (char*) realloc (post_fields_part, part_len);
-            }
-
-            post_fields_len += part_len + 10;
-            post_fields = (char*) realloc (post_fields, post_fields_len);
-
-            assert(post_fields_part && post_fields);
 
             sender_name = curl_easy_escape(curl_handle, curr_task->sender_name, strlen(curr_task->sender_name));
             sender_email = curl_easy_escape(curl_handle, curr_task->sender_email, strlen(curr_task->sender_email));
@@ -444,6 +431,12 @@ void* thread_routine(void* param)
             html = curl_easy_escape(curl_handle, curr_task->html, strlen(curr_task->html));
             plaintext = curl_easy_escape(curl_handle, curr_task->plaintext, strlen(curr_task->plaintext));
             log = curl_easy_escape(curl_handle, curr_task->log, strlen(curr_task->log));
+
+            part_len = strlen(sender_name) + strlen(sender_email) + strlen(recepient) + strlen(subject) + strlen(html) + strlen(plaintext) + strlen(log) + 1000;
+            post_fields_part = (char*) malloc(part_len);
+
+            post_fields_len += part_len;
+            post_fields = (char*) realloc (post_fields, post_fields_len);
 
             sprintf(post_fields_part, "&tasks[%d][from][name]=%s&tasks[%d][from][email]=%s&tasks[%d][to]=%s&tasks[%d][subject]=%s&tasks[%d][message][html]=%s&tasks[%d][message][text]=%s&tasks[%d][params]={\"id\":%s}",
                 i, sender_name,
@@ -463,29 +456,20 @@ void* thread_routine(void* param)
             curl_free(plaintext);
             curl_free(log);
 
-            printf("post_fields_len = %d\n", post_fields_len);
-            printf("post_fields = %s\n", post_fields);
-            printf("+post_fields_part = %s\n", post_fields_part);
-            
             strcat(post_fields, post_fields_part);
-            
-            printf("point30\n");
+
+            free(post_fields_part);
         }
 
-        printf("point\n");
-        
-        free(post_fields_part);
-        
-        printf("free point\n");
-
 #ifdef DEBUG
+    printf("post_fields_len = %d\n", post_fields_len);
     printf("post: %s\n", post_fields);
 #endif
 
         curl_resp = perform_post_request(curl_handle, conf_api_url, post_fields, &ping);
 
 #ifdef DEBUG
-    printf("resp: %s\n", curl_resp);
+    printf("resp: %s\n\n", curl_resp);
 #endif
 
         free(post_fields);
@@ -610,6 +594,8 @@ int main(int argc, char** argv)
     struct tm   tm;
     json_t      *conf_root, *conf_api, *conf_db;
     int         tasks_present;
+    
+    setlocale(LC_ALL, "RUS");
 
     if (argc < 1) {
         fprintf(stderr, "Usage: ./daemon <path to \"config.json\">\n");
@@ -681,6 +667,9 @@ int main(int argc, char** argv)
     }
 
     mysql_init(&mysql_handle);
+    mysql_options(&mysql_handle, MYSQL_SET_CHARSET_NAME, "utf8");
+    mysql_options(&mysql_handle, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+    
     mysql_reconnect = 1;
 
     if (!mysql_real_connect(&mysql_handle, conf_db_host, conf_db_user, conf_db_password, conf_db_database, 0, NULL, 0)) {
@@ -704,6 +693,8 @@ int main(int argc, char** argv)
         pthread_create(&work_thrreads[i], NULL, thread_routine, (void*)i);
 
         mysql_init(&workers_mysql_handles[i]);
+        mysql_options(&workers_mysql_handles[i], MYSQL_SET_CHARSET_NAME, "utf8");
+        mysql_options(&workers_mysql_handles[i], MYSQL_INIT_COMMAND, "SET NAMES utf8");
         mysql_options(&workers_mysql_handles[i], MYSQL_OPT_RECONNECT, &mysql_reconnect);
 
         if (!mysql_real_connect(&workers_mysql_handles[i], conf_db_host, conf_db_user, conf_db_password, conf_db_database, 0, NULL, 0)) {

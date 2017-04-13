@@ -1019,6 +1019,8 @@ class Users {
             false, false, false,
             ['id', 'DESC']
         ) as $value) {
+            $value['details'] = APP::Module('Utils')->IsSerialized($value['details']) ? json_encode(unserialize($value['details'])) : $value['details'];
+            
             $mail[$value['log']]['events'][] = $value;
             $mail[$value['log']]['tags'][] = $value['event'];
         }

@@ -1763,6 +1763,8 @@
                     
                     if (mail_events[id].events.length) {
                         $.each(mail_events[id].events, function(key, event) {
+                            console.log(event);
+                            
                             var details = event.details !== 'NULL' ? JSON.stringify(JSON.parse(event.details), undefined, 4) : 'Details not found';
 
                             $('#mail-events-modal .events').append([

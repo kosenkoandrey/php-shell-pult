@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Mail</title>
+        <title>Почта - Очередь</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -25,7 +25,7 @@
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Mail queue' => 'admin/mail/queue',
+            'Почта' => 'admin/mail/queue',
         ]);
         ?>
         <section id="main">
@@ -35,25 +35,25 @@
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Queue</h2>
+                            <h2>Очередь</h2>
                         </div>
                         <div class="card-body">
                             <table class="table table-hover table-vmiddle" id="queue-table">
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-visible="false" data-type="numeric" data-order="desc">ID</th>
-                                        <th data-column-id="email" data-formatter="user">User</th>
-                                        <th data-column-id="letter" data-formatter="letter">Letter</th>
-                                        <th data-column-id="copies" data-formatter="copies" data-css-class="text-uppercase">Copies</th>
-                                        <th data-column-id="sender" data-formatter="sender">Sender</th>
-                                        <th data-column-id="transport" data-formatter="transport">Transport</th>
-                                        <th data-column-id="result" data-visible="false">Result</th>
-                                        <th data-column-id="retries" data-visible="false">Retries</th>
-                                        <th data-column-id="ping" data-visible="false">Ping</th>
-                                        <th data-column-id="priority">Priority</th>
-                                        <th data-column-id="token" data-visible="false">Token</th>
-                                        <th data-column-id="execute">Execute</th>
-                                        <th data-column-id="actions" data-formatter="actions">Actions</th>
+                                        <th data-column-id="email" data-formatter="user">Получатель</th>
+                                        <th data-column-id="letter" data-formatter="letter">Письмо</th>
+                                        <th data-column-id="copies" data-formatter="copies" data-css-class="text-uppercase">Копии</th>
+                                        <th data-column-id="sender" data-formatter="sender">Отправитель</th>
+                                        <th data-column-id="transport" data-formatter="transport" data-visible="false">Транспорт</th>
+                                        <th data-column-id="result">Результат</th>
+                                        <th data-column-id="retries" data-visible="false">Попытки</th>
+                                        <th data-column-id="ping">Время ответа</th>
+                                        <th data-column-id="priority" data-visible="false">Приоритет</th>
+                                        <th data-column-id="token" data-visible="false">Признак</th>
+                                        <th data-column-id="execute">Дата</th>
+                                        <th data-column-id="actions" data-formatter="actions">Действия</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -119,13 +119,13 @@
                         var queue_id = $(this).data('queue-id');
 
                         swal({
-                            title: 'Are you sure?',
-                            text: 'You will not be able to recover this entry',
+                            title: 'Вы действительно хотите удалить письмо из очереди на отправку?',
+                            text: 'Это действие будет невозможно отменить',
                             type: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#DD6B55',
-                            confirmButtonText: 'Yes',
-                            cancelButtonText: 'No',
+                            confirmButtonText: 'Да',
+                            cancelButtonText: 'Нет',
                             closeOnConfirm: false,
                             closeOnCancel: true
                         }, function(isConfirm){
@@ -134,7 +134,7 @@
                                     id: queue_id
                                 }, function() { 
                                     queue_table.bootgrid('reload', true);
-                                    swal('Deleted!', 'Entry has been deleted', 'success');
+                                    swal('Готово!', 'Письмо удалено из очереди', 'success');
                                 });
                             }
                         });

@@ -89,6 +89,7 @@
                 margin-bottom: 10px;
                 width: 184px;
                 margin-right: 10px;
+                float: right;
                 display: none;
             }
         </style>
@@ -556,10 +557,10 @@
                 
                 $('#utm-list')
                 .on('mouseenter', '.item', function(event){
-                    //$('> .item-links', this).show();
+                    $('> .item-links', this).show();
                 })
                 .on('mouseleave', '.item', function(event){
-                    //$('> .item-links', this).hide();
+                    $('> .item-links', this).hide();
                 });
                 
                 $(document).on('click', '.analytics-cohorts', function () {

@@ -114,6 +114,7 @@ class Analytics {
     
     public function Cohorts() {
         set_time_limit($this->settings['module_analytics_max_execution_time']);
+        
         // Установка часового пояса
         ini_set('date.timezone', 'Europe/Moscow');
         // Выходные данные
@@ -121,7 +122,7 @@ class Analytics {
         $out = [];
 
         // Фильтр для выборки пользователей      
-        if (isset($_POST['rules']) and $_POST['rules']){
+        if (isset($_POST['rules']) and $_POST['rules']) {
             $rules = json_decode($_POST['rules'], true);
             $users = APP::Module('Users')->UsersSearch($rules);
         }else{
@@ -172,6 +173,7 @@ class Analytics {
             'client_cost',                      // Расходы на покупателя (расходы / кол-во покупателей)
             'roi',                              // ROI ((доходы - расходы) / расходы)
         ];
+        
         // Сохранение целевых пользователей во временную таблицу
         APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_cohorts_tmp (user) VALUES (' . implode('),(', $users) . ')');
 
@@ -204,7 +206,11 @@ class Analytics {
         foreach ($out as $index => $values) {
             $out[$index]['users'] = APP::Module('DB')->Select(
                 APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
-                ['id'], 'users',[['id', 'IN', 'SELECT user FROM analytics_cohorts_tmp', PDO::PARAM_INT], ['UNIX_TIMESTAMP(reg_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR]]
+                ['id'], 'users',
+                [
+                    ['id', 'IN', 'SELECT user FROM analytics_cohorts_tmp', PDO::PARAM_INT], 
+                    ['UNIX_TIMESTAMP(reg_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR]
+                ]
             );
         }
 
@@ -239,9 +245,9 @@ class Analytics {
                                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                                 ['COUNT(DISTINCT user)'], 'users_about',
                                 [
+                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['item', '=', 'state', PDO::PARAM_STR],
                                     ['value', '=', 'unsubscribe', PDO::PARAM_STR],
-                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['UNIX_TIMESTAMP(up_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -261,9 +267,9 @@ class Analytics {
                                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                                 ['COUNT(DISTINCT user)'], 'users_about',
                                 [
+                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['item', '=', 'state', PDO::PARAM_STR],
                                     ['value', '=', 'dropped', PDO::PARAM_STR],
-                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['UNIX_TIMESTAMP(up_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -282,9 +288,9 @@ class Analytics {
                                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                                 ['COUNT(DISTINCT user)'], 'users_about',
                                 [
+                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['item', '=', 'state', PDO::PARAM_STR],
                                     ['value', '=', 'active', PDO::PARAM_STR],
-                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['UNIX_TIMESTAMP(up_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -296,22 +302,16 @@ class Analytics {
                                 $cohorts_total_subscribers_active[] = isset($value['indicators'][$l_index]['subscribers_active']) ? (int) $value['indicators'][$l_index]['subscribers_active'] : 0;
                             }
 
-                            $cohorts_total_subscribers_unsubscribe = [];
-
-                            foreach ($out as $value) {
-                                $cohorts_total_subscribers_unsubscribe[] = isset($value['indicators'][$l_index]['subscribers_unsubscribe']) ? (int) $value['indicators'][$l_index]['subscribers_unsubscribe'] : 0;
-                            }
-
-                            $out[$index]['indicators'][$l_index]['total_subscribers_active'] = array_sum($cohorts_total_subscribers_active) - array_sum($cohorts_total_subscribers_unsubscribe);
+                            $out[$index]['indicators'][$l_index]['total_subscribers_active'] = array_sum($cohorts_total_subscribers_active);
                             break;
                         case 'clients':
                             $clients = APP::Module('DB')->Select(
-                                APP::Module('Billing')->settings['module_billing_db_connection'],
-                                ['fetchAll', PDO::FETCH_COLUMN], ['DISTINCT user_id'], 'billing_invoices',
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                                ['DISTINCT user_id'], 'billing_invoices',
                                 [
-                                    ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['amount', '!=', '0', PDO::PARAM_INT],
                                     ['user_id', 'IN', $l_values['users'], PDO::PARAM_INT],
+                                    ['amount', '!=', '0', PDO::PARAM_INT],
+                                    ['state', '=', 'success', PDO::PARAM_STR],
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -330,12 +330,12 @@ class Analytics {
                             break;
                         case 'orders':
                             $t_ord = APP::Module('DB')->Select(
-                                APP::Module('Billing')->settings['module_billing_db_connection'],
-                                ['fetchAll', PDO::FETCH_COLUMN], ['id'], 'billing_invoices',
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                                ['id'], 'billing_invoices',
                                 [
-                                    ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['amount', '!=', '0', PDO::PARAM_INT],
                                     ['user_id', 'IN', $l_values['users'], PDO::PARAM_INT],
+                                    ['amount', '!=', '0', PDO::PARAM_INT],
+                                    ['state', '=', 'success', PDO::PARAM_STR],
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -358,12 +358,12 @@ class Analytics {
                             APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_cohorts_tmp (user) VALUES (' . implode('),(', $l_values['users']) . ')');
 
                             $out[(int) $index]['indicators'][(int) $l_index][$indicator] = (int) APP::Module('DB')->Select(
-                                APP::Module('Billing')->settings['module_billing_db_connection'],
-                                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'], 'billing_invoices',
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                                ['SUM(amount)'], 'billing_invoices',
                                 [
-                                    ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['amount', '!=', '0', PDO::PARAM_INT],
                                     ['user_id', 'IN', 'SELECT analytics_cohorts_tmp.user FROM analytics_cohorts_tmp', PDO::PARAM_INT],
+                                    ['amount', '!=', '0', PDO::PARAM_INT],
+                                    ['state', '=', 'success', PDO::PARAM_STR],
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -384,7 +384,7 @@ class Analytics {
                             $cohorts_clients = 0;
 
                             foreach ($out as $value) {
-                                $cohorts_clients += isset($value['indicators'][$l_index]['clients']) ? $value['indicators'][$l_index]['clients']:0;
+                                $cohorts_clients += isset($value['indicators'][$l_index]['clients']) ? $value['indicators'][$l_index]['clients'] : 0;
                             }
 
                             $cohorts_revenue = 0;
@@ -408,7 +408,8 @@ class Analytics {
         }
 
         // Вычисление расхода
-       foreach ([
+        /*
+        foreach ([
             'source',
             'medium',
             'campaign',
@@ -416,8 +417,7 @@ class Analytics {
             'content'
         ] as $utm_key) {
             foreach (APP::Module('DB')->Select(
-                APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetchAll', PDO::FETCH_ASSOC], 
+                APP::Module('Costs')->settings['module_costs_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
                 [
                     'utm_source',
                     'utm_medium',
@@ -452,6 +452,7 @@ class Analytics {
                 if (($use_utm_alias) && (isset($utm_labels[$value['utm_label']]))) $utm_labels[$value['utm_label']] = $utm_alias_value;
             }
         }
+         */
         
         foreach ($utm_labels as $label => $value) {
             $cost_utm[] = ['utm_' . $label, '=', $value, PDO::PARAM_STR];
@@ -459,8 +460,14 @@ class Analytics {
 
         foreach ($out as $index => $values) {
             $cost = (float) round(APP::Module('DB')->Select(
-                APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs'
+                APP::Module('Costs')->settings['module_costs_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['SUM(amount)'] ,'costs',
+                array_merge(
+                    [
+                        ['cost_date', 'BETWEEN', '"' . date('Y-m-d', $values['date'][0]) . '" AND "' . date('Y-m-d', $values['date'][1]) . '"', PDO::PARAM_STR]
+                    ],
+                    $cost_utm
+                )
             ), 2);
  
             foreach (array_reverse($out) as $key => $date_value) {

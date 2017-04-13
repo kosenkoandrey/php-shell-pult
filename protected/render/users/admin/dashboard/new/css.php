@@ -8,4 +8,15 @@ APP::$insert['css_datetimepicker'] = ['css', 'file', 'after', '</title>', APP::M
         font-size: 14px;
         line-height: 1.2em;
     }
+    #new-users-legend {
+        background-color: #fff;
+        margin-bottom: 8px;
+        border-radius: 3px 3px 3px 3px;
+        border: 1px solid #E6E6E6;
+        display: inline-block;
+        margin: 0 auto;
+    }
+    #new-users-legend td {
+        padding: 5px;
+    }
 </style>

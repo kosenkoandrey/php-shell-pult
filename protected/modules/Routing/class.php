@@ -4,10 +4,13 @@ class Routing {
     public $root = [];
     public $request = [];
     public $get = [];
+    public $input = [];
     
     public function Init() {
         $this->root = APP::$conf['location'][0] . '://' . APP::$conf['location'][1] . APP::$conf['location'][2];
         $this->request = parse_url($this->SelfUrl());
+        $this->input = file_get_contents('php://input');
+        
         if (isset($this->request['query'])) parse_str($this->request['query'], $this->get);
         
         foreach ((array) $this->conf['routes'] as $route) {
