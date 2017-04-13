@@ -791,6 +791,7 @@ ob_end_clean();
             sideBySide: true,
             format: 'DD/MM/YYYY'
         });
+        
         $('#mail-stat-calendar-to-block').datetimepicker({
             useCurrent: false,
             locale: 'ru',
@@ -806,6 +807,7 @@ ob_end_clean();
             $('#mail-stat-calendar-from').html(e.date._d.getDate() + '.' + (e.date._d.getMonth() + 1) + '.' + e.date._d.getFullYear());
             GetMailStat(false);
         });
+        
         $('#mail-stat-calendar-to-block').on('dp.change', function(e) {
             $('#mail-stat-date-to').val(Math.round(e.date._d.getTime() / 1000));
             $('#mail-stat-period > button').removeAttr('disabled');
