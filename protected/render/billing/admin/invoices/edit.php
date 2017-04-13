@@ -13,7 +13,12 @@
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
-
+    <style>
+        .disabled{
+            pointer-events:none;
+        }
+    </style>
+    
     <? APP::Render('core/widgets/css') ?>
 </head>
 <body data-ma-header="teal">
@@ -67,7 +72,7 @@
                                             ?>
                                             <div class="row">
                                                 <div class="col-md-6 mar-btm">
-                                                    <select <? if(!in_array($data['invoice']['main']['state'],['new','processed'])){ ?>disabled<? } ?> class="selectpicker form-control" id="inv-prod-selector-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]">
+                                                    <select class="selectpicker form-control <? if(!in_array($data['invoice']['main']['state'],['new','processed'])){ ?>disabled<? } ?>" id="inv-prod-selector-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]">
                                                         <?
                                                         foreach ((array) $data['products_list'] as $product_id => $product) {
                                                             ?><option value="<?= $product_id ?>" <? if ($invoice_product['product'] == $product_id) {
@@ -79,7 +84,7 @@
                                                 </div>
                                                 <div class="col-md-4 mar-btm">
                                                     <div class="input-group">
-                                                        <input <? if(!in_array($data['invoice']['main']['state'],['new','processed'])){ ?>disabled<? } ?> id="inv-prod-price-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]" type="number" class="inv-prod-price form-control" value="<?= $invoice_product['amount'] ?>">
+                                                        <input id="inv-prod-price-<?= $invoice_product_index + 1 ?>" name="invoice[products][<?= $invoice_product_index + 1 ?>][]" type="number" class="inv-prod-price form-control <? if(!in_array($data['invoice']['main']['state'],['new','processed'])){ ?>disabled<? } ?>" value="<?= $invoice_product['amount'] ?>">
                                                         <span class="input-group-addon">руб.</span>
                                                     </div>
                                                 </div>
