@@ -109,7 +109,7 @@ class Billing {
     }
     
     
-    public function CreateInvoice($user_id, $author, $products, $state, $comment = false) {
+    public function CreateInvoice($user_id, $author, $products, $state, $comment = false, $date = false) {
         $amount = 0;
         $invoice_products = [];
 
@@ -125,8 +125,8 @@ class Billing {
                 'amount'  => [$amount, PDO::PARAM_INT],
                 'state'   => [$state, PDO::PARAM_STR],
                 'author'  => [$author, PDO::PARAM_INT],
-                'up_date' => 'NOW()',
-                'cr_date' => 'NOW()'
+                'up_date' => $date ? [$date, PDO::PARAM_STR] : 'NOW()',
+                'cr_date' => $date ? [$date, PDO::PARAM_STR] : 'NOW()'
             ]
         );
 
@@ -138,7 +138,7 @@ class Billing {
                     'type' => ['primary', PDO::PARAM_STR],
                     'product' => [$product['id'], PDO::PARAM_INT],
                     'amount' => [$product['amount'], PDO::PARAM_INT],
-                    'cr_date' => 'NOW()'
+                    'cr_date' => $date ? [$date, PDO::PARAM_STR] : 'NOW()'
                 ]
             );
         }
@@ -158,7 +158,7 @@ class Billing {
                 'invoice' => [$invoice_id, PDO::PARAM_INT],
                 'action' => ['create_invoice', PDO::PARAM_STR],
                 'action_data' => [json_encode($invoice_data), PDO::PARAM_STR],
-                'cr_date' => 'NOW()'
+                'cr_date' => $date ? [$date, PDO::PARAM_STR] : 'NOW()'
             ]
         );
         
@@ -169,7 +169,7 @@ class Billing {
                     'id' => 'NULL',
                     'invoice' => [$invoice_id, PDO::PARAM_INT],
                     'method' => ['admin', PDO::PARAM_STR],
-                    'cr_date' => 'NOW()'
+                    'cr_date' => $date ? [$date, PDO::PARAM_STR] : 'NOW()'
                 ]
             );
         }
@@ -187,7 +187,7 @@ class Billing {
                     'object_id' => [$invoice_id, PDO::PARAM_INT],
                     'message' => [$comment, PDO::PARAM_STR],
                     'url' => [APP::Module('Routing')->root . 'admin/billing/invoices/details/' . $invoice_id, PDO::PARAM_STR],
-                    'up_date' => 'NOW()'
+                    'up_date' => $date ? [$date, PDO::PARAM_STR] : 'NOW()'
                 ]
             );
         }
@@ -398,11 +398,18 @@ class Billing {
     }
     
     public function AddInvoice() {
+        $out = [];
+        $out['comment'] = isset(APP::Module('Routing')->get['comment']) ? APP::Module('Routing')->get['comment'] : '';
+        $out['date'] = isset(APP::Module('Routing')->get['date']) ? APP::Module('Routing')->get['date'] : '';
+        $out['user'] = isset(APP::Module('Routing')->get['user']) ? APP::Module('Routing')->get['user'] : '';
+        $out['state'] = isset(APP::Module('Routing')->get['state']) ? APP::Module('Routing')->get['state'] : 'new';
+        
         APP::Render(
             'billing/admin/invoices/add', 'include', [
             'products_list' => APP::Module('DB')->Select(
                 $this->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], ['name', 'amount', 'id'], 'billing_products'
             ),
+            'invoice_data' => $out
         ]);
     }
     
@@ -787,7 +794,8 @@ class Billing {
                 APP::Module('Users')->user['id'], 
                 $_POST['products'], 
                 $_POST['state'],
-                $_POST['comment']
+                $_POST['comment'],
+                $_POST['date']
             );
         }
 
@@ -979,12 +987,10 @@ class Billing {
         // Calculate invoice amount
         $amount = 0;
 
-        if (isset($_POST['invoice']['products'])) {
-            foreach ((array) $_POST['invoice']['products'] as $product) {
-                $amount += (int) $product[1];
-            }
+        foreach ((array) $_POST['invoice']['products'] as $product) {
+            $amount += (int) $product[1];
         }
-
+        
         // Update invoice
         APP::Module('DB')->Update($this->settings['module_billing_db_connection'],
             'billing_invoices',
@@ -1019,7 +1025,7 @@ class Billing {
         $data = [
             'state'      => $_POST['invoice']['state'],
             'amount'     => $amount,
-            'products'   => $_POST['invoice']['products'],
+            'products'   => isset($_POST['invoice']['products']) ? $_POST['invoice']['products'] : [],
             'invoice'    => $_POST['invoice']['id']
         ];
 

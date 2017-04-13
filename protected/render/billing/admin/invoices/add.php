@@ -13,6 +13,7 @@
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
     <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
+    <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet"> 
 
     <? APP::Render('core/widgets/css') ?>
 </head>
@@ -33,6 +34,12 @@
                             <h2>Создание счета</h2>
                         </div>
                         <div class="panel-body">
+                            <div class="form-group">
+                                <label for="date" class="col-md-2 control-label">Дата</label>
+                                <div class="col-md-3">
+                                    <input id="date" name="date" type="text" class="form-control">
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="user_id" class="col-sm-2 control-label">Пользователь</label>
                                 <div class="col-sm-3">
@@ -94,6 +101,8 @@
     <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
     <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js"></script>
     <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/autosize/dist/autosize.min.js"></script>
+    <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/moment/min/moment.min.js"></script>
+    <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
     <? APP::Render('core/widgets/js') ?>
 
@@ -102,6 +111,16 @@
 
         $(document).ready(function () {
             autosize($('#comment'));
+            
+            $('#state').val('<?= $data['invoice_data']['state']; ?>');
+            $('#user_id').val('<?= $data['invoice_data']['user']; ?>');
+            $('#comment').val('<?= $data['invoice_data']['comment']; ?>');
+            $('#date').val('<?= $data['invoice_data']['date']; ?>');
+            
+            $('#date').datetimepicker({
+                format: 'YYYY-MM-DD H:mm:ss',
+                defaultDate: new Date()
+            });
             
             $('#add-invoice').submit(function (event) {
                 event.preventDefault();
