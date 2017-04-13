@@ -3461,8 +3461,8 @@ class UsersSearch {
             APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
             ['tunnels_users.user_id'], 'tunnels_users',
             [
-                ['tunnels_users.state', '=', 'active', PDO::PARAM_INT],
-                ['tunnels.type', '=', $settings['value'], PDO::PARAM_INT]
+                ['tunnels_users.state', '=', 'active', PDO::PARAM_STR],
+                ['tunnels.type', '=', $settings['value'], PDO::PARAM_STR]
             ],
             [
                 'join/tunnels' => [
@@ -3474,7 +3474,7 @@ class UsersSearch {
         return APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], 
             ['fetchAll', PDO::FETCH_COLUMN], 
-            ['user'], 'users_about',
+            ['DISTINCT user'], 'users_about',
             [
                 ['item', '=', 'state', PDO::PARAM_STR],
                 ['value', '=', 'active', PDO::PARAM_STR],

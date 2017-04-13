@@ -34,7 +34,7 @@ class Tunnels {
         $this->actions = new TunnelsActions();
     }
 
-    public function Admin() {
+    public function Admin() {     
         return APP::Render('tunnels/admin/nav', 'content');
     }
     
@@ -161,14 +161,14 @@ class Tunnels {
                     [
                         ['id', 'NOT IN', APP::Module('DB')->Select(
                             $this->settings['module_tunnels_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
-                            ['DISTINCT id'], 'tunnels_users',
+                            ['DISTINCT user_id'], 'tunnels_users',
                             [
                                 ['state', '=', 'active', PDO::PARAM_STR]
                             ]
                         )],
                         ['id', 'IN', APP::Module('DB')->Select(
                             APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
-                            ['DISTINCT id'], 'users_about',
+                            ['DISTINCT user'], 'users_about',
                             [
                                 ['item', '=', 'state', PDO::PARAM_STR],
                                 ['value', '=', 'active', PDO::PARAM_STR]
