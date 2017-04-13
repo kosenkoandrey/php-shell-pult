@@ -4,6 +4,9 @@ APP::$insert['css_selectpicker'] = ['css', 'file', 'after', '</title>', APP::Mod
 
 ?>
 <style>
+    .select-mail-block{
+        width: 300px;
+    }
     
     .select-mail, .select-sender{
         height: 30px;

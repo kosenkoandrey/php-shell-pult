@@ -17,6 +17,10 @@
     <select class="form-control select-mail selectpicker" id="mail-report-letter">
     </select>
 </div>
+<div class="btn-group m-b-15 select-mail-block">
+    <select class="form-control select-mail selectpicker" id="mail-report-letter">
+    </select>
+</div>
 <div id="mail-stat">
     
 </div>
