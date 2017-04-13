@@ -22,9 +22,10 @@
             <section id="content">
                 <div class="container">
                     <? APP::Render('core/widgets/template/header', 'include', [
-                        $data => 'polls/colors/' . APP::Module('Routing')->get['token']
+                        $data => 'polls/colors/' . APP::Module('Routing')->get['token'],
+                        'user_menu' => false
                     ]) ?>
-                    <div class="card" style="margin-bottom: 0;">
+                    <div class="card m-t-10 m-b-10" style="margin-bottom: 0;">
                         <div class="card-header"><h2><?= $data ?></h2></div>
                         <div class="card-body card-padding">
                             <b>Спасибо большое, что прошли опрос до конца!</b>

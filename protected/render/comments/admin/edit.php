@@ -56,7 +56,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div>
+                                <div class="col-sm-offset-2 col-sm-10">
                                     <? foreach($data['files'] as $file){ 
                                         switch ($file['type']) {
                                             case 'video/mp4':
@@ -79,9 +79,11 @@
                                         }
                                      } ?>
                                 </div>
-                                <div class="fg-line m-b-15">
-                                    <div id="new-files"></div>
-                                    <a href="javascript:void(0)" id="add-file" class="btn btn-default btn-sm">Add file</a>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <div id="new-files"></div>
+                                        <a href="javascript:void(0)" id="add-file" class="btn btn-default btn-sm">Add file</a>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-offset-2 col-sm-5">

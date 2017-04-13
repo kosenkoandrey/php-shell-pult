@@ -335,7 +335,7 @@ ob_end_clean();
             '</div>'
         ].join(''),
         placement: 'bottom',
-        title: 'Set date range',
+        title: 'Выбор даты',
         trigger: 'click'
     }).on('show.bs.popover', function () {
         $(this).data('bs.popover').tip().css({
@@ -348,12 +348,14 @@ ob_end_clean();
 
         $('#new-user-calendar-from-block').datetimepicker({
             inline: true,
+            locale: 'ru',
             sideBySide: true,
             format: 'DD/MM/YYYY'
         });
         
         $('#new-user-calendar-to-block').datetimepicker({
             useCurrent: false,
+            locale: 'ru',
             inline: true,
             sideBySide: true,
             format: 'DD/MM/YYYY'
