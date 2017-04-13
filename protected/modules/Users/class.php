@@ -1399,12 +1399,30 @@ class Users {
                 'users.role', 
                 'users.reg_date', 
                 'users.last_visit',
+                
+                'state.value as state',
+                'phone.value as tel',
+                'yaregion.value as yaregion'
             ], 
             'users',
             [
                 ['users.id', 'IN', $out, PDO::PARAM_INT]
             ],
-            false,false, false,
+            [
+                'left join/users_about/state' => [
+                    ['state.user', '=', 'users.id'],
+                    ['state.item', '=', '"state"']
+                ],
+                'left join/users_about/phone' => [
+                    ['phone.user', '=', 'users.id'],
+                    ['phone.item', '=', '"mobile_phone"']
+                ],
+                'left join/users_about/yaregion' => [
+                    ['yaregion.user', '=', 'users.id'],
+                    ['yaregion.item', '=', '"yaregion"']
+                ]
+            ], 
+            false, false,
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
