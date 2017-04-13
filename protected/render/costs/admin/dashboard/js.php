@@ -3,6 +3,7 @@ APP::$insert['js_flot'] = ['js', 'file', 'before', '</body>', APP::Module('Routi
 APP::$insert['js_flot_resize'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.resize.js'];
 APP::$insert['js_flot_time'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.time.js'];
 APP::$insert['js_moment'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/moment/min/moment.min.js'];
+APP::$insert['js_moment_locale'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/moment/locale/ru.js'];
 APP::$insert['js_datetimepicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js'];
 ob_start();
 ?>
@@ -467,7 +468,7 @@ ob_end_clean();
             '</div>'
         ].join(''),
         placement: 'bottom',
-        title: 'Set date range',
+        title: 'Выбор даты',
         trigger: 'click'
     }).on('show.bs.popover', function() { 
         $(this).data('bs.popover').tip().css({
@@ -479,11 +480,13 @@ ob_end_clean();
         var from_date = new Date(parseInt($('#costs-date-from').val()) * 1000);
 
         $('#costs-calendar-from-block').datetimepicker({
+            locale: 'ru',
             inline: true,
             sideBySide: true,
             format: 'DD/MM/YYYY'
         });
         $('#costs-calendar-to-block').datetimepicker({
+            locale: 'ru',
             useCurrent: false,
             inline: true,
             sideBySide: true,

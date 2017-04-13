@@ -235,20 +235,22 @@
 
         //Date Time Picker
         if ($('.date-time-picker')[0]) {
-               $('.date-time-picker').datetimepicker();
+               $('.date-time-picker').datetimepicker({locale: 'ru'});
         }
 
         //Time
         if ($('.time-picker')[0]) {
             $('.time-picker').datetimepicker({
-                format: 'LT'
+                format: 'LT',
+                locale: 'ru'
             });
         }
 
         //Date
         if ($('.date-picker')[0]) {
             $('.date-picker').datetimepicker({
-                format: 'DD/MM/YYYY'
+                format: 'DD/MM/YYYY',
+                locale: 'ru'
             });
         }
 
