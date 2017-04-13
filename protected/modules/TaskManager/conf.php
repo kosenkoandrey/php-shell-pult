@@ -7,6 +7,7 @@ return [
         ['admin\/taskmanager\/settings(\?.*)?',                     'TaskManager', 'Settings'],             // Settings
         
         ['admin\/taskmanager\/api\/list\.json(\?.*)?',              'TaskManager', 'APITaskList'],          // [API] List tasks
+        ['admin\/taskmanager\/api\/search\.json(\?.*)?',            'TaskManager', 'APISearchTask'],        // [API] Search task
         ['admin\/taskmanager\/api\/add\.json(\?.*)?',               'TaskManager', 'APIAddTask'],           // [API] Add task
         ['admin\/taskmanager\/api\/update\.json(\?.*)?',            'TaskManager', 'APIUpdateTask'],        // [API] Update task
         ['admin\/taskmanager\/api\/remove\.json(\?.*)?',            'TaskManager', 'APIRemoveTask'],        // [API] Remove task
