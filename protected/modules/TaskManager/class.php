@@ -2,6 +2,7 @@
 class TaskManager {
 
     public $settings;
+    private $search;
     
     function __construct($conf) {
         foreach ($conf['routes'] as $route) APP::Module('Routing')->Add($route[0], $route[1], $route[2]);
@@ -15,6 +16,29 @@ class TaskManager {
             'module_taskmanager_memory_limit',
             'module_taskmanager_tmp_dir'
         ]);
+        
+        $this->search = new TaskManagerSearch();
+    }
+    
+    public function Search($rules) {
+        $out = Array();
+
+        foreach ((array) $rules['rules'] as $rule) {
+            $out[] = array_flip((array) $this->search->{$rule['method']}($rule['settings']));
+        }
+        
+        if (array_key_exists('children', (array) $rules)) {
+            $out[] = array_flip((array) $this->Search($rules['children']));
+        }
+        
+        if (count($out) > 1) {
+            switch ($rules['logic']) {
+                case 'intersect': return array_keys((array) call_user_func_array('array_intersect_key', $out)); break;
+                case 'merge': return array_keys((array) call_user_func_array('array_replace', $out)); break;
+            }
+        } else {
+            return array_keys($out[0]);
+        }
     }
     
     
@@ -111,6 +135,39 @@ class TaskManager {
         APP::Render('taskmanager/admin/settings');
     }
     
+    public function APISearchTask() {
+        $request = json_decode(file_get_contents('php://input'), true);
+        $out = $this->Search(json_decode($request['search'], 1));
+        $rows = [];
+        
+        $where[] = ['id', 'IN', $out, PDO::PARAM_INT];
+        if($request['searchPhrase']){
+            $where[] = ['token', 'LIKE', $request['searchPhrase'] . '%' ]; 
+        }
+
+        foreach (APP::Module('DB')->Select(
+            $this->settings['module_taskmanager_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
+            ['id', 'token', 'module', 'method', 'args', 'state', 'cr_date', 'exec_date', 'complete_date'], 'task_manager',
+            $where,false, false, false,
+            [$request['sort_by'], $request['sort_direction']],
+            $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
+        ) as $row) {
+            $row['task_token'] = APP::Module('Crypt')->Encode($row['id']);
+            array_push($rows, $row);
+        }
+        
+        header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+        header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+        header('Content-Type: application/json');
+        
+        echo json_encode([
+            'current' => $request['current'],
+            'rowCount' => $request['rows'],
+            'rows' => $rows,
+            'total' => count($out)
+        ]);
+        exit;
+    }
     
     public function APITaskList() {
         $rows = [];
@@ -303,6 +360,54 @@ class TaskManager {
             'errors' => []
         ]);
         exit;
+    }
+    
+}
+
+class TaskManagerSearch{
+    public function token($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'task_manager',
+            [['token', $settings['logic'], $settings['value'], PDO::PARAM_STR]]
+        );
+    }
+    
+    public function module($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'task_manager',
+            [['module', $settings['logic'], $settings['value'], PDO::PARAM_STR]]
+        );
+    }
+    
+    public function method($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'task_manager',
+            [['method', $settings['logic'], $settings['value'], PDO::PARAM_STR]]
+        );
+    }
+    
+    public function args($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'task_manager',
+            [['args', $settings['logic'], $settings['value'], PDO::PARAM_STR]]
+        );
+    }
+    
+    public function state($settings) {
+        return APP::Module('DB')->Select(
+            APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], 
+            ['fetchAll', PDO::FETCH_COLUMN], 
+            ['id'], 'task_manager',
+            [['state', $settings['logic'], $settings['value'], PDO::PARAM_STR]]
+        );
     }
     
 }
