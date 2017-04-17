@@ -3142,44 +3142,7 @@ class Users {
             );
         }
     }
-    
-    public function UpdateUtmIndex() {
-        ini_set('max_execution_time','1800'); 
-        ini_set('memory_limit','8192M');
 
-        $users_utm = APP::Module('DB')->Select(
-            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
-            ['users_utm.user','users_utm.item','users_utm.value'], 'users_utm', [['users_utm.num', '=', '1', PDO::PARAM_INT]]
-        );
-        
-        $users = [];
-
-        foreach ($users_utm as $item) $users[$item['user']][$item['item']] = $item['value'];
-        unset($users_utm);
-        
-        $exist = [];
-        
-        APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('TRUNCATE TABLE users_utm_index');
-        
-        foreach ($users as $utm) {
-            $utm_index['source'] = isset($utm['source']) ? $utm['source'] : '_';
-            $utm_index['medium'] = isset($utm['medium']) ? $utm['medium'] : '_';
-            $utm_index['campaign'] = isset($utm['campaign']) ? $utm['campaign'] : '_';
-            $utm_index['term'] = isset($utm['term']) ? $utm['term'] : '_';
-            $utm_index['content'] = isset($utm['content']) ? $utm['content'] : '_';
-
-            if (isset($exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])){
-                if(!array_key_exists($utm_index['content'], (array) $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])) {
-                    APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
-                    $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
-                }
-            }else{
-                APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
-                $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
-            }
-        }
-    }
-    
     public function APIAdminAboutItemList(){
         $data = APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 

@@ -5,6 +5,7 @@ return [
         
         ['admin\/analytics\/yandex\/get(\?.*)?',                    'Analytics', 'GetYandex'],
         ['admin\/analytics\/yandex\/token(\?.*)?',                  'Analytics', 'GetYandexToken'],
+        ['admin\/analytics\/utm\/index(\?.*)?',                     'Analytics', 'UtmIndex'],
         ['admin\/analytics\/utm\/roi(\?.*)?',                       'Analytics', 'UtmRoi'],
         ['admin\/analytics\/utm(\?.*)?',                            'Analytics', 'Utm'],
         ['admin\/analytics\/open\/letter\/pct(\?.*)?',              'Analytics', 'OpenLettersPct'],
@@ -13,6 +14,9 @@ return [
         ['admin\/analytics\/rfm\/mail\/(?P<event>open|click)(\?.*)?','Analytics', 'RfmMail'],
         ['admin\/analytics\/cohorts(\?.*)?',                        'Analytics', 'Cohorts'],
         ['admin\/analytics\/geo(\?.*)?',                            'Analytics', 'Geo'],
+        
+        ['analytics\/utm\/index\/update',                           'Analytics', 'UpdateUtmIndex'],
+        ['analytics\/utm\/index\/full\/update',                     'Analytics', 'UpdateFullUtmIndex'],
         
         //API
         ['admin\/analytics\/api\/geo\/city\.json(\?.*)?',           'Analytics', 'APIGetGeoCity'],
