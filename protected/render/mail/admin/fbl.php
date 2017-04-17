@@ -24,6 +24,18 @@
                 font-size: 14px;
                 line-height: 1.2em;
             }
+            fbl-log-legend{
+                background-color: #fff;
+                margin-bottom:8px;
+                margin:0 auto;
+                display:inline-block;
+                border-radius: 3px 3px 3px 3px;
+                border: 1px solid #E6E6E6;
+            }
+
+            #fbl-log-legend td{
+                padding: 5px;
+            }
         </style>
     </head>
     <body data-ma-header="teal">
@@ -52,7 +64,7 @@
                             <div class="btn-group m-b-15">
                                 <button id="fbl-reports-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="fbl-reports-calendar-from">...</span> - <span id="fbl-reports-calendar-to">...</span></button>
                             </div>
-                            <div id="fbl-log-chart">
+                            <div id="fbl-log-chart" class="m-b-20">
                                 <div class="text-center">
                                     <div class="preloader pl-xxl">
                                         <svg class="pl-circular" viewBox="25 25 50 50">
@@ -61,6 +73,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="fbl-log-legend"></div>
                             <input id="fbl-log-date-from" type="hidden">
                             <input id="fbl-log-date-to" type="hidden">
                         </div>
@@ -81,12 +94,13 @@
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/Waves/dist/waves.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/flot/jquery.flot.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/flot/jquery.flot.resize.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/flot/jquery.flot.time.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/moment/min/moment.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-        
+        <?php 
+            APP::$insert['js_flot']           = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.js'];
+            APP::$insert['js_flot_resize']    = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.resize.js'];
+            APP::$insert['js_flot_time']      = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.time.js'];
+            APP::$insert['js_moment']         = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/moment/min/moment.min.js'];
+            APP::$insert['js_datetimepicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js'];
+        ?>
         <? APP::Render('core/widgets/js') ?>
         
         <script>
@@ -389,6 +403,11 @@
                                 points: {
                                     show: true
                                 }
+                            },
+                            legend : {
+                                show : true,
+                                noColumns:0,
+                                container: $('#fbl-log-legend')
                             },
                             grid : {
                                 borderWidth: 1,
