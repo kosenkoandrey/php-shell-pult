@@ -84,7 +84,7 @@ foreach ($data['path'] as $key => $value) {
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">Content</label>
                                     <div class="col-sm-10">
-                                        <div id="html-content-editor"></div>
+                                        <div id="html-content-editor"><?= $data['article']['html_content'] ?></div>
                                         <textarea name="html_content" id="html_content" class="form-control" style="display: none"><?= $data['article']['html_content'] ?></textarea>
                                     </div>
                                 </div>
@@ -192,8 +192,6 @@ foreach ($data['path'] as $key => $value) {
                 $('#html-content-editor').summernote({
                     height: 300
                 });
-                
-                $('#html-content-editor').code('<?= $data['article']['html_content'] ?>');
                 
                 $('#html-content-editor').on("summernote.change", function (event, contents) {   // callback as jquery custom event 
                     $('#html_content').val(contents);
