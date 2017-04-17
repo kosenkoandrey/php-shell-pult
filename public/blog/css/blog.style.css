@@ -37,6 +37,7 @@ body {
 	color: #333;
 	font: 13px/1.6 'Roboto Slab', sans-serif;
 	text-rendering: optimizelegibility;
+        overflow-x: hidden;
 }
 
 body.header-fixed-space-v2 {
