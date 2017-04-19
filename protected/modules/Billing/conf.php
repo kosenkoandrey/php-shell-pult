@@ -10,7 +10,8 @@ return [
         ['admin\/billing\/invoices\/add(\?.*)?',                        'Billing', 'AddInvoice'],
         ['admin\/billing\/invoices\/edit\/(?P<invoice_id_hash>.*)',     'Billing', 'EditInvoice'],
         ['admin\/billing\/invoices\/details\/(?P<invoice_id_hash>.*)',  'Billing', 'InvoiceDetails'],
-        ['admin\/billing\/invoices\/import(\?.*)?',                     'Billing', 'ImportInvoices'],
+        ['admin\/billing\/invoices\/diff(\?.*)?',                       'Billing', 'DiffInvoices'],
+        ['admin\/billing\/invoices\/diff\/import(\?.*)?',               'Billing', 'DiffImportInvoices'],
         
         ['admin\/billing\/payments(\?.*)?',                             'Billing', 'ManagePayments'],
         ['billing\/payments\/make\/(?P<invoice_id_hash>.*)',            'Billing', 'PaymentMake'],

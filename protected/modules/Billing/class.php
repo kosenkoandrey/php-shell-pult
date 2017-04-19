@@ -522,19 +522,8 @@ class Billing {
         APP::Render('billing/admin/settings');
     }
     
-    public function ImportInvoices() {
+    public function DiffInvoices() {
         if (isset($_FILES['source'])) {
-            $client = false;
-        
-            switch ($_POST['client']) {
-                case 'orekhov': $client = ['phpshell_orekhov', 'd-e-s-i-g-n.ru']; break;
-                case 'yurkovskaya': $client = ['phpshell_yurkovskaya', 'yurkovskaya.com']; break;
-            }
-
-            if (!$client) {
-                echo 'Invalid client'; exit;
-            }
-
             $users = [];
             $invoices = [];
 
@@ -548,7 +537,7 @@ class Billing {
                 }
 
                 $pult_user = APP::Module('DB')->Select(
-                    $client[0], ['fetch', PDO::FETCH_COLUMN],
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                     ['id'], 'users',
                     [
                         ['email', '=', $email_match[1], PDO::PARAM_STR]
@@ -578,7 +567,7 @@ class Billing {
                 foreach ($users as $usr_item => $sum) {
                     $id = explode('|', $usr_item);
                     $sum2 = APP::Module('DB')->Select(
-                        $client[0], ['fetch', PDO::FETCH_COLUMN],
+                        APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                         ['SUM(amount)'], 'billing_invoices',
                         [
                             ['user_id', '=', $id[1], PDO::PARAM_INT],
@@ -599,7 +588,7 @@ class Billing {
                             <table border="1" width="100%">
                                 <?
                                 foreach ($invoices[$id[1]] as $invoice) {
-                                    echo '<tr><td width="11%">' . implode('</td><td width="11%">', $invoice) . '</td><td width="11%"><a target="_blank" href="http://pult.' . $client[1] . '/admin/billing/invoices/add?user=' . $id[0] . '&state=success&comment=import' . date('Ymd') . '">Добавить</a></td></tr>';
+                                    echo '<tr><td width="11%">' . implode('</td><td width="11%">', $invoice) . '</td><td width="11%"><a target="_blank" href="' . APP::Module('Routing')->root . 'admin/billing/invoices/add?user=' . $id[0] . '&state=success&comment=import' . date('Ymd') . '">Добавить</a></td></tr>';
                                 }
                                 ?>
                             </table>
@@ -613,12 +602,114 @@ class Billing {
         } else {
             ?>
             <form enctype="multipart/form-data" method="POST">
-                <select name="client">
-                    <option value="orekhov">orekhov</option>
-                    <option value="yurkovskaya">yurkovskaya</option>
-                </select>
                 <input name="source" type="file">
-                <input type="submit" value="Send File" />
+                <input type="submit" value="Сравнить" />
+            </form>
+            <?
+        }
+    }
+    
+    public function DiffImportInvoices() {
+        if (isset($_FILES['source'])) {
+            $users = [];
+            $invoices = [];
+
+            foreach (file($_FILES['source']['tmp_name']) as $string) {
+                $item = explode(',', trim($string));
+
+                preg_match('/\<(.*)\>/', $item[1], $email_match);
+
+                if (!isset($email_match[1])) {
+                    continue;
+                }
+
+                $pult_user = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                    ['id'], 'users',
+                    [
+                        ['email', '=', $email_match[1], PDO::PARAM_STR]
+                    ]
+                );
+
+                if (!$pult_user) {
+                    continue;
+                }
+
+                $users[$email_match[1] . '|' . $pult_user][] = $item[4];
+
+                $invoices[$pult_user][] = [
+                    $item[2], $item[3], $item[4], $item[5], $item[8], $item[9], $item[10], $item[11]
+                ];
+            }
+
+            foreach ($users as $usr_item => $sum) {
+                $id = explode('|', $usr_item);
+                $sum2 = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                    ['SUM(amount)'], 'billing_invoices',
+                    [
+                        ['user_id', '=', $id[1], PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR]
+                    ]
+                );
+
+                if ((int) $sum2 >= (int) array_sum($sum)) {
+                    continue;
+                }
+
+                if (((int) $sum2 == 0) && ((int) array_sum($sum) != 0)) {
+                    $invoice_email = $id[0];
+
+                    foreach ($invoices[$id[1]] as $invoice) {
+                        $inv_date = explode('.', $invoice[4]);
+                        
+                        if (count($inv_date) == 3) {
+                            $inv_prod_id = APP::Module('DB')->Select(
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                                ['id'], 'billing_products',
+                                [
+                                    ['name', '=', $invoice[3], PDO::PARAM_STR]
+                                ]
+                            );
+                            
+                            if ($inv_prod_id) {
+                                $invoice[8] = '20' . $inv_date[2] . '-' . $inv_date[1] . '-' . $inv_date[0] . ' 12:00:00';
+                                $invoice[9] = $id[0];
+                                $invoice[10] = $inv_prod_id;
+
+                                $message = implode('<br>', $invoice);
+
+                                if (!APP::Module('DB')->Select(
+                                    APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0],
+                                    ['COUNT(id)'], 'comments_messages',
+                                    [['MD5(message)', '=', md5($message), PDO::PARAM_STR]]
+                                )) {
+                                    $this->CreateInvoice(
+                                        $id[1], 
+                                        0, 
+                                        [
+                                            [
+                                                'id' => $invoice[10],
+                                                'amount' => $invoice[2]
+                                            ]
+                                        ], 
+                                        'success',
+                                        $message,
+                                        $invoice[8]
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            echo 'Готово!';
+        } else {
+            ?>
+            <form enctype="multipart/form-data" method="POST">
+                <input name="source" type="file">
+                <input type="submit" value="Импортировать" />
             </form>
             <?
         }
