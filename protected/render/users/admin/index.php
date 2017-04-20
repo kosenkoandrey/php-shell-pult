@@ -54,6 +54,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         <li><a href="<?= APP::Module('Routing')->root ?>admin/users/add">Добавить пользователя</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/users/import">Импортировать пользователей</a></li>
                                         <li><a href="<?= APP::Module('Routing')->root ?>admin/users/roles">Управление ролями</a></li>
                                         <li><a href="<?= APP::Module('Routing')->root ?>admin/users/oauth/clients">OAuth клиенты</a></li>
                                         <li><a href="<?= APP::Module('Routing')->root ?>admin/users/services">Сервисы</a></li>

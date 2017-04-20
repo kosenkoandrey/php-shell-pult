@@ -37,6 +37,7 @@ return [
         ['admin\/users\/passwords(\?.*)?',                                      'Users', 'SetupPasswords'],             // Setup passwords
         ['admin\/users\/timeouts(\?.*)?',                                       'Users', 'SetupTimeouts'],              // Setup timeouts
         ['admin\/users\/settings(\?.*)?',                                       'Users', 'SetupOther'],                 // Setup other
+        ['admin\/users\/import(\?.*)?',                                         'Users', 'ImportUsers'],                // Import users
         ['admin\/users\/roles(\?.*)?',                                          'Users', 'ManageRoles'],                // Manage roles
         ['admin\/users\/roles\/add(\?.*)?',                                     'Users', 'AddRole'],                    // Add role
         ['admin\/users\/roles\/rules\/(?P<role_id_hash>.*)\/edit\/(?P<rule_id_hash>.*)(\?.*)?', 'Users', 'EditRule'],   // Edit rule
