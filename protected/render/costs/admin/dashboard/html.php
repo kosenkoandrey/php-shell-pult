@@ -17,6 +17,7 @@
         </div>
     </div>
 </div>
+<div id="costs-chart-legend"></div>
 <input id="costs-date-from" type="hidden">
 <input id="costs-date-to" type="hidden">
 <div id="costs-list"></div>

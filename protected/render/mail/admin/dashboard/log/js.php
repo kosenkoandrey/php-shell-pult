@@ -320,6 +320,11 @@ ob_end_clean();
                         hoverable : true,
                         clickable : true
                     },
+                    legend : {
+                        show : true,
+                        noColumns:0,
+                        container: $('#mail-list-legend')
+                    },
                     yaxis: { 
                         tickColor: '#eee',
                         tickDecimals: 0,

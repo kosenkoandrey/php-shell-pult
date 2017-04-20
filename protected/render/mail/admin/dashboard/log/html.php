@@ -9,7 +9,7 @@
 <div class="btn-group m-b-15">
     <button id="mail-log-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="mail-log-calendar-from">...</span> - <span id="mail-log-calendar-to">...</span></button>
 </div>
-<div id="mail-list-chart">
+<div id="mail-list-chart" class="m-b-20">
     <div class="text-center">
         <div class="preloader pl-xxl">
             <svg class="pl-circular" viewBox="25 25 50 50">
@@ -18,5 +18,6 @@
         </div>
     </div>
 </div>
+<div id="mail-list-legend"></div>
 <input id="mail-list-date-from" type="hidden">
 <input id="mail-list-date-to" type="hidden">

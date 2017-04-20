@@ -8,7 +8,7 @@
 <div class="btn-group m-b-15">
     <button id="comments-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="comments-calendar-from">...</span> - <span id="comments-calendar-to">...</span></button>
 </div>
-<div id="comment-chart">
+<div id="comment-chart" class="m-b-20">
     <div class="text-center">
         <div class="preloader pl-xxl">
             <svg class="pl-circular" viewBox="25 25 50 50">
@@ -17,5 +17,6 @@
         </div>
     </div>
 </div>
+<div id="comment-chart-legend"></div>
 <input id="comment-date-from" type="hidden">
 <input id="comment-date-to" type="hidden">

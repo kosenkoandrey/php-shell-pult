@@ -433,6 +433,12 @@ ob_end_clean();
                         hoverable: true,
                         clickable: true
                     },
+                    legend : {
+                        show : true,
+                        noColumns:0,
+                        container: $('#new-users-legend')
+                    },
+
                     yaxis: {
                         tickColor: '#eee',
                         tickDecimals: 0,

@@ -3610,7 +3610,6 @@ class Users {
         echo json_encode($data);
         exit;
     }
-    
 }
 
 class UsersSearch {

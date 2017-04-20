@@ -18,6 +18,7 @@
         </div>
     </div>
 </div>
+<div id="billing-chart-legend"></div>
 <input id="billing-date-from" type="hidden">
 <input id="billing-date-to" type="hidden">
 <div id="billing-list"></div>
