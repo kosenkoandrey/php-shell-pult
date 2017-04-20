@@ -8,4 +8,17 @@ APP::$insert['css_datetimepicker'] = ['css', 'file', 'after', '</title>', APP::M
 	font-size: 14px;
 	line-height: 1.2em;
     }
+    
+    #costs-chart-legend{
+        background-color: #fff;
+        margin-bottom:8px;
+        margin:0 auto;
+        display:inline-block;
+        border-radius: 3px 3px 3px 3px;
+        border: 1px solid #E6E6E6;
+    }
+    
+    #costs-chart-legend td{
+        padding: 5px;
+    }
 </style>
