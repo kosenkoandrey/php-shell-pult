@@ -136,7 +136,8 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                     ajax: true,
                     ajaxSettings: {
                         method: 'POST',
-                        cache: false
+                        cache: false,
+                        contentType: 'application/json'
                     },
                     url: '<?= APP::Module('Routing')->root ?>admin/taskmanager/api/search.json',
                     css: {
