@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Mail</title>
+        <title>Редактировать шорт-код</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -21,7 +21,8 @@
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Shortcodes' => 'admin/mail/shortcodes',
+            'Шорт-коды' => 'admin/mail/shortcodes',
+            'Редактировать шорт-код' => 'admin/mail/shortcodes/edit/'.APP::Module('Routing')->get['shortcode_id_hash'],
         ]);
         ?>
         <section id="main">
@@ -34,12 +35,12 @@
                             <input type="hidden" name="shortcode_id" value="<?= APP::Module('Routing')->get['shortcode_id_hash'] ?>">
                             
                             <div class="card-header">
-                                <h2>Edit shortcode</h2>
+                                <h2>Редактировать шорт-код</h2>
                             </div>
 
                             <div class="card-body card-padding">
                                 <div class="form-group">
-                                    <label for="code" class="col-sm-2 control-label">Code</label>
+                                    <label for="code" class="col-sm-2 control-label">Код</label>
                                     <div class="col-sm-3">
                                         <div class="fg-line">
                                             <input type="text" class="form-control" name="code" id="code">
@@ -47,7 +48,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="value" class="col-sm-2 control-label">Value</label>
+                                    <label for="value" class="col-sm-2 control-label">Значение</label>
                                     <div class="col-sm-10">
                                         <div class="fg-line">
                                             <textarea id="value" name="value" class="form-control"><?= $data['content'] ?></textarea>
@@ -57,7 +58,7 @@
                                 
                                 <div class="form-group">
                                     <div class="col-sm-offset-2 col-sm-5">
-                                        <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Save changes</button>
+                                        <button type="submit" class="btn palette-Teal bg waves-effect btn-lg">Сохранить</button>
                                     </div>
                                 </div>
                             </div>
@@ -132,8 +133,8 @@
                             switch(result.status) {
                                 case 'success':
                                     swal({
-                                        title: 'Done!',
-                                        text: 'Shortcode "' + code.val() + '" has been updates',
+                                        title: 'Готово!',
+                                        text: 'Шорт-код "' + code.val() + '" был обвновлен',
                                         type: 'success',
                                         showCancelButton: false,
                                         confirmButtonText: 'Ok',

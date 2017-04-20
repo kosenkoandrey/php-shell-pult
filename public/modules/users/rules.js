@@ -883,12 +883,14 @@
                     ].join(''));
                     
                     $.post(settings.url+'admin/users/api/about/item/list.json', function(res){
+                        var html = '';
                         $.each(res, function(j, i){
-                            $('.trigger_settings select[data-id="item"]', $trigger_rule_item).append('<option value="'+i+'">'+i+'</option>');
+                            html += '<option value="'+i+'">'+i+'</option>';
                         });
+                        $('.trigger_settings select[data-id="item"]', $trigger_rule_item).html(html).selectpicker('refresh');
                     });
                     
-                    $('.trigger_settings select[data-id="item"]', $trigger_rule_item).selectpicker('refresh');
+                    
 
                     if (rule.settings.logic !== undefined) $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
                     $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
