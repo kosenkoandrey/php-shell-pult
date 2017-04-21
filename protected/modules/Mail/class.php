@@ -659,11 +659,67 @@ class Mail {
         ) as $value) {
             $list[] = ['letter', $value['id'], $value['subject']];
         }
+        
+        // LETTERS STAT ////////////////////////////////////////////////////////
+        
+        $letters_stat = [];
+        
+        foreach ($list as $value) {
+            if ($value[0] == 'letter') {
+                $letters_stat[$value['id']] = [
+                    'delivered' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT log)'], 'mail_events',
+                        [
+                            ['letter', '=', $value['id'], PDO::PARAM_INT],
+                            ['event', '=', 'delivered', PDO::PARAM_STR]
+                        ]
+                    ),
+                    'open' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT log)'], 'mail_events',
+                        [
+                            ['letter', '=', $value['id'], PDO::PARAM_INT],
+                            ['event', '=', 'open', PDO::PARAM_STR]
+                        ]
+                    ),
+                    'click' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT log)'], 'mail_events',
+                        [
+                            ['letter', '=', $value['id'], PDO::PARAM_INT],
+                            ['event', '=', 'click', PDO::PARAM_STR]
+                        ]
+                    ),
+                    'unsubscribe' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT log)'], 'mail_events',
+                        [
+                            ['letter', '=', $value['id'], PDO::PARAM_INT],
+                            ['event', '=', 'unsubscribe', PDO::PARAM_STR]
+                        ]
+                    ),
+                    'spamreport' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT log)'], 'mail_events',
+                        [
+                            ['letter', '=', $value['id'], PDO::PARAM_INT],
+                            ['event', '=', 'spamreport', PDO::PARAM_STR]
+                        ]
+                    )
+                ];
+            }
+        }
+        
+        ////////////////////////////////////////////////////////////////////////
 
         APP::Render('mail/admin/letters/index', 'include', [
             'group_sub_id' => $group_sub_id,
             'path' => $this->RenderLettersGroupsPath($group_sub_id),
-            'list' => $list
+            'list' => $list,
+            'stat' => [
+                'letters' => $letters_stat
+            ]
         ]);
     }
     

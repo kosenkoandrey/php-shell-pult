@@ -59,6 +59,17 @@ foreach ($data['path'] as $key => $value) {
                             if (count($data['list'])) {
                                 ?>
                                 <table class="table table-hover table-vmiddle">
+                                    <thead>
+                                        <tr>
+                                            <th>Письмо</th>
+                                            <th style="width: 130px">Доставлено</th>
+                                            <th style="width: 130px">Открыто</th>
+                                            <th style="width: 130px">Кликнули</th>
+                                            <th style="width: 130px">Отписались</th>
+                                            <th style="width: 130px">СПАМ</th>
+                                            <th style="width: 130px">Действия</th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
                                         <?
                                         foreach ($data['list'] as $item) {
@@ -78,6 +89,11 @@ foreach ($data['path'] as $key => $value) {
                                                     ?>
                                                     <tr>
                                                         <td style="font-size: 16px;"><span style="display: inline-block" class="avatar-char palette-Orange-400 bg m-r-5"><i class="zmdi zmdi-email"></i></span> <a style="color: #4C4C4C" href="<?= APP::Module('Routing')->root ?>admin/mail/letters/preview/<?= APP::Module('Crypt')->Encode($item[1]) ?>" target="_blank"><?= $item[2] ?></a></td>
+                                                        <td><?= $data[$item[1]]['delivered'] ?></td>
+                                                        <td><?= $data[$item[1]]['open'] ?></td>
+                                                        <td><?= $data[$item[1]]['click'] ?></td>
+                                                        <td><?= $data[$item[1]]['unsubscribe'] ?></td>
+                                                        <td><?= $data[$item[1]]['spamreport'] ?></td>
                                                         <td>
                                                             <a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/edit/<?= APP::Module('Crypt')->Encode($item[1]) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-edit"></span></a>
                                                             <a href="javascript:void(0)" data-letter-id="<?= $item[1] ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle remove-letter"><span class="zmdi zmdi-delete"></span></a>
