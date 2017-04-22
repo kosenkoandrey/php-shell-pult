@@ -11,6 +11,7 @@ exec('cp -f ' . $src . '/custom/protected/modules/SendThis/conf.php ' . $dist . 
 exec('cp -f ' . $src . '/custom/protected/modules/SendThis/daemon/conf.json ' . $dist . '/protected/modules/SendThis/daemon/conf.json');
 exec('cp -f ' . $src . '/custom/protected/render/admin/widgets/header.php ' . $dist . '/protected/render/admin/widgets/header.php');
 exec('cp -f ' . $src . '/custom/protected/render/core/widgets/template/header.php ' . $dist . '/protected/render/core/widgets/template/header.php');
+exec('cp -f ' . $src . '/custom/protected/render/core/widgets/template/footer.php ' . $dist . '/protected/render/core/widgets/template/footer.php');
 exec('cp -f ' . $src . '/custom/public/ui/img/logo.png ' . $dist . '/public/ui/img/logo.png');
 
 exec('cp -f ' . $src . '/custom/protected/render/mail/spamreport.php ' . $dist . '/protected/render/mail/spamreport.php');

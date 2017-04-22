@@ -980,6 +980,8 @@
                             );
 
                             if (TunnelEditor.Objects.Actions[id].action == 'send_mail') {
+                                console.log('xxx');
+                                
                                 object
                                 .append(
                                     $('<div/>', {
@@ -3683,17 +3685,25 @@
                 },
                 getSendMailInfo: function(letterId, cb) {
                     var sendMailInfo = {};
+                    
                     TunnelEditor.getLetterById(letterId, function (letterData) {
+                        console.log(letterId);
+                        console.log(letterData);
+                        
+                        
+                        
+                        
                         sendMailInfo.subject = letterData[0].subject;
+                        
                         if (letterData[0].sender) {
                             TunnelEditor.getSenderById(letterData[0].sender, function (senderData) {
                                 sendMailInfo.sender = senderData[0].name;
                                 cb(sendMailInfo);
-                            })
+                            });
                         } else {
                             cb(sendMailInfo);
                         }
-                    })
+                    });
                 },
                 getLetterById: function (id, cb) {
                     $.ajax({

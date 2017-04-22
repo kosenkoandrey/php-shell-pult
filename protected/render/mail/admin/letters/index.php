@@ -4,7 +4,7 @@ $nav_cnt = 0;
 
 foreach ($data['path'] as $key => $value) {
     ++ $nav_cnt;
-    $title = $key ? $value : 'Letters';
+    $title = $key ? $value : 'Письма';
     
     if (count($data['path']) !== $nav_cnt) {
         $nav[$title] = 'admin/mail/letters/' . APP::Module('Crypt')->Encode($key);
@@ -19,7 +19,7 @@ foreach ($data['path'] as $key => $value) {
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Letters</title>
+        <title>Управление письмами</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -30,6 +30,28 @@ foreach ($data['path'] as $key => $value) {
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
 
         <? APP::Render('core/widgets/css') ?>
+        
+        <style>
+            .letter-name {
+                font-size: 16px;
+                white-space: nowrap; /* Отменяем перенос текста */
+                overflow: hidden; /* Обрезаем содержимое */
+                position: relative; /* Относительное позиционирование */
+            }
+            .letter-name::after {
+                content: ''; /* Выводим элемент */
+                position: absolute; /* Абсолютное позиционирование */
+                right: 0; top: 0; /* Положение элемента */
+                width: 40px; /* Ширина градиента*/
+                height: 100%; /* Высота родителя */
+                /* Градиент */
+                background: -moz-linear-gradient(left, rgba(255,204,0, 0.2), #fc0 100%);
+                background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0.2), #fff 100%);
+                background: -o-linear-gradient(left, rgba(255,204,0, 0.2), #fc0 100%);
+                background: -ms-linear-gradient(left, rgba(255,204,0, 0.2), #fc0 100%);
+                background: linear-gradient(to right, rgba(255, 255, 255, 0.2), #fff 100%);
+            }
+        </style>
     </head>
     <body data-ma-header="teal">
         <? APP::Render('admin/widgets/header', 'include', $nav) ?>
@@ -41,15 +63,15 @@ foreach ($data['path'] as $key => $value) {
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Manage letters</h2>
+                            <h2>Управление письмами</h2>
                             <ul class="actions">
                                 <li class="dropdown">
                                     <a href="javascript:void(0)" data-toggle="dropdown">
                                         <i class="zmdi zmdi-more-vert"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/add">Add letter</a></li>
-                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/groups/add">Add group</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/add">Добавить письмо</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/groups/add">Добавить группу</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -58,11 +80,11 @@ foreach ($data['path'] as $key => $value) {
                             <?
                             if (count($data['list'])) {
                                 ?>
-                                <table class="table table-hover table-vmiddle">
+                                <table class="table table-vmiddle" style="table-layout:fixed; width:100%;">
                                     <thead>
                                         <tr>
-                                            <th>Письмо</th>
-                                            <th style="width: 130px">Доставлено</th>
+                                            <th></th>
+                                            <th style="width: 130px">Отправлено</th>
                                             <th style="width: 130px">Открыто</th>
                                             <th style="width: 130px">Кликнули</th>
                                             <th style="width: 130px">Отписались</th>
@@ -77,7 +99,7 @@ foreach ($data['path'] as $key => $value) {
                                                 case 'group':
                                                     ?>
                                                     <tr>
-                                                        <td style="font-size: 16px"><span style="display: inline-block" class="avatar-char palette-Teal bg m-r-5"><i class="zmdi zmdi-folder"></i></span> <a style="color: #4C4C4C" href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= APP::Module('Crypt')->Encode($item[1]) ?>"><?= $item[2] ?></a></td>
+                                                        <td style="font-size: 16px" colspan="6"><span style="display: inline-block" class="avatar-char palette-Teal bg m-r-5"><i class="zmdi zmdi-folder"></i></span> <a style="color: #4C4C4C" href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= APP::Module('Crypt')->Encode($item[1]) ?>"><?= $item[2] ?></a></td>
                                                         <td>
                                                             <a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/groups/<?= APP::Module('Crypt')->Encode($item[1]) ?>/edit" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-edit"></span></a>
                                                             <a href="javascript:void(0)" data-letter-group-id="<?= $item[1] ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle remove-letter-group"><span class="zmdi zmdi-delete"></span></a>
@@ -88,12 +110,12 @@ foreach ($data['path'] as $key => $value) {
                                                 case 'letter':
                                                     ?>
                                                     <tr>
-                                                        <td style="font-size: 16px;"><span style="display: inline-block" class="avatar-char palette-Orange-400 bg m-r-5"><i class="zmdi zmdi-email"></i></span> <a style="color: #4C4C4C" href="<?= APP::Module('Routing')->root ?>admin/mail/letters/preview/<?= APP::Module('Crypt')->Encode($item[1]) ?>" target="_blank"><?= $item[2] ?></a></td>
-                                                        <td><?= $data[$item[1]]['delivered'] ?></td>
-                                                        <td><?= $data[$item[1]]['open'] ?></td>
-                                                        <td><?= $data[$item[1]]['click'] ?></td>
-                                                        <td><?= $data[$item[1]]['unsubscribe'] ?></td>
-                                                        <td><?= $data[$item[1]]['spamreport'] ?></td>
+                                                        <td class="letter-name"><span style="display: inline-block" class="avatar-char palette-Orange-400 bg m-r-5"><i class="zmdi zmdi-email"></i></span> <a style="color: #4C4C4C" href="<?= APP::Module('Routing')->root ?>admin/mail/letters/preview/<?= APP::Module('Crypt')->Encode($item[1]) ?>" target="_blank"><?= $item[2] ?></a></td>
+                                                        <td><?= $data['stat']['letters'][$item[1]]['delivered'] ?></td>
+                                                        <td><?= $data['stat']['letters'][$item[1]]['delivered'] ? round($data['stat']['letters'][$item[1]]['open'] / ($data['stat']['letters'][$item[1]]['delivered'] / 100), 2) : 0 ?>%</td>
+                                                        <td><?= $data['stat']['letters'][$item[1]]['delivered'] ? round($data['stat']['letters'][$item[1]]['click'] / ($data['stat']['letters'][$item[1]]['delivered'] / 100), 2) : 0 ?>%</td>
+                                                        <td><?= $data['stat']['letters'][$item[1]]['delivered'] ? round($data['stat']['letters'][$item[1]]['unsubscribe'] / ($data['stat']['letters'][$item[1]]['delivered'] / 100), 2) : 0 ?>%</td>
+                                                        <td><?= $data['stat']['letters'][$item[1]]['delivered'] ? round($data['stat']['letters'][$item[1]]['spamreport'] / ($data['stat']['letters'][$item[1]]['delivered'] / 100), 2) : 0 ?>%</td>
                                                         <td>
                                                             <a href="<?= APP::Module('Routing')->root ?>admin/mail/letters/<?= $data['group_sub_id'] ? APP::Module('Crypt')->Encode($data['group_sub_id']) : 0 ?>/edit/<?= APP::Module('Crypt')->Encode($item[1]) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-edit"></span></a>
                                                             <a href="javascript:void(0)" data-letter-id="<?= $item[1] ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle remove-letter"><span class="zmdi zmdi-delete"></span></a>
@@ -110,7 +132,7 @@ foreach ($data['path'] as $key => $value) {
                             } else {
                                 ?>
                                 <div class="card-body card-padding">
-                                    <div class="alert alert-warning" role="alert"><i class="zmdi zmdi-close-circle"></i> Letters not found</div>
+                                    <div class="alert alert-warning" role="alert"><i class="zmdi zmdi-close-circle"></i> Письма не найдены</div>
                                 </div>
                                 <?
                             }
