@@ -13,6 +13,7 @@ return [
         
         ['admin\/billing\/payments(\?.*)?',                             'Billing', 'ManagePayments'],
         ['billing\/payments\/make\/(?P<invoice_id_hash>.*)',            'Billing', 'PaymentMake'],
+        ['admin\/billing\/sales(\?.*)?',                                'Billing', 'Sales'],
         ['admin\/billing\/settings(\?.*)?',                             'Billing', 'Settings'],
         
         // API

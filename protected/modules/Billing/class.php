@@ -1238,6 +1238,230 @@ class Billing {
         }
     }
     
+    public function Sales(){
+        $comment_object_type = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "Invoice", PDO::PARAM_STR]]);
+        
+        if (isset($_POST['do'])) {
+            switch ($_POST['do']) {
+                case 'comments':
+                    $out = APP::Module('DB')->Select(
+                        APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+                        ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
+                        [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT]]
+                    );
+
+                    header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+                    header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+                    header('Content-Type: application/json');
+
+                    echo json_encode($out);
+                    exit;
+                    break;
+                case 'post-comment':
+                    //Shell::$app->Get('extensions', 'ERef')->modules['users']->CommentInsert($_POST['user'], $_POST['comment']);
+
+
+                    echo json_encode(Array(
+                        'full'  => $_POST['comment']
+                    ));
+                    exit;
+                    break;
+                case 'invoices':
+                    $out = Array();
+                    
+                    foreach (APP::Module('DB')->Select(
+                        APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                        ['billing_invoices.*', 'billing_invoices_details.value as comment'], 'billing_invoices',
+                        [
+                            ['billing_invoices.user_id', '=', $_POST['user'], PDO::PARAM_INT],
+                            ['billing_invoices.state', '=', ['success', 'processed', 'new'], PDO::PARAM_STR]
+                        ],
+                        [
+                            'left join/billing_invoices_details' => [
+                                ['billing_invoices_details.invoice', '=', 'billing_invoices.id'],
+                                ['billing_invoices_details.item', '=', '"comment"']
+                            ]
+                        ], false, false, ['billing_invoices.id', 'desc ']
+                    ) as $user_invoice) {
+                        $invoice_products = APP::Module('DB')->Select(
+                            APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                            [
+                                'billing_invoices_products.id', 
+                                'billing_invoices_products.type', 
+                                'billing_invoices_products.product',
+                                'billing_invoices_products.amount',
+                                'billing_invoices_products.cr_date',
+                                'billing_products.name',
+                                'billing_invoices_products.invoice'
+                            ], 
+                            'billing_invoices_products',
+                            [['billing_invoices_products.invoice', '=', $user_invoice['id'], PDO::PARAM_INT]],
+                            [
+                                'join/billing_products' => [['billing_products.id', '=', 'billing_invoices_products.product']]
+                            ],
+                            ['billing_invoices_products.id'],
+                            false,
+                            ['billing_invoices_products.id', 'DESC']
+                        );
+                        
+                        $adm_comment = APP::Module('DB')->Select(
+                            APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+                            ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
+                            [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT]]
+                        );
+
+                        foreach ($invoice_products as $invoice_product) {
+                            $out['user_invoices_products'][] = Array(
+                                'id'          => $invoice_product['id'],
+                                'name'        => $invoice_product['name'],
+                                'price'       => $invoice_product['amount'],
+                                'state'       => $user_invoice['state'] == 'success',
+                                'invoice'     => $user_invoice['invoice'],
+                                //'comment'     => $user_invoice['comment'],
+                                'adm_comment' => $adm_comment
+                            );
+                        }
+
+                        $out['user_invoices'][] = Array(
+                            'main'        => $user_invoice,
+                            'products'    => $invoice_products,
+                            //'comment'     => $user_invoice['comment'],
+                            'adm_comment' => $adm_comment
+                        );
+                    }
+
+                    header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+                    header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+                    header('Content-Type: application/json');
+
+                    echo json_encode($out['user_invoices']);
+                    exit;
+                    break;
+            }
+        }
+            
+        ////////////////////////////////////////////////////////////////////////
+
+        $sale = Array(
+            3  => Array(23, 24, 25),
+            5  => Array(179, 180, 181, 182, 183, 184, 185, 186, 187, 188),
+            7  => Array(158, 159, 160, 161, 162, 163, 164, 165, 166, 167),
+            9  => Array(254, 255, 256),
+            11 => Array(203, 204, 205, 206),
+            2  => Array(87, 88, 89, 90, 92, 93),
+            13 => Array(114, 115, 116, 117),
+            14 => Array(127, 128, 129),
+            15 => Array(64, 65, 66, 67, 70, 71),
+            16 => Array(30, 31, 32, 33, 35, 36),
+            17 => Array(98, 99, 100, 101, 102, 103, 104),
+            19 => Array(266, 267, 268, 270, 271),
+            20 => Array(291, 292, 293, 294, 295, 297, 298, 299),
+            35 => Array(395, 396, 397, 398, 400, 401, 402, 403, 404, 406),
+            48 => Array(488, 489, 490, 491, 492, 495),
+            49 => Array(87, 88, 89, 90, 92, 93)
+        );
+
+        $tunnels = Array(
+            3  => 'Гардероб на 100% Line (основной)',
+            5  => 'Как выглядеть на 2 размера стройнее с помощью имиджмейкера (основной)',
+            7  => 'Школа Имиджмейкеров (основной)',
+            9  => '1000 интернет клиентов для имиджмейкера (основной)',
+            11 => 'Портфолио для имиджмейкера за 1 месяц (основной)',
+            2  => 'Шоппинг осень-зима под контролем стилиста',
+            13 => '101 рецепт стильного гардероба в офис',
+            14 => '5 секретов преображения Вашего гардероба',
+            15 => 'Революция Цвета',
+            16 => 'Верхняя одежда под контролем стилиста',
+            17 => 'Головные уборы под контролем стилиста',
+            19 => 'Шоппинг весна-лето под контролем стилиста',
+            20 => 'MakeUp Must Have',
+            35 => 'Новый год для вашего гардероба',
+            48 => 'Революция Цвета v2 (викторина)',
+            49 => 'Шоппинг осень-зима под контролем стилиста v2',
+        );
+
+        ////////////////////////////////////////////////////////////////////////
+
+        $uid = APP::Module('Users')->UsersSearch(json_decode($_POST['rules'], true));
+
+        ////////////////////////////////////////////////////////////////////////
+
+        $users = [];
+
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+            ['user', 'value', 'item'], 'users_about',
+            [['user', 'IN', $uid, PDO::PARAM_INT], ['item', 'IN', ['firstname', 'tel', 'lastname'], PDO::PARAM_STR]]
+        ) as $data) {
+            $users[$data['user']][$data['item']] = $data['value'];
+        }
+
+        ////////////////////////////////////////////////////////////////////////
+
+        $user_tunnels = [];
+
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+            ['id', 'tunnel_id', 'user_id'], 'tunnels_users',
+            [['user_id', 'IN', $uid, PDO::PARAM_INT], ['tunnel_id', 'IN', array_keys($sale), PDO::PARAM_INT], ['state', '=', 'active', PDO::PARAM_STR]]
+        ) as $proc) {
+            $user_tunnels[$proc['user_id']] = Array($proc['tunnel_id'], $proc['id']);
+        }
+
+        $data = [];
+
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'users.id', 
+                'users.email',
+                'count(billing_invoices.id) as inv_cnt',
+            ], 
+            'users',
+            [['users.id', 'IN', $uid, PDO::PARAM_INT]],
+            [
+                'left join/billing_invoices' => [['billing_invoices.user_id', '=', 'users.id'],['billing_invoices.state', '=', '"success"']]
+            ],
+            ['users.id'],
+            false,
+            ['users.id', 'DESC']
+        ) as $user) {
+
+            $comment_data = APP::Module('DB')->Select(
+                APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+                ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
+                [['comments_messages.user', '=', $user['id'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT]],
+                false, false, false, ['id', 'desc'], [0, 1]
+            );
+
+            $inv_pr_cnt = APP::Module('DB')->Select(
+                APP::Module('Users')->settings['module_users_db_connection'], ['fetch',PDO::FETCH_ASSOC],
+                ['count(id) as inv_cnt'], 'billing_invoices',
+                [['user_id', '=', $user['id'], PDO::PARAM_INT],['state', 'IN', ['processed', 'new'], PDO::PARAM_STR]]
+            );
+
+            $sale_token = isset($user_tunnels[$user['id']][1]) ? APP::Module('DB')->Select(
+                APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetch',PDO::FETCH_COLUMN],
+                ['token'], 'tunnels_tags',
+                [['user_tunnel_id', '=', $user_tunnels[$user['id']][1], PDO::PARAM_INT],['label_id', '=', "sendmail", PDO::PARAM_STR]],
+                false,false,false, ['id', 'desc'], [0, 1]
+            ) : 0;
+
+
+            $data['user'] = $user;
+            $data['user']['sale_token'] = $sale_token;
+            $data['user']['sale'] = $sale;
+            $data['user']['comment'] = isset($comment_data['message']) ? APP::Module('Utils')->mbCutString($comment_data['message'], 50) . ' (' . $comment_data['up_date'] . ')' : 'Нет';
+            $data['user']['inv']     = $user['inv_cnt'] ? $user['inv_cnt'] : 'Нет';
+            $data['user']['inv_pr']  = $inv_pr_cnt['inv_cnt'] ? $inv_pr_cnt['inv_cnt'] : 'Нет';
+            $data['user']['inv_pr_cnt'] = $inv_pr_cnt;
+            $data['user']['comment_data'] = $comment_data;
+
+        }
+        
+        APP::Render('billing/admin/sales', 'include', ['users_data' => $data, 'users' => $users, 'sale' => $sale, 'user_tunnels' => $user_tunnels, 'tunnels' => $tunnels]);
+    }
+    
 }
 
 
