@@ -34,13 +34,34 @@
                             </div>
 
                             <div class="card-body card-padding">
-                                <div class="form-group">
-                                    <label for="module_billing_db_connection" class="col-sm-2 control-label">DB connection</label>
-                                    <div class="col-sm-2">
-                                        <div class="fg-line">
-                                            <select id="module_billing_db_connection" name="module_billing_db_connection" class="selectpicker">
-                                                <? foreach (array_keys(APP::Module('DB')->conf['connections']) as $connection) { ?><option value="<?= $connection ?>"><?= $connection ?></option><? } ?>
-                                            </select>
+                                <ul class="tab-nav m-b-15" role="tablist" data-tab-color="teal">
+                                    <li class="active"><a href="#settings-main" role="tab" data-toggle="tab">Main</a></li>
+                                    <li role="presentation"><a href="#settings-sales" role="tab" data-toggle="tab">Sales Tool</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active animated fadeIn in" id="settings-main">
+                                        <div class="form-group">
+                                            <label for="module_billing_db_connection" class="col-sm-2 control-label">DB connection</label>
+                                            <div class="col-sm-2">
+                                                <div class="fg-line">
+                                                    <select id="module_billing_db_connection" name="module_billing_db_connection" class="selectpicker">
+                                                        <? foreach (array_keys(APP::Module('DB')->conf['connections']) as $connection) { ?><option value="<?= $connection ?>"><?= $connection ?></option><? } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div role="tabpanel" class="tab-pane animated fadeIn" id="settings-sales">
+                                        <div class="form-group">
+                                            <div id="sales-tool">
+
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-2">
+                                                <button type="button" class="btn btn-primary btn-sm m-t-5 waves-effect add-sale-block">Добавить</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -76,6 +97,71 @@
             $(document).ready(function() {
                 $('#module_billing_db_connection').val('<?= APP::Module('Billing')->settings['module_billing_db_connection'] ?>');
                 
+                sales_tool = {
+                    sale_block : 0,
+                    tunnels: function(callback){
+                        $.post('<?= APP::Module('Routing')->root ?>admin/tunnels/api/manage.json', function(resp){
+                            callback(resp);
+                        });
+                    },
+                    add: function(settings){
+                        settings = typeof settings !== 'undefined' ? settings : {"":[]};
+                        $.each(settings, function(j, i){
+                            sales_tool.build(j, i);
+                        });
+                    },
+                    build: function(tunnel_id, products){
+                        sales_tool.tunnels(function(tunnels){
+                            sales_tool.sale_block += 1;
+
+                            select = '<select name="module_billing_sales_tool_tunnel[]" class="form-control">';
+                            $.each(tunnels, function(j, i){
+                                if(tunnel_id == i.id){
+                                    select += '<option selected value="'+i.id+'">'+i.name+'</option>';
+                                }else{
+                                    select += '<option value="'+i.id+'">'+i.name+'</option>';
+                                }
+                               
+                            });
+                            select += '</select>';
+
+                            $('#sales-tool').append([
+                                '<div class="sale-block-'+sales_tool.sale_block+' col-sm-12">',
+                                    '<div class="col-sm-2">',
+                                        '<div class="fg-line" id="sales-tool">',
+                                            select,
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-2">',
+                                        '<div class="fg-line" id="sales-tool">',
+                                            '<input name="module_billing_sales_tool_product[]" type="text" value="'+products.join(',')+'" class="form-control" />',
+                                        '</div>',
+                                    '</div>',
+                                    '<div class="col-sm-2">',
+                                        '<button type="button" data-block="'+sales_tool.sale_block+'" class="btn btn-danger btn-sm m-t-5 waves-effect delete-sale-block">x</button>',
+                                    '</div>',
+                                '</div>'].join(''));
+                        });
+                    },
+                    remove: function(index){
+                        $('.sale-block-'+index).remove();
+                        sales_tool.sale_block -= 1;
+                    }
+                };
+
+                sales_tool.add(JSON.parse('<?= APP::Module('Billing')->settings['module_billing_sales_tool'] ?>'));
+
+                $(document).on('click', '.add-sale-block', function(e){
+                    sales_tool.add();
+                    return false;
+                });
+
+                $(document).on('click', '.delete-sale-block', function(e){
+                    sales_tool.remove($(this).data('block'));
+                    return false;
+                });
+
+
                 $('#update-settings').submit(function(event) {
                     event.preventDefault();
 

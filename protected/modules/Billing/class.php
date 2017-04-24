@@ -17,7 +17,8 @@ class Billing {
 
     public function Init() {
         $this->settings = APP::Module('Registry')->Get([
-            'module_billing_db_connection'
+            'module_billing_db_connection',
+            'module_billing_sales_tool'
         ]);
 
         $this->products_search  = new ProductsSearch();
@@ -882,6 +883,14 @@ class Billing {
     }
 
     public function APIUpdateSettings() {
+        if(isset($_POST['module_billing_sales_tool_tunnel'])){
+            foreach($_POST['module_billing_sales_tool_tunnel'] as $key => $tunnel){
+                $sale[$tunnel] = explode(',', $_POST['module_billing_sales_tool_product'][$key]);
+            }
+
+            APP::Module('Registry')->Update(['value' => json_encode($sale)], [['item', '=', 'module_billing_sales_tool', PDO::PARAM_STR]]);
+        }
+
         APP::Module('Registry')->Update(['value' => $_POST['module_billing_db_connection']], [['item', '=', 'module_billing_db_connection', PDO::PARAM_STR]]);
 
         APP::Module('Triggers')->Exec('update_billing_settings', [
@@ -1342,7 +1351,9 @@ class Billing {
             
         ////////////////////////////////////////////////////////////////////////
 
-        $sale = Array(
+        $sale = json_decode($this->settings['module_billing_sales_tool'], true);
+        var_dump($sale);
+        /*Array(
             3  => Array(23, 24, 25),
             5  => Array(179, 180, 181, 182, 183, 184, 185, 186, 187, 188),
             7  => Array(158, 159, 160, 161, 162, 163, 164, 165, 166, 167),
@@ -1378,6 +1389,12 @@ class Billing {
             35 => 'Новый год для вашего гардероба',
             48 => 'Революция Цвета v2 (викторина)',
             49 => 'Шоппинг осень-зима под контролем стилиста v2',
+        );*/
+
+        $tunnels = APP::Module('DB')->Select(
+            APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+            ['id', 'tunnel_id', 'name'], 'tunnels',
+            [['tunnel_id', 'IN', array_keys($sale), PDO::PARAM_INT], ['state', '=', 'active', PDO::PARAM_STR]]
         );
 
         ////////////////////////////////////////////////////////////////////////
@@ -1446,7 +1463,6 @@ class Billing {
                 [['user_tunnel_id', '=', $user_tunnels[$user['id']][1], PDO::PARAM_INT],['label_id', '=', "sendmail", PDO::PARAM_STR]],
                 false,false,false, ['id', 'desc'], [0, 1]
             ) : 0;
-
 
             $data['user'] = $user;
             $data['user']['sale_token'] = $sale_token;
