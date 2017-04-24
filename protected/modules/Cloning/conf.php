@@ -23,6 +23,10 @@ return [
         '6sekretov' => [
             'name' => '6sekretov', 
             'path' => '/var/www/domains/clients/pult.6sekretov.ru'
+        ],
+        'shcolarazyma' => [
+            'name' => 'shcolarazyma', 
+            'path' => '/var/www/domains/clients/pult.shcolarazyma.ru'
         ]
     ]
 ];
