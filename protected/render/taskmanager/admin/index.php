@@ -1,3 +1,6 @@
+<?
+$filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP::Module('Crypt')->Decode(APP::Module('Routing')->get['filters']) : '{"logic":"intersect","rules":[{"method":"token","settings":{"logic":"LIKE","value":"%"}}]}');
+?>
 <!DOCTYPE html>
 <!--[if IE 9 ]><html class="ie9"><![endif]-->
     <head>
@@ -7,13 +10,14 @@
         <title>PHP-shell - Task Manager</title>
 
         <!-- Vendor CSS -->
+        <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css" rel="stylesheet">        
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/google-material-color/dist/palette.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css" rel="stylesheet">
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.min.css" rel="stylesheet">
-
+        <link href="<?= APP::Module('Routing')->root ?>public/modules/taskmanager/rules.css" rel="stylesheet">
         <style>
             #task-table-header .actionBar .actions > button {
                 display: none;
@@ -48,6 +52,21 @@
                                 </li>
                             </ul>
                         </div>
+                        <div class="card-body card-padding">
+                            <input type="hidden" name="search" value="<?= $filters ?>" id="search">
+                            <div class="btn-group">
+                                <button type="button" id="render-table" class="btn btn-default"><i class="zmdi zmdi-check"></i> Сделать выборку</button>
+                            
+                                <div class="btn-group">
+                                    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+                                        Выполнить действие <span class="caret"></span>
+                                    </button>
+                                    <ul id="search_results_actions" class="dropdown-menu" role="menu">
+                                        <li><a data-action="remove" href="javascript:void(0)">Удалить</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-body">
                             <table class="table table-hover table-vmiddle" id="task-table">
                                 <thead>
@@ -78,23 +97,49 @@
 
         <!-- Javascript Libraries -->
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/json/dist/jquery.json.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/Waves/dist/waves.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js"></script>
+        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.updated.min.js"></script>
-
+        <script src="<?= APP::Module('Routing')->root ?>public/modules/taskmanager/rules.js"></script>
         <? APP::Render('core/widgets/js') ?>
         
         <script>
             $(document).ready(function() {
+                $('#search').RefRulesEditor({
+                    'debug': true
+                });
+                
+                $(document).on('click', '#render-table', function () {
+                    $('#task-table').bootgrid('reload');
+                });
+                
                 var task_table = $("#task-table").bootgrid({
+                    requestHandler: function (request) {
+                        var model = {
+                            search: $('#search').val(),
+                            current: request.current,
+                            rows: request.rowCount,
+                            searchPhrase:request.searchPhrase
+                        };
+
+                        for (var key in request.sort) {
+                            model.sort_by = key;
+                            model.sort_direction = request.sort[key];
+                        }
+
+                        return JSON.stringify(model);
+                    },
                     ajax: true,
                     ajaxSettings: {
                         method: 'POST',
-                        cache: false
+                        cache: false,
+                        contentType: 'application/json'
                     },
-                    url: '<?= APP::Module('Routing')->root ?>admin/taskmanager/api/list.json',
+                    url: '<?= APP::Module('Routing')->root ?>admin/taskmanager/api/search.json',
                     css: {
                         icon: 'zmdi icon',
                         iconColumns: 'zmdi-view-module',
