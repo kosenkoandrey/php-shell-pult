@@ -1276,21 +1276,21 @@ class Billing {
                     exit;
                     break;
                 case 'invoices':
-                    $out = Array();
-                    
+                    $out = [];
+
                     foreach (APP::Module('DB')->Select(
                         APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
                         ['billing_invoices.*', 'billing_invoices_details.value as comment'], 'billing_invoices',
                         [
                             ['billing_invoices.user_id', '=', $_POST['user'], PDO::PARAM_INT],
-                            ['billing_invoices.state', '=', ['success', 'processed', 'new'], PDO::PARAM_STR]
+                            ['billing_invoices.state', 'IN', ['success', 'processed', 'new'], PDO::PARAM_STR]
                         ],
                         [
                             'left join/billing_invoices_details' => [
                                 ['billing_invoices_details.invoice', '=', 'billing_invoices.id'],
                                 ['billing_invoices_details.item', '=', '"comment"']
                             ]
-                        ], false, false, ['billing_invoices.id', 'desc ']
+                        ], false, false, ['billing_invoices.id', 'desc']
                     ) as $user_invoice) {
                         $invoice_products = APP::Module('DB')->Select(
                             APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
@@ -1310,7 +1310,7 @@ class Billing {
                             ],
                             ['billing_invoices_products.id'],
                             false,
-                            ['billing_invoices_products.id', 'DESC']
+                            ['billing_invoices_products.id', 'desc']
                         );
                         
                         $adm_comment = APP::Module('DB')->Select(
@@ -1323,10 +1323,10 @@ class Billing {
                             $out['user_invoices_products'][] = Array(
                                 'id'          => $invoice_product['id'],
                                 'name'        => $invoice_product['name'],
-                                'price'       => $invoice_product['amount'],
+                                'amount'       => $invoice_product['amount'],
                                 'state'       => $user_invoice['state'] == 'success',
-                                'invoice'     => $user_invoice['invoice'],
-                                //'comment'     => $user_invoice['comment'],
+                                'invoice'     => $user_invoice['id'],
+                                'comment'     => $user_invoice['comment'],
                                 'adm_comment' => $adm_comment
                             );
                         }
@@ -1334,7 +1334,7 @@ class Billing {
                         $out['user_invoices'][] = Array(
                             'main'        => $user_invoice,
                             'products'    => $invoice_products,
-                            //'comment'     => $user_invoice['comment'],
+                            'comment'     => $user_invoice['comment'],
                             'adm_comment' => $adm_comment
                         );
                     }
@@ -1352,7 +1352,6 @@ class Billing {
         ////////////////////////////////////////////////////////////////////////
 
         $sale = json_decode($this->settings['module_billing_sales_tool'], true);
-        var_dump($sale);
         /*Array(
             3  => Array(23, 24, 25),
             5  => Array(179, 180, 181, 182, 183, 184, 185, 186, 187, 188),

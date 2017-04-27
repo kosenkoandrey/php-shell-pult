@@ -77,6 +77,7 @@
                 </div>
             </section>
             
+
                 <!-- Comments Modal -->
                 <div class="modal fade" id="comments-modal" tabindex="-1" role="dialog" aria-labelledby="comments-modal-label">
                     <div class="modal-dialog modal-lg" role="document">
@@ -215,20 +216,16 @@
                             var inv_s = '';
                             var inv_p = '';
                             var adm_comment = '';
-                            var price = 0;
+                            var amount = 0;
 
                             if (data.length) {
                                 $.each(data, function () {
                                     console.log(this.main);
-                                    price = 0;
+                                    amount = 0;
                                     adm_comment = '';
 
                                     $.each(this.products, function () {
-                                        price = price + parseInt(this.price);
-                                    });
-
-                                    $.each(this.packages, function () {
-                                        price = price + parseInt(this.price);
+                                        amount = amount + parseInt(this.amount);
                                     });
 
                                     if (this.adm_comment) {
@@ -238,16 +235,9 @@
                                     }
 
                                     if (this.main.state == 'success') {
-                                        inv_s += '<div class="product-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b><a href="https://pult.glamurnenko.ru/billing/admin/invoices/info/' + this.main.id + '" target="_blank">' + this.main.id + '</a>/' + price + '</b>';
+                                        inv_s += '<div class="product-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b><a href="https://pult.glamurnenko.ru/billing/admin/invoices/info/' + this.main.id + '" target="_blank">' + this.main.id + '</a>/' + amount + '</b>';
                                         $.each(this.products, function () {
-                                            inv_s += '<br>' + this.name + ' Цена: ' + this.price;
-                                        });
-
-                                        $.each(this.packages, function (i, k) {
-                                            inv_s += '<br>Комплект:' + k.name + ' Цена: ' + k.price;
-                                            $.each(k.products, function () {
-                                                inv_s += '<br>' + this.name;
-                                            });
+                                            inv_s += '<br>' + this.name + ' Цена: ' + this.amount;
                                         });
 
                                         (this.comment ? inv_s += '<br><b>Комментарий клиента:</b> <br>' + this.comment : '');
@@ -255,16 +245,9 @@
                                         inv_s += '</div>';
                                     } else {
 
-                                        inv_p += '<div class="product-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b><a href="https://pult.glamurnenko.ru/billing/admin/invoices/info/' + this.main.id + '" target="_blank">' + this.main.id + '</a>/' + price + '</b>';
+                                        inv_p += '<div class="product-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b><a href="https://pult.glamurnenko.ru/billing/admin/invoices/info/' + this.main.id + '" target="_blank">' + this.main.id + '</a>/' + amount + '</b>';
                                         $.each(this.products, function () {
-                                            inv_p += '<br>' + this.name + ' Цена: ' + this.price;
-                                        });
-
-                                        $.each(this.packages, function (i, k) {
-                                            inv_p += '<br>Комплект:' + k.name + ' Цена: ' + k.price;
-                                            $.each(k.products, function () {
-                                                inv_p += '<br>' + this.name;
-                                            });
+                                            inv_p += '<br>' + this.name + ' Цена: ' + this.amount;
                                         });
 
                                         (this.comment ? inv_p += '<br><b>Комментарий клиента:</b> <br>' + this.comment : '');

@@ -362,6 +362,7 @@ class Comments {
                     'up_date' => 'NOW()'
                 ]
             );
+            var_dump($out['id'], $token); die();
             $out['file'] = [];
 
             if ($this->settings['module_comments_files']){
