@@ -147,7 +147,7 @@
 
                     $('#comments-modal .comment-user').html(email);
                     $('#comments-modal .comments-list').html('Загрузка...');
-                    $('#comments-modal .submit-comment').data('user', user);
+                    $('#comments-modal .submit-comment').attr("data-user", user);
 
                     $('#comments-modal').modal('show');
 

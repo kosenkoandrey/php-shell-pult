@@ -1249,6 +1249,7 @@ class Billing {
     
     public function Sales(){
         $comment_object_type = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "Invoice", PDO::PARAM_STR]]);
+        $comment_object_type_user = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "UserAdmin", PDO::PARAM_STR]]);
         
         if (isset($_POST['do'])) {
             switch ($_POST['do']) {
@@ -1256,8 +1257,9 @@ class Billing {
                     $out = APP::Module('DB')->Select(
                         APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
                         ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
-                        [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT]]
+                        [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type_user, PDO::PARAM_INT]]
                     );
+
 
                     header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
                     header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
@@ -1267,8 +1269,20 @@ class Billing {
                     exit;
                     break;
                 case 'post-comment':
-                    //Shell::$app->Get('extensions', 'ERef')->modules['users']->CommentInsert($_POST['user'], $_POST['comment']);
-
+                    
+                    APP::Module('DB')->Insert(
+                        APP::Module('Comments')->settings['module_comments_db_connection'], 'comments_messages',
+                        [
+                            'id' => 'NULL',
+                            'sub_id' => [0, PDO::PARAM_INT],
+                            'user' => [APP::Module('Users')->user['id'], PDO::PARAM_INT],
+                            'object_type' => [$comment_object_type_user, PDO::PARAM_INT],
+                            'object_id' => [$_POST['user'], PDO::PARAM_INT],
+                            'message' => [$_POST['comment'], PDO::PARAM_STR],
+                            'url' => [$_SERVER['HTTP_REFERER'], PDO::PARAM_STR],
+                            'up_date' => 'NOW()'
+                        ]
+                    );
 
                     echo json_encode(Array(
                         'full'  => $_POST['comment']
@@ -1352,43 +1366,6 @@ class Billing {
         ////////////////////////////////////////////////////////////////////////
 
         $sale = json_decode($this->settings['module_billing_sales_tool'], true);
-        /*Array(
-            3  => Array(23, 24, 25),
-            5  => Array(179, 180, 181, 182, 183, 184, 185, 186, 187, 188),
-            7  => Array(158, 159, 160, 161, 162, 163, 164, 165, 166, 167),
-            9  => Array(254, 255, 256),
-            11 => Array(203, 204, 205, 206),
-            2  => Array(87, 88, 89, 90, 92, 93),
-            13 => Array(114, 115, 116, 117),
-            14 => Array(127, 128, 129),
-            15 => Array(64, 65, 66, 67, 70, 71),
-            16 => Array(30, 31, 32, 33, 35, 36),
-            17 => Array(98, 99, 100, 101, 102, 103, 104),
-            19 => Array(266, 267, 268, 270, 271),
-            20 => Array(291, 292, 293, 294, 295, 297, 298, 299),
-            35 => Array(395, 396, 397, 398, 400, 401, 402, 403, 404, 406),
-            48 => Array(488, 489, 490, 491, 492, 495),
-            49 => Array(87, 88, 89, 90, 92, 93)
-        );
-
-        $tunnels = Array(
-            3  => 'Гардероб на 100% Line (основной)',
-            5  => 'Как выглядеть на 2 размера стройнее с помощью имиджмейкера (основной)',
-            7  => 'Школа Имиджмейкеров (основной)',
-            9  => '1000 интернет клиентов для имиджмейкера (основной)',
-            11 => 'Портфолио для имиджмейкера за 1 месяц (основной)',
-            2  => 'Шоппинг осень-зима под контролем стилиста',
-            13 => '101 рецепт стильного гардероба в офис',
-            14 => '5 секретов преображения Вашего гардероба',
-            15 => 'Революция Цвета',
-            16 => 'Верхняя одежда под контролем стилиста',
-            17 => 'Головные уборы под контролем стилиста',
-            19 => 'Шоппинг весна-лето под контролем стилиста',
-            20 => 'MakeUp Must Have',
-            35 => 'Новый год для вашего гардероба',
-            48 => 'Революция Цвета v2 (викторина)',
-            49 => 'Шоппинг осень-зима под контролем стилиста v2',
-        );*/
 
         $tunnels = APP::Module('DB')->Select(
             APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
