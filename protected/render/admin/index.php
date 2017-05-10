@@ -29,7 +29,7 @@
                     <?
                     foreach ($data['cards'] as $key => $value) {
                         ?>
-                        <div class="card">
+                        <div class="card" style="position: inherit;">
                             <?
                             switch ($value['type']) {
                                 case 'card':
