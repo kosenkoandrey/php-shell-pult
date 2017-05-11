@@ -1269,7 +1269,6 @@ class Billing {
                     exit;
                     break;
                 case 'post-comment':
-                    
                     APP::Module('DB')->Insert(
                         APP::Module('Comments')->settings['module_comments_db_connection'], 'comments_messages',
                         [
@@ -1369,8 +1368,8 @@ class Billing {
 
         $tunnels = APP::Module('DB')->Select(
             APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
-            ['id', 'tunnel_id', 'name'], 'tunnels',
-            [['tunnel_id', 'IN', array_keys($sale), PDO::PARAM_INT], ['state', '=', 'active', PDO::PARAM_STR]]
+            ['id', 'name'], 'tunnels',
+            [['id', 'IN', array_keys($sale), PDO::PARAM_INT], ['state', '=', 'active', PDO::PARAM_STR]]
         );
 
         ////////////////////////////////////////////////////////////////////////
@@ -1421,9 +1420,9 @@ class Billing {
         ) as $user) {
 
             $comment_data = APP::Module('DB')->Select(
-                APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
+                APP::Module('Comments')->settings['module_comments_db_connection'], ['fetch',PDO::FETCH_ASSOC],
                 ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
-                [['comments_messages.user', '=', $user['id'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT]],
+                [['comments_messages.user', '=', $user['id'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type_user, PDO::PARAM_INT]],
                 false, false, false, ['id', 'desc'], [0, 1]
             );
 
@@ -1440,17 +1439,21 @@ class Billing {
                 false,false,false, ['id', 'desc'], [0, 1]
             ) : 0;
 
-            $data['user'] = $user;
-            $data['user']['sale_token'] = $sale_token;
-            $data['user']['sale'] = $sale;
-            $data['user']['comment'] = isset($comment_data['message']) ? APP::Module('Utils')->mbCutString($comment_data['message'], 50) . ' (' . $comment_data['up_date'] . ')' : 'Нет';
-            $data['user']['inv']     = $user['inv_cnt'] ? $user['inv_cnt'] : 'Нет';
-            $data['user']['inv_pr']  = $inv_pr_cnt['inv_cnt'] ? $inv_pr_cnt['inv_cnt'] : 'Нет';
-            $data['user']['inv_pr_cnt'] = $inv_pr_cnt;
-            $data['user']['comment_data'] = $comment_data;
+            $data[] = [
+                'id' => $user['id'],
+                'email' => $user['email'],
+                'inv_cnt' => $user['inv_cnt'],
+                'sale_token' => $sale_token,
+                'sale' => $sale,
+                'comment' => isset($comment_data['message']) ? APP::Module('Utils')->mbCutString($comment_data['message'], 50) . ' (' . $comment_data['up_date'] . ')' : 'Нет',
+                'inv'     => $user['inv_cnt'] ? $user['inv_cnt'] : 'Нет',
+                'inv_pr'  => $inv_pr_cnt['inv_cnt'] ? $inv_pr_cnt['inv_cnt'] : 'Нет',
+                'inv_pr_cnt' => $inv_pr_cnt,
+                'comment_data' => $comment_data
+            ];
 
         }
-        
+      
         APP::Render('billing/admin/sales', 'include', ['users_data' => $data, 'users' => $users, 'sale' => $sale, 'user_tunnels' => $user_tunnels, 'tunnels' => $tunnels]);
     }
     

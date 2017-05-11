@@ -89,6 +89,7 @@
                             <div class="modal-body">
                                 <div class="comments-list"></div>
                                 <div class="form-comment">
+                                    <label>Комментарий</label>
                                     <textarea class="form-control" id="new-user-comment" style="width: 100%; height: 80px"></textarea>
                                 </div>
                             </div>
@@ -163,7 +164,7 @@
 
                             if (data.length) {
                                 $.each(data, function () {
-                                    $('#comments-modal .comments-list').append('<div class="comment-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b>' + this.cr_date + '</b><br>' + this.comment + '</div>');
+                                    $('#comments-modal .comments-list').append('<div class="comment-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b>' + this.up_date + '</b><br>' + this.message + '</div>');
                                 });
                             }
                         }
