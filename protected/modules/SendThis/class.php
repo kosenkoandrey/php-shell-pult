@@ -22,7 +22,7 @@ class SendThis {
     }
     
     
-    public function DefaultTransport($recepient, $letter, $params, $save_copy = true) {
+    public function DefaultTransport($recepient, $letter, $params, $save_copy = true, $source = null) {
         $user = (int) APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
             ['id'], 'users', [['email', '=', $recepient, PDO::PARAM_STR]]
@@ -96,7 +96,7 @@ class SendThis {
                     'html' => $letter['html'],
                     'text' => $letter['plaintext']
                 ],
-                'params' => json_encode(['id' => $id, 'extra' => $params], JSON_PARTIAL_OUTPUT_ON_ERROR),
+                'params' => json_encode(['id' => $id, 'extra' => $params, 'src' => $source], JSON_PARTIAL_OUTPUT_ON_ERROR),
                 'list_id' => $letter['group_id']
             ]
         ], 'resource');
@@ -122,7 +122,7 @@ class SendThis {
         ];
     }
     
-    public function DaemonTransport($recepient, $letter, $params, $save_copy = true) {
+    public function DaemonTransport($recepient, $letter, $params, $save_copy = true, $source = null) {
         $user = (int) APP::Module('DB')->Select(
             APP::Module('Users')->settings['module_users_db_connection'], ['fetchColumn', 0], 
             ['id'], 'users', [['email', '=', $recepient, PDO::PARAM_STR]]

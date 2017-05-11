@@ -1489,7 +1489,7 @@ class Tunnels {
                                     ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
                                 ]
                             )) {
-                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                               APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             }
                             
                             if (!APP::Module('DB')->Select(
@@ -1526,7 +1526,7 @@ class Tunnels {
                                     ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
                                 ]
                             )) {
-                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                               APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             }
                             
                             if (!APP::Module('DB')->Select(
@@ -1563,7 +1563,7 @@ class Tunnels {
                                     ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
                                 ]
                             )) {
-                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                               APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             }
                             
                             if (!APP::Module('DB')->Select(
@@ -2007,7 +2007,7 @@ class Tunnels {
                                     ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
                                 ]
                             )) {
-                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                               APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             }
                             
                             if (!APP::Module('DB')->Select(
@@ -2034,7 +2034,7 @@ class Tunnels {
                         
                         // Неактивный юзер, не проходил целевой туннель
                         if (!$target_tunnel_exist) {
-                            if (!APP::Module('DB')->Select(
+                           if (!APP::Module('DB')->Select(
                                 APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
                                 ['id'], 'mail_log',
                                 [
@@ -2044,7 +2044,7 @@ class Tunnels {
                                     ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
                                 ]
                             )) {
-                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                               APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             }
                             
                             if (!APP::Module('DB')->Select(
@@ -2081,7 +2081,7 @@ class Tunnels {
                                     ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
                                 ]
                             )) {
-                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                               APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             }
                             
                             if (!APP::Module('DB')->Select(
@@ -3019,7 +3019,9 @@ class Tunnels {
                                     // Available in a letter like $data['param']
                                     'user_tunnel_id' => $tunnel['id'],
                                     'tunnel_id' => $tunnel['tunnel_id']
-                                ]
+                                ],
+                                true,
+                                'tunnel'
                             )
                         ]), PDO::PARAM_STR],
                         'cr_date' => 'NOW()'

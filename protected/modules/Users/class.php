@@ -796,6 +796,12 @@ class Users {
         if (isset($_FILES['users'])) {
             foreach (file($_FILES['users']['tmp_name']) as $string) {
                 $user = explode(';', trim($string));
+                
+                for ($i = 0; $i <= 16; $i ++) {
+                    if (!isset($user[$i])) {
+                        $user[$i] = false;
+                    } 
+                }
 
                 $user_id = APP::Module('DB')->Select(
                     $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
@@ -2026,7 +2032,7 @@ class Users {
                     'password' => $_POST['password'],
                     'expire' => strtotime('+' . $this->settings['module_users_timeout_activation']),
                     'link' => APP::Module('Routing')->root . 'users/activate/' . APP::Module('Crypt')->Encode($user_id) . '/'
-                ]);
+                ], true, 'add_user');
             }
 
             $out['user_id'] = $user_id;
@@ -2128,7 +2134,7 @@ class Users {
                 'password' => $_POST['password'],
                 'expire' => strtotime('+' . $this->settings['module_users_timeout_activation']),
                 'link' => APP::Module('Routing')->root . 'users/activate/' . APP::Module('Crypt')->Encode($user_id) . '/'
-            ]);
+            ], true, 'register_user');
 
             $out['user_id'] = $user_id;
 
@@ -2176,7 +2182,7 @@ class Users {
                 'password' => $password,
                 'expire' => strtotime('+' . $this->settings['module_users_timeout_activation']),
                 'link' => APP::Module('Routing')->root . 'users/activate/' . APP::Module('Crypt')->Encode($user_id) . '/'
-            ]);
+            ], true, 'subscribe_user');
 
             $out['user_id'] = $user_id;
 
@@ -2222,7 +2228,7 @@ class Users {
                         $_POST['email'],
                         APP::Module('DB')->Select($this->settings['module_users_db_connection'], ['fetchColumn', 0], ['password'], 'users', [['email', '=', $_POST['email'], PDO::PARAM_STR]])
                     ]))
-                ])
+                ], true, 'reset_password_user')
             ];
 
             APP::Module('Triggers')->Exec('reset_user_password', ['email' => $_POST['email']]);
@@ -2280,7 +2286,7 @@ class Users {
                 'info' => APP::Module('Mail')->Send($this->user['email'], $this->settings['module_users_change_password_letter'], [
                     'email' => $this->user['email'],
                     'password' => $_POST['password']
-                ])
+                ], true, 'change_password_user')
             ];
         }
 
@@ -2948,7 +2954,7 @@ class Users {
                             APP::Module('Mail')->Send($vk_result['email'], $this->settings['module_users_register_letter'], [
                                 'email' => $vk_result['email'],
                                 'password' => $password
-                            ]);
+                            ], true, 'register_vk_user');
                         }
                     } else {
                         APP::Render('users/errors', 'include', 'auth_vk_email');
@@ -3040,7 +3046,7 @@ class Users {
                                 APP::Module('Mail')->Send($fb_user['email'], $this->settings['module_users_register_letter'], [
                                     'email' => $fb_user['email'],
                                     'password' => $password
-                                ]);
+                                ], true, 'register_fb_user');
                             }
                         } else {
                             APP::Render('users/errors', 'include', 'auth_fb_email');
@@ -3126,7 +3132,7 @@ class Users {
                                 APP::Module('Mail')->Send($google_user['email'], $this->settings['module_users_register_letter'], [
                                     'email' => $google_user['email'],
                                     'password' => $password
-                                ]);
+                                ], true, 'register_google_user');
                             }
                         } else {
                             APP::Render('users/errors', 'include', 'auth_google_email');
@@ -3212,7 +3218,7 @@ class Users {
                                 APP::Module('Mail')->Send($ya_user['default_email'], $this->settings['module_users_register_letter'], [
                                     'email' => $ya_user['default_email'],
                                     'password' => $password
-                                ]);
+                                ], true, 'register_yandex_user');
                             }
                         } else {
                             APP::Render('users/errors', 'include', 'auth_ya_email');
@@ -3369,7 +3375,10 @@ class Users {
                 ['email'], 'users',
                 [['id', '=', $mail['user'], PDO::PARAM_INT]]
             ),
-            $this->settings['module_users_subscription_restore_letter']
+            $this->settings['module_users_subscription_restore_letter'],
+            [], 
+            true, 
+            'unsubscribe_user'
         );
         
         APP::Module('Triggers')->Exec('user_unsubscribe', [
@@ -3478,7 +3487,10 @@ class Users {
                 ['email'], 'users',
                 [['id', '=', $mail['user'], PDO::PARAM_INT]]
             ),
-            $this->settings['module_users_subscription_restore_letter']
+            $this->settings['module_users_subscription_restore_letter'],
+            [], 
+            true, 
+            'pause_user'
         );
 
         APP::Module('Triggers')->Exec('user_pause', [
@@ -4656,7 +4668,7 @@ class UsersActions {
             ['email'], 'users',
             [['id', 'IN', $id, PDO::PARAM_INT]]
         ) as $email) {
-            APP::Module('Mail')->Send($email, $settings['letter'], false, isset($settings['save_copy']));
+            APP::Module('Mail')->Send($email, $settings['letter'], false, isset($settings['save_copy']), 'manage_users');
         }
         
         return $out;
