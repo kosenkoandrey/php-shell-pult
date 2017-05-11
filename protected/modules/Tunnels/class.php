@@ -1479,7 +1479,7 @@ class Tunnels {
                         
                         // Неактивный юзер, не проходил целевой туннель, нет целевого туннеля в очереди
                         if ((!$target_tunnel_exist) && (!$queue_target_tunnel)) {
-                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             
                             if (!APP::Module('DB')->Select(
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -1505,7 +1505,7 @@ class Tunnels {
 
                         // Неактивный юзер, не проходил целевой туннель, есть целевой туннель в очереди
                         if ((!$target_tunnel_exist) && ($queue_target_tunnel)) {
-                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             
                             if (!APP::Module('DB')->Select(
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -1531,7 +1531,7 @@ class Tunnels {
 
                         // Неактивный юзер, целевой туннель на паузе
                         if ($pause_target_tunnel) {
-                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             
                             if (!APP::Module('DB')->Select(
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -1964,7 +1964,7 @@ class Tunnels {
                         
                         // Неактивный юзер, не проходил целевой туннель или целевой туннель на паузе
                         if ((!$target_tunnel_exist) || ($pause_target_tunnel)) {
-                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             
                             if (!APP::Module('DB')->Select(
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -1990,7 +1990,7 @@ class Tunnels {
                         
                         // Неактивный юзер, не проходил целевой туннель
                         if (!$target_tunnel_exist) {
-                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             
                             if (!APP::Module('DB')->Select(
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -2016,7 +2016,7 @@ class Tunnels {
 
                         // Неактивный юзер, целевой туннель на паузе
                         if ($pause_target_tunnel) {
-                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings);
+                            APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
                             
                             if (!APP::Module('DB')->Select(
                                 APP::Module('TaskManager')->settings['module_taskmanager_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
@@ -2953,7 +2953,9 @@ class Tunnels {
                                     // Available in a letter like $data['param']
                                     'user_tunnel_id' => $tunnel['id'],
                                     'tunnel_id' => $tunnel['tunnel_id']
-                                ]
+                                ],
+                                true,
+                                'tunnel'
                             )
                         ]), PDO::PARAM_STR],
                         'cr_date' => 'NOW()'

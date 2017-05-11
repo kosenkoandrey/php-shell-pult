@@ -50,6 +50,7 @@ $filters = htmlspecialchars(isset(APP::Module('Routing')->get['filters']) ? APP:
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/add">Создать счет</a></li>
+                                        <li><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/import">Импортировать счета</a></li>
                                     </ul>
                                 </li>
                             </ul>

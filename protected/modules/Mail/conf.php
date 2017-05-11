@@ -6,7 +6,7 @@ return [
         ['admin\/mail\/letters\/(?P<group_sub_id_hash>.*)\/groups\/(?P<group_id_hash>.*)\/edit',    'Mail', 'EditLettersGroup'],    // Edit letters group
         ['admin\/mail\/letters\/(?P<group_sub_id_hash>.*)\/add(\?.*)?',                             'Mail', 'AddLetter'],           // Add letter
         ['admin\/mail\/letters\/(?P<group_sub_id_hash>.*)\/edit\/(?P<letter_id_hash>.*)',           'Mail', 'EditLetter'],          // Edit letter
-        ['admin\/mail\/letters\/(?P<group_sub_id_hash>.*)',                                         'Mail', 'ManageLetters'],       // Manage letters
+        ['admin\/mail\/letters\/(?P<group_sub_id_hash>[a-zA-Z0-9-_]+)(\?.*)?',                      'Mail', 'ManageLetters'],       // Manage letters
 
         ['admin\/mail\/senders\/(?P<group_sub_id_hash>.*)\/groups\/add',                            'Mail', 'AddSendersGroup'],     // Add senders group
         ['admin\/mail\/senders\/(?P<group_sub_id_hash>.*)\/groups\/(?P<group_id_hash>.*)\/edit',    'Mail', 'EditSendersGroup'],    // Edit senders group
