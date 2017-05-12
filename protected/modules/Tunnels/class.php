@@ -791,6 +791,7 @@ class Tunnels {
     }
     
     public function Subscribe($input) {
+
         $email = mb_strtolower(substr(trim($input['email']), 0, 250), APP::$conf['encoding']);
         
         if (!preg_match('/^([a-zа-яё0-9]+[_\-\.]?)*[a-zа-яё0-9]@([a-zа-яё0-9]+[-\.]?)*[a-zа-яё0-9]\.[a-zа-яё0-9]+$/iu', $email)) {
@@ -1486,7 +1487,7 @@ class Tunnels {
                                     ['user', '=', $user['id'], PDO::PARAM_INT],
                                     ['letter', '=', $activation[0], PDO::PARAM_INT],
                                     ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
+                                    ['cr_date', '>', date('Y-m-d H:i:s', time()-3600), PDO::PARAM_STR],
                                 ]
                             )) {
                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
@@ -1523,7 +1524,7 @@ class Tunnels {
                                     ['user', '=', $user['id'], PDO::PARAM_INT],
                                     ['letter', '=', $activation[0], PDO::PARAM_INT],
                                     ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
+                                    ['cr_date', '>', date('Y-m-d H:i:s', time()-3600), PDO::PARAM_STR],
                                 ]
                             )) {
                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
@@ -1560,7 +1561,7 @@ class Tunnels {
                                     ['user', '=', $user['id'], PDO::PARAM_INT],
                                     ['letter', '=', $activation[0], PDO::PARAM_INT],
                                     ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
+                                    ['cr_date', '>', date('Y-m-d H:i:s', time()-3600), PDO::PARAM_STR],
                                 ]
                             )) {
                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
@@ -2004,7 +2005,7 @@ class Tunnels {
                                     ['user', '=', $user['id'], PDO::PARAM_INT],
                                     ['letter', '=', $activation[0], PDO::PARAM_INT],
                                     ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
+                                    ['cr_date', '>', date('Y-m-d H:i:s', time()-3600), PDO::PARAM_STR],
                                 ]
                             )) {
                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
@@ -2041,7 +2042,7 @@ class Tunnels {
                                     ['user', '=', $user['id'], PDO::PARAM_INT],
                                     ['letter', '=', $activation[0], PDO::PARAM_INT],
                                     ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
+                                    ['cr_date', '>', date('Y-m-d H:i:s', time()-3600), PDO::PARAM_STR],
                                 ]
                             )) {
                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
@@ -2078,7 +2079,7 @@ class Tunnels {
                                     ['user', '=', $user['id'], PDO::PARAM_INT],
                                     ['letter', '=', $activation[0], PDO::PARAM_INT],
                                     ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['cr_date', '>', date('Y-m-d 00:00:00', time()), PDO::PARAM_STR],
+                                    ['cr_date', '>', date('Y-m-d H:i:s', time()-3600), PDO::PARAM_STR],
                                 ]
                             )) {
                                APP::Module('Mail')->Send($user['email'], $activation[0], $activation_settings, true, 'subscribe');
