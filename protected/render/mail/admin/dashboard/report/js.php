@@ -299,8 +299,8 @@ ob_end_clean();
                     to: $('#mail-stat-date-to').val()
                 },
                 form: {
-                    letter: !$('#mail-report-letter').val() ? '' : [$('#mail-report-letter').val()],
-                    sender: !$('#mail-report-sender').val() ? '' : [$('#mail-report-sender').val()]
+                    letter: !$('#mail-report-letter').val() ? '' : $('#mail-report-letter').val(),
+                    sender: !$('#mail-report-sender').val() ? '' : $('#mail-report-sender').val()
                 }
             },
             type: 'POST',
