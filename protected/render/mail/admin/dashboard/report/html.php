@@ -11,10 +11,12 @@
 </div>
 <div class="m-b-15 select-mail-block m-r-15">
     <select class="form-control select-sender selectpicker" multiple="multiple" id="mail-report-sender">
+        <option value="" selected>Выбрать отправителя</option>
     </select>
 </div>
 <div class="m-b-15 select-mail-block m-r-15">
     <select class="form-control select-mail selectpicker" multiple="multiple" id="mail-report-letter">
+        <option value="" selected>Выбрать письмо</option>
     </select>
 </div>
 <div id="mail-stat">
