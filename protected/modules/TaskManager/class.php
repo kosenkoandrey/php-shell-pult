@@ -41,7 +41,6 @@ class TaskManager {
         }
     }
     
-    
     public function Add($module, $method, $exec_date, $args = '[]', $token = false, $state = 'wait') {
         return APP::Module('DB')->Insert(
             $this->settings['module_taskmanager_db_connection'], 'task_manager',

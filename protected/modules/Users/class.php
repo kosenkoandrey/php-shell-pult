@@ -1865,13 +1865,18 @@ class Users {
                 
                 'state.value as state',
                 'phone.value as tel',
-                'yaregion.value as yaregion'
+                'yaregion.value as yaregion',
+                'SUM(billing_invoices.amount) as amount'
             ], 
             'users',
             [
-                ['users.id', 'IN', $out, PDO::PARAM_INT]
+                ['users.id', 'IN', $out, PDO::PARAM_INT],
+                ['billing_invoices.state', '=', 'success', PDO::PARAM_STR]
             ],
             [
+                'left join/billing_invoices' => [
+                    ['billing_invoices.user_id', '=', 'users.id']
+                ],
                 'left join/users_about/state' => [
                     ['state.user', '=', 'users.id'],
                     ['state.item', '=', '"state"']
@@ -1885,7 +1890,7 @@ class Users {
                     ['yaregion.item', '=', '"yaregion"']
                 ]
             ], 
-            false, false,
+            ['users.id'], false, 
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
@@ -1895,12 +1900,6 @@ class Users {
                 $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
                 ['extra', 'service'], 'users_accounts',
                 [['user_id', '=', $row['id'], PDO::PARAM_INT]]
-            );
-            
-            $row['amount'] = APP::Module('DB')->Select(
-                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
-                ['SUM(amount)'], 'billing_invoices',
-                [['user_id', '=', $row['id'], PDO::PARAM_INT],['state', '=', 'success', PDO::PARAM_STR]]
             );
             
             foreach(APP::Module('DB')->Select(
