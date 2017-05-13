@@ -823,7 +823,6 @@ ob_end_clean();
     $('.selectpicker').selectpicker({size:12,liveSearch:true, width:'250px'});
     
     $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/letters/get.json', {select:['subject', 'id'], where: [['subject', 'LIKE', '%']]}, function(resp){
-        $('#mail-report-letter').append('<option value="">Выбрать письмо</option>');
         $.each(resp, function(i,j){
             $('#mail-report-letter').append('<option value="'+j.id+'">'+j.subject+'</option>');
         });
@@ -832,7 +831,6 @@ ob_end_clean();
     });
     
     $.post('<?= APP::Module('Routing')->root ?>admin/mail/api/senders/get.json', {select:['name', 'id'], where: [['name', 'LIKE', '%']]}, function(resp){
-        $('#mail-report-sender').append('<option value="">Выбрать отправителя</option>');
         $.each(resp, function(i,j){
             $('#mail-report-sender').append('<option value="'+j.id+'">'+j.name+'</option>');
         });
