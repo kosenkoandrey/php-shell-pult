@@ -1248,6 +1248,7 @@ class Billing {
     }
     
     public function Sales(){
+
         $comment_object_type = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "Invoice", PDO::PARAM_STR]]);
         $comment_object_type_user = APP::Module('DB')->Select(APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0], ['id'], 'comments_objects', [['name', '=', "UserAdmin", PDO::PARAM_STR]]);
         
@@ -1269,6 +1270,7 @@ class Billing {
                     exit;
                     break;
                 case 'post-comment':
+
                     APP::Module('DB')->Insert(
                         APP::Module('Comments')->settings['module_comments_db_connection'], 'comments_messages',
                         [
