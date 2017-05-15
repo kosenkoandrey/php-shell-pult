@@ -3651,16 +3651,11 @@ class Users {
                 ['user', 'IN', $uid, PDO::PARAM_INT]
             ], false, ['value']
         ) as $item){
-            $rules = [
-                'logic' => 'intersect',
-                'rules' => [
-                    [
-                        'method' => 'source',
-                        'settings' => [
-                            'logic' => '=',
-                            'value' => $item['value']
-                        ]
-                    ]
+            $rules['rules'][] = [
+                'method' => 'source',
+                'settings' => [
+                    'logic' => '=',
+                    'value' => $item['value']
                 ]
             ];
             $item['filter'] = APP::Module('Crypt')->Encode(json_encode($rules));
