@@ -1,6 +1,5 @@
 <?
 class TaskManager {
-
     public $settings;
     private $search;
     
