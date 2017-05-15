@@ -1,11 +1,3 @@
-/**
- * @author Selivanov Max <max@evildevel.com>
- * 
- * Dependencies:
- * jquery.json (https://github.com/krinkle/jquery-json)
- * 
- */
-
 (function($) {
     var settings;
     var objects = {};
