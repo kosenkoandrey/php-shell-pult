@@ -43,6 +43,7 @@ return [
         ['admin\/users\/roles\/rules\/(?P<role_id_hash>.*)\/edit\/(?P<rule_id_hash>.*)(\?.*)?', 'Users', 'EditRule'],   // Edit rule
         ['admin\/users\/roles\/rules\/(?P<role_id_hash>.*)\/add(\?.*)?',        'Users', 'AddRule'],                    // Add rule
         ['admin\/users\/roles\/rules\/(?P<role_id_hash>.*)(\?.*)?',             'Users', 'ManageRules'],                // Manage rules of role
+        ['admin\/users\/source(\?.*)?',                                          'Users', 'UserSource'],                // Users source
         
         ['admin\/users\/api\/dashboard\/all\.json(\?.*)?',                      'Users', 'APIDashboardAll'],
         ['admin\/users\/api\/dashboard\/new\.json(\?.*)?',                      'Users', 'APIDashboardNew'],
