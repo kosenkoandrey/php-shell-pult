@@ -572,8 +572,8 @@
                                                     $mail_tags = array_reverse($item['tags']);
                                                     ?>
                                                     <tr>
-                                                        <td style="width: 60px;">
-                                                            <span style="display: inline-block" class="avatar-char palette-<?= $mail_icon[0] ?> bg"><i class="zmdi zmdi-<?= $mail_icon[1] ?>"></i></span>
+                                                        <td style="width: 60px;padding-right: 0">
+                                                            <span style="display: block" class="avatar-char palette-<?= $mail_icon[0] ?> bg"><i class="zmdi zmdi-<?= $mail_icon[1] ?>"></i></span>
                                                         </td>
                                                         <td style="font-size: 16px;width: 600px;">
                                                             <a class="mail_events" data-id="<?= $item['log']['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)"><?= $item['log']['letter_subject'] ?></a>
@@ -620,7 +620,7 @@
                                                                 
                                                             </div>
                                                         </td>
-                                                        <td style="width: 120px;">
+                                                        <td style="width: 120px; text-align: right;">
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/html/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/plaintext/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
                                                         </td>
