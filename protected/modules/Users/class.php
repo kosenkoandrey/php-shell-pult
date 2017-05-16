@@ -1427,7 +1427,7 @@ class Users {
                     ['yaregion.item', '=', '"yaregion"']
                 ]
             ], 
-            ['users.id'], false, 
+            ['billing_invoices.user_id'], false, 
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
