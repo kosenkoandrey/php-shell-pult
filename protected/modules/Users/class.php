@@ -1870,12 +1870,12 @@ class Users {
             ], 
             'users',
             [
-                ['users.id', 'IN', $out, PDO::PARAM_INT],
-                ['billing_invoices.state', '=', 'success', PDO::PARAM_STR]
+                ['users.id', 'IN', $out, PDO::PARAM_INT]
             ],
             [
                 'left join/billing_invoices' => [
-                    ['billing_invoices.user_id', '=', 'users.id']
+                    ['billing_invoices.user_id', '=', 'users.id'],
+                    ['billing_invoices.state', '=', '"success"']
                 ],
                 'left join/users_about/state' => [
                     ['state.user', '=', 'users.id'],
@@ -1890,7 +1890,7 @@ class Users {
                     ['yaregion.item', '=', '"yaregion"']
                 ]
             ], 
-            ['billing_invoices.user_id'], false, 
+            ['users.id'], false, 
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
