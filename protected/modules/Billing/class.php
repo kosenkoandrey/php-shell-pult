@@ -1598,6 +1598,10 @@ class Billing {
             );
         }
     }
+
+    public function APISalesTool(){
+
+    }
     
     public function Sales(){
 
@@ -1609,8 +1613,8 @@ class Billing {
                 case 'comments':
                     $out = APP::Module('DB')->Select(
                         APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
-                        ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
-                        [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type_user, PDO::PARAM_INT]]
+                        ['comments_messages.message','comments_messages.up_date', 'users.email'], 'comments_messages',
+                        [['comments_messages.object_type', '=', $comment_object_type_user, PDO::PARAM_INT], ['comments_messages.object_id', '=', $_POST['user'], PDO::PARAM_INT],],['left join/users' => [['users.id','=','comments_messages.user']]]
                     );
 
 
@@ -1659,6 +1663,7 @@ class Billing {
                             ]
                         ], false, false, ['billing_invoices.id', 'desc']
                     ) as $user_invoice) {
+                        $user_invoice['hash_id'] = APP::Module('Crypt')->Encode($user_invoice['id']);
                         $invoice_products = APP::Module('DB')->Select(
                             APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
                             [
@@ -1682,8 +1687,8 @@ class Billing {
                         
                         $adm_comment = APP::Module('DB')->Select(
                             APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
-                            ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
-                            [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT]]
+                            ['comments_messages.message','comments_messages.up_date', 'users.email'], 'comments_messages',
+                            [['comments_messages.user', '=', $_POST['user'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type, PDO::PARAM_INT], ['comments_messages.object_id', '=', $user_invoice['id'], PDO::PARAM_INT]],['left join/users' => [['users.id','=','comments_messages.user']]]
                         );
 
                         foreach ($invoice_products as $invoice_product) {
@@ -1719,12 +1724,14 @@ class Billing {
         ////////////////////////////////////////////////////////////////////////
 
         $sale = json_decode($this->settings['module_billing_sales_tool'], true);
-
-        $tunnels = APP::Module('DB')->Select(
+        $tunnels = [];
+        foreach(APP::Module('DB')->Select(
             APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetchAll',PDO::FETCH_ASSOC],
             ['id', 'name'], 'tunnels',
             [['id', 'IN', array_keys($sale), PDO::PARAM_INT], ['state', '=', 'active', PDO::PARAM_STR]]
-        );
+        ) as $tunnel){
+            $tunnels[$tunnel['id']] = $tunnel['name'];
+        }
 
         ////////////////////////////////////////////////////////////////////////
 
@@ -1764,7 +1771,7 @@ class Billing {
                 'count(billing_invoices.id) as inv_cnt',
             ], 
             'users',
-            [['users.id', 'IN', $uid, PDO::PARAM_INT]],
+            [['users.id', 'IN', $uid, PDO::PARAM_INT], ['users.id', '>', 0, PDO::PARAM_INT]],
             [
                 'left join/billing_invoices' => [['billing_invoices.user_id', '=', 'users.id'],['billing_invoices.state', '=', '"success"']]
             ],
@@ -1776,7 +1783,7 @@ class Billing {
             $comment_data = APP::Module('DB')->Select(
                 APP::Module('Comments')->settings['module_comments_db_connection'], ['fetch',PDO::FETCH_ASSOC],
                 ['comments_messages.message','comments_messages.up_date'], 'comments_messages',
-                [['comments_messages.user', '=', $user['id'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type_user, PDO::PARAM_INT]],
+                [['comments_messages.object_id', '=', $user['id'], PDO::PARAM_INT],['comments_messages.object_type', '=', $comment_object_type_user, PDO::PARAM_INT]],
                 false, false, false, ['id', 'desc'], [0, 1]
             );
 
@@ -1787,9 +1794,9 @@ class Billing {
             );
 
             $sale_token = isset($user_tunnels[$user['id']][1]) ? APP::Module('DB')->Select(
-                APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetch',PDO::FETCH_COLUMN],
+                APP::Module('Tunnels')->settings['module_tunnels_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                 ['token'], 'tunnels_tags',
-                [['user_tunnel_id', '=', $user_tunnels[$user['id']][1], PDO::PARAM_INT],['label_id', '=', "sendmail", PDO::PARAM_STR]],
+                [['user_tunnel_id', '=', $user_tunnels[$user['id']][1], PDO::PARAM_INT],['label_id', '=', 'sendmail', PDO::PARAM_STR]],
                 false,false,false, ['id', 'desc'], [0, 1]
             ) : 0;
 

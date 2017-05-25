@@ -40,7 +40,7 @@
                             <h2>Управление счетами</h2>
                         </div>
                         <div class="card-body">
-                            <table class="table table-hover table-vmiddle">
+                            <table class="table table-vmiddle">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -53,20 +53,23 @@
                                         <th>Продажа</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     <? foreach($data['users_data'] as $user){ ?>
-                                        <tr <? if ($user['inv_cnt']) { ?>class="warning"<? } ?>>
+                                        <tr <? if ($user['inv_cnt']) { ?>class="palette-Orange-200 bg"<? } ?>>
                                             <td><?= $user['id'] ?></td>
                                             <td><a href="<?= APP::Module('Routing')->root ?>admin/users/profile/<?= $user['id'] ?>" target="_blank"><?= $user['email'] ?></a></td>
                                             <td><?= isset($data['users'][$user['id']]['firstname']) ? $data['users'][$user['id']]['firstname'] : '' ?></td>
                                             <td><?= isset($data['users'][$user['id']]['lastname']) ? $data['users'][$user['id']]['lastname'] : '' ?></td>
                                             <td><?= isset($data['users'][$user['id']]['tel']) ? $data['users'][$user['id']]['tel'] : '' ?></td>
-                                            <td><button data-email="<?= $user['email'] ?>" data-user="<?= $user['id'] ?>" class="user-comments <?= $user['id'] ?> btn btn-<? if (!$user['comment_data']) { ?>default<? } else { ?>primary<? } ?>"><?= $user['comment'] ?></button></td>
+                                            <td><a href="#" data-email="<?= $user['email'] ?>" data-user="<?= $user['id'] ?>" class="user-comments <?= $user['id'] ?> "><?= $user['comment'] ?></a></td>
                                             <td><button data-email="<?= $user['email'] ?>" data-user="<?= $user['id'] ?>" class="user-invoices btn btn-<? if (!$user['inv_cnt'] && !$user['inv_pr_cnt']['inv_cnt']) { ?>default disabled<? } else { ?>warning<? } ?>"><?= $user['inv'] ?>/<?= $user['inv_pr'] ?></button></td>
                                             <? if (!$user['sale_token']) { ?>
                                                 <td>Нет</td>
                                             <? } else { ?>
-                                                <td><?= array_search((int) $user['sale_token'], $data['sale'][$data['user_tunnels'][$user['id']][0]]) === false ? 'Нет' : '<b>Да</b>' ?><br><?= $data['tunnels'][$data['user_tunnels'][$user['id']][0]] ?></td>
+                                                <td>
+                                                    <?= array_search((int) $user['sale_token'], $data['sale'][$data['user_tunnels'][$user['id']][0]]) === false ? 'Нет' : '<b>Да</b>' ?><br><?= $data['tunnels'][$data['user_tunnels'][$user['id']][0]] ?>
+                                                </td>
                                             <? } ?>
                                         </tr>
                                     <? } ?>
@@ -107,9 +110,9 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="invoices-modal-label">Счета -<span class="invoice-user"></span></h4>
+                                <h4 class="modal-title" id="invoices-modal-label">Счета - <span class="invoice-user"></span></h4>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body p-0">
                                 invoices
                             </div>
                             <div class="modal-footer">
@@ -142,7 +145,8 @@
 
         <script>
             $(document).ready(function() {
-                $('.user-comments').click(function () {
+                $('.user-comments').click(function (e) {
+                    e.preventDefault();
                     var user = $(this).data('user');
                     var email = $(this).data('email');
 
@@ -164,7 +168,7 @@
 
                             if (data.length) {
                                 $.each(data, function () {
-                                    $('#comments-modal .comments-list').append('<div class="comment-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b>' + this.up_date + '</b><br>' + this.message + '</div>');
+                                    $('#comments-modal .comments-list').append('<div><div style="font-size:12px;">' + this.up_date + ' (<a href="<?= APP::Module('Routing')->root ?>admin/users/profile/'+this.email+'" target="_blank" >' + this.email + '</a>)</div><div style="margin-left: 10px;vertical-align: top;">' + this.message + '</div></div><hr>');
                                 });
                             }
                         }
@@ -196,7 +200,8 @@
                     }
                 });
 
-                $('.user-invoices:not(.disabled)').click(function () {
+                $('.user-invoices:not(.disabled)').click(function (e) {
+                    e.preventDefault();
                     var user = $(this).data('user');
                     var email = $(this).data('email');
 
@@ -221,7 +226,6 @@
 
                             if (data.length) {
                                 $.each(data, function () {
-                                    console.log(this.main);
                                     amount = 0;
                                     adm_comment = '';
 
@@ -231,40 +235,39 @@
 
                                     if (this.adm_comment) {
                                         $.each(this.adm_comment, function () {
-                                            adm_comment += '<div><div style="font-size:12px; display:inline-block;">' + this.cr_date + '<div style="font-size:10px;">(' + this.email + ')</div></div><div style="display:inline-block;margin-left: 10px;vertical-align: top;">' + this.message + '</div></div><hr>';
+                                            adm_comment += '<div><div style="font-size:12px;">' + this.up_date + ' (<a href="<?= APP::Module('Routing')->root ?>admin/users/profile/'+this.email+'" target="_blank" >' + this.email + '</a>)</div><div style="margin-left: 10px;vertical-align: top;">' + this.message + '</div></div><hr>';
                                         });
                                     }
 
                                     if (this.main.state == 'success') {
-                                        inv_s += '<div class="product-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b><a href="https://pult.glamurnenko.ru/billing/admin/invoices/info/' + this.main.id + '" target="_blank">' + this.main.id + '</a>/' + amount + '</b>';
-                                        $.each(this.products, function () {
-                                            inv_s += '<br>' + this.name + ' Цена: ' + this.amount;
-                                        });
-
-                                        (this.comment ? inv_s += '<br><b>Комментарий клиента:</b> <br>' + this.comment : '');
-                                        (adm_comment ? inv_s += '<br><b>Комментарии менеджера: </b> <br>' + adm_comment : '');
-                                        inv_s += '</div>';
+                                        inv_s += '<table class="table table-bordered">';
+                                            inv_s += '<tr><td rowspan="'+(this.products.length+1)+'" width="160" align="center"><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/details/' + this.main.hash_id + '" style="width:100px;" target="_blank" class="btn btn-success btn-sm">Счет №' + this.main.id + '</a><br><br>Сумма: ' + amount+'</td><td width="400">Продукты</td><td>Цена</td></tr>';
+                                            $.each(this.products, function () {
+                                                inv_s += '<tr><td>' + this.name + '</td><td>'+this.amount+'</td></tr>';
+                                            });
+                                            (this.comment ? inv_s += '<tr><td>Комментарий клиента:</td><td colspan="3">' + this.comment + '</td></tr>' : '');
+                                            (adm_comment ? inv_s += '<tr><td>Комментарии менеджера:</td><td colspan="3">' + adm_comment + '</td></tr>' : '');
+                                        inv_s +='</table>';                                        
                                     } else {
 
-                                        inv_p += '<div class="product-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b><a href="https://pult.glamurnenko.ru/billing/admin/invoices/info/' + this.main.id + '" target="_blank">' + this.main.id + '</a>/' + amount + '</b>';
-                                        $.each(this.products, function () {
-                                            inv_p += '<br>' + this.name + ' Цена: ' + this.amount;
-                                        });
-
-                                        (this.comment ? inv_p += '<br><b>Комментарий клиента:</b> <br>' + this.comment : '');
-                                        (adm_comment ? inv_p += '<br><b>Комментарии менеджера: </b> <br>' + adm_comment : '');
-                                        inv_p += '</div>';
+                                        inv_p += '<table class="table table-bordered">';
+                                            inv_p += '<tr><td rowspan="'+(this.products.length+1)+'" width="160" align="center"><a href="<?= APP::Module('Routing')->root ?>admin/billing/invoices/details/' + this.main.hash_id + '" style="width:100px;" target="_blank" class="btn btn-default btn-sm">Счет №' + this.main.id + '</a><br><br>Сумма: ' + amount+'</td><td width="400">Продукты</td><td>Цена</td></tr>';
+                                            $.each(this.products, function () {
+                                                inv_p += '<tr><td>' + this.name + '</td><td>'+this.amount+'</td></tr>';
+                                            });
+                                            (this.comment ? inv_p += '<tr><td>Комментарий клиента:</td><td colspan="3">' + this.comment + '</td></tr>' : '');
+                                            (adm_comment ? inv_p += '<tr><td>Комментарии менеджера:</td><td colspan="3">' + adm_comment + '</td></tr>' : '');
+                                        inv_p +='</table>'; 
                                     }
                                 });
 
                                 if (inv_s) {
-                                    console.log(1);
-                                    $('#invoices-modal .modal-body').append('<div style="font-size:18px;font-weight:bold;">Оплаченные счета</div>');
+                                    $('#invoices-modal .modal-body').append('<h4 class="p-20">Оплаченные счета</h4>');
                                     $('#invoices-modal .modal-body').append(inv_s);
                                 }
 
                                 if (inv_p) {
-                                    $('#invoices-modal .modal-body').append('<div style="font-size:18px;font-weight:bold;">Неоплаченные счета</div>');
+                                    $('#invoices-modal .modal-body').append('<h4 class="p-20">Неоплаченные счета</h4>');
                                     $('#invoices-modal .modal-body').append(inv_p);
                                 }
                             }
