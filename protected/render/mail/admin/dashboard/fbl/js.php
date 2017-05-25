@@ -312,6 +312,11 @@ ob_end_clean();
                             show: true
                         }
                     },
+                    legend : {
+                        show : true,
+                        noColumns:0,
+                        container: $('#fbl-log-legend')
+                    },
                     grid : {
                         borderWidth: 1,
                         borderColor: '#eee',

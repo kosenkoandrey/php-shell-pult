@@ -522,6 +522,345 @@ class Billing {
     public function Settings() {
         APP::Render('billing/admin/settings');
     }
+    
+    public function ImportInvoices() {
+        if (isset($_FILES['invoices'])) {
+            $users = [];
+            $imported = [];
+
+            foreach (file($_FILES['invoices']['tmp_name']) as $string) {
+                $invoice = explode(';', trim($string));
+                
+                for ($i = 0; $i <= 10; $i ++) {
+                    if (!isset($invoice[$i])) {
+                        $invoice[$i] = false;
+                    } 
+                }
+
+                if ((((!$invoice[0]) || (!$invoice[1]) || (!$invoice[2]) || (!$invoice[4])))) {
+                    continue;
+                }
+
+                $user = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_ASSOC],
+                    ['id', 'UNIX_TIMESTAMP(reg_date) AS reg_date'], 'users',
+                    [
+                        ['email', '=', $invoice[0], PDO::PARAM_STR]
+                    ]
+                );
+
+                if (!isset($user['id'])) {
+                    continue;
+                }
+                
+                if ((int) strtotime($invoice[4]) < (int) $user['reg_date']) {
+                    continue;
+                }
+                
+                $product_id = APP::Module('DB')->Select(
+                    $this->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                    ['id'], 'billing_products',
+                    [
+                        ['name', '=', $invoice[1], PDO::PARAM_STR]
+                    ]
+                );
+                
+                if (!$product_id) {
+                    continue;
+                }
+                
+                $invoice[11] = $product_id;
+                
+                if (isset($users[$user['id']])) {
+                    $users[$user['id']]['invoices'][] = $invoice;
+                    $users[$user['id']]['sum'][] = $invoice[2];
+                } else {
+                    $users[$user['id']] = [
+                        'user_id' => $user['id'],
+                        'email' => $invoice[0],
+                        'reg_date' => $user['reg_date'],
+                        'invoices' => [$invoice],
+                        'sum' => [$invoice[2]]
+                    ];
+                }
+            }
+
+            foreach ($users as $user_id => $user_data) {
+                $users[$user_id]['pult_sum'] = (int) APP::Module('DB')->Select(
+                    $this->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                    ['SUM(amount)'], 'billing_invoices',
+                    [
+                        ['user_id', '=', $user_id, PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR],
+                        ['cr_date', 'BETWEEN', '"' . $_POST['date_year_from'] . '-' . $_POST['date_month_from'] . '-' . $_POST['date_day_from'] . ' 00:00:00" AND "' . $_POST['date_year_to'] . '-' . $_POST['date_month_to'] . '-' . $_POST['date_day_to'] . ' 00:00:00"', PDO::PARAM_STR]
+                    ]
+                );
+
+                if ($users[$user_id]['pult_sum'] >= (int) array_sum($user_data['sum'])) {
+                    unset($users[$user_id]);
+                    continue;
+                }
+                
+                $users[$user_id]['diff_sum'] = array_sum($user_data['sum']) - $users[$user_id]['pult_sum'];
+
+                if (((int)$users[$user_id]['pult_sum'] === 0) && ((int) $users[$user_id]['diff_sum'] !== 0)) {
+                    foreach ($user_data['invoices'] as $user_invoice) {
+                        $this->CreateInvoice(
+                            $user_id, 
+                            APP::Module('Users')->user['id'], 
+                            [
+                                [
+                                    'id' => $user_invoice[11],
+                                    'amount' => $user_invoice[2]
+                                ]
+                            ], 
+                            'success',
+                            $user_invoice[10],
+                            $user_invoice[4]
+                        );
+
+                        $imported[] = $user_invoice;
+                    }
+                    
+                    unset($users[$user_id]);
+                }
+            }
+            
+            APP::Render('billing/admin/invoices/import', 'include', [
+                'action' => 'import',
+                'users' => $users,
+                'imported' => $imported
+            ]);
+        } else {
+            APP::Render('billing/admin/invoices/import', 'include', [
+                'action' => 'form'
+            ]);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    public function DiffInvoices() {
+        if (isset($_FILES['source'])) {
+            $users = [];
+            $invoices = [];
+
+            foreach (file($_FILES['source']['tmp_name']) as $string) {
+                $invoice = explode(';', trim($string));
+
+                if (!isset($email_match[1])) {
+                    continue;
+                }
+
+                $pult_user = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_ASSOC],
+                    ['id', 'reg_date'], 'users',
+                    [
+                        ['email', '=', $email_match[1], PDO::PARAM_STR]
+                    ]
+                );
+
+                if (!isset($pult_user['id'])) {
+                    continue;
+                }
+
+                $users[$email_match[1] . '|' . $pult_user['id'] . '|' . strtotime($pult_user['reg_date'])][] = $item[4];
+
+                $invoices[$pult_user['id']][] = [
+                    $item[2], $item[3], $item[4], $item[5], $item[8], $item[9], $item[10], $item[11]
+                ];
+            }
+            ?>
+            <table border="1" width="100%">
+                <tr>
+                    <td>E-Mail</td>
+                    <td>Дата регистрации</td>
+                    <td>Сумма из отчета</td>
+                    <td>Сумма всех счетов у нас</td>
+                    <td>Не хватает</td>
+                    <td>Счета из отчета</td>
+                </tr>
+                <?
+                foreach ($users as $usr_item => $sum) {
+                    $id = explode('|', $usr_item);
+                
+                    $sum2 = APP::Module('DB')->Select(
+                        APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                        ['SUM(amount)'], 'billing_invoices',
+                        [
+                            ['user_id', '=', $id[1], PDO::PARAM_INT],
+                            ['state', '=', 'success', PDO::PARAM_STR]
+                        ]
+                    );
+
+                    if ((int) $sum2 >= (int) array_sum($sum)) {
+                        continue;
+                    }
+
+                    if (((int) $sum2 == 0) && ((int) array_sum($sum) != 0)) {
+                        $invoice_email = $id[0];
+
+                        foreach ($invoices[$id[1]] as $invoice) {
+                            $inv_date = explode('.', $invoice[4]);
+
+                            if (count($inv_date) == 3) {
+                                $inv_prod_id = APP::Module('DB')->Select(
+                                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                                    ['id'], 'billing_products',
+                                    [
+                                        ['name', '=', $invoice[3], PDO::PARAM_STR]
+                                    ]
+                                );
+
+                                if ($inv_prod_id) {
+                                    $invoice[8] = '20' . $inv_date[2] . '-' . $inv_date[1] . '-' . $inv_date[0] . ' 12:00:00';
+                                    $invoice[9] = $id[0];
+                                    $invoice[10] = $inv_prod_id;
+
+                                    if ((int) strtotime($invoice[8]) > (int) $id[2]) {
+                                        ?>
+                                        <tr>
+                                            <td><?= $id[0] ?></td>
+                                            <td><?= date('Y-m-d', $id[2]) ?></td>
+                                            <td><?= array_sum($sum) ?></td>
+                                            <td><?= $sum2 ?></td>
+                                            <td><?= array_sum($sum) - $sum2 ?></td>
+                                            <td>
+                                                <table border="1" width="100%">
+                                                    <?
+                                                    foreach ($invoices[$id[1]] as $invoice) {
+                                                        echo '<tr><td width="11%">' . implode('</td><td width="11%">', $invoice) . '</td><td width="11%"><a target="_blank" href="' . APP::Module('Routing')->root . 'admin/billing/invoices/add?user=' . $id[0] . '&state=success&comment=import' . date('Ymd') . '">Добавить</a></td></tr>';
+                                                    }
+                                                    ?>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <?
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ?>
+            </table>
+            <?
+        } else {
+            APP::Render('billing/admin/import', 'include', 'form');
+        }
+    }
+    
+    public function DiffImportInvoices() {
+        if (isset($_FILES['source'])) {
+            $users = [];
+            $invoices = [];
+
+            foreach (file($_FILES['source']['tmp_name']) as $string) {
+                $item = explode(',', trim($string));
+
+                preg_match('/\<(.*)\>/', $item[1], $email_match);
+
+                if (!isset($email_match[1])) {
+                    continue;
+                }
+
+                $pult_user = APP::Module('DB')->Select(
+                    APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_ASSOC],
+                    ['id', 'reg_date'], 'users',
+                    [
+                        ['email', '=', $email_match[1], PDO::PARAM_STR]
+                    ]
+                );
+
+                if (!isset($pult_user['id'])) {
+                    continue;
+                }
+
+                $users[$email_match[1] . '|' . $pult_user['id'] . '|' . strtotime($pult_user['reg_date'])][] = $item[4];
+
+                $invoices[$pult_user['id']][] = [
+                    $item[2], $item[3], $item[4], $item[5], $item[8], $item[9], $item[10], $item[11]
+                ];
+            }
+
+            foreach ($users as $usr_item => $sum) {
+                $id = explode('|', $usr_item);
+                
+                $sum2 = APP::Module('DB')->Select(
+                    APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                    ['SUM(amount)'], 'billing_invoices',
+                    [
+                        ['user_id', '=', $id[1], PDO::PARAM_INT],
+                        ['state', '=', 'success', PDO::PARAM_STR]
+                    ]
+                );
+
+                if ((int) $sum2 >= (int) array_sum($sum)) {
+                    continue;
+                }
+
+                if (((int) $sum2 == 0) && ((int) array_sum($sum) != 0)) {
+                    $invoice_email = $id[0];
+
+                    foreach ($invoices[$id[1]] as $invoice) {
+                        $inv_date = explode('.', $invoice[4]);
+                        
+                        if (count($inv_date) == 3) {
+                            $inv_prod_id = APP::Module('DB')->Select(
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                                ['id'], 'billing_products',
+                                [
+                                    ['name', '=', $invoice[3], PDO::PARAM_STR]
+                                ]
+                            );
+                            
+                            if ($inv_prod_id) {
+                                $invoice[8] = '20' . $inv_date[2] . '-' . $inv_date[1] . '-' . $inv_date[0] . ' 12:00:00';
+                                $invoice[9] = $id[0];
+                                $invoice[10] = $inv_prod_id;
+                                
+                                if ((int) strtotime($invoice[8]) > (int) $id[2]) {
+                                    $message = implode('<br>', $invoice);
+
+                                    if (!APP::Module('DB')->Select(
+                                        APP::Module('Comments')->settings['module_comments_db_connection'], ['fetchColumn', 0],
+                                        ['COUNT(id)'], 'comments_messages',
+                                        [['MD5(message)', '=', md5($message), PDO::PARAM_STR]]
+                                    )) {
+                                        $this->CreateInvoice(
+                                            $id[1], 
+                                            0, 
+                                            [
+                                                [
+                                                    'id' => $invoice[10],
+                                                    'amount' => $invoice[2]
+                                                ]
+                                            ], 
+                                            'success',
+                                            $message,
+                                            $invoice[8]
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            echo 'Готово!';
+        } else {
+            ?>
+            <form enctype="multipart/form-data" method="POST">
+                <input name="source" type="file">
+                <input type="submit" value="Импортировать" />
+            </form>
+            <?
+        }
+    }
 
     
     public function APIDashboard() {
@@ -627,14 +966,14 @@ class Billing {
                 'billing_invoices.state', 
                 'billing_invoices.up_date',
                 
-                'user.email AS user_email',
-                'author.email AS author_email'
+                'users.email AS user_email'
             ], 
             'billing_invoices', 
-            [['billing_invoices.id', 'IN', $out, PDO::PARAM_INT]], 
             [
-                'join/users/user' => [['user.id', '=', 'billing_invoices.user_id']],
-                'left join/users/author' => [['author.id', '=', 'billing_invoices.author']]
+                ['billing_invoices.id', 'IN', $out, PDO::PARAM_INT]
+            ], 
+            [
+                'join/users' => [['users.id', '=', 'billing_invoices.user_id']]
             ],
             ['billing_invoices.id'],
             false,
@@ -643,6 +982,19 @@ class Billing {
         ) as $row) {
             $row['invoice_id_token'] = APP::Module('Crypt')->Encode($row['id']);
             $row['invoice_user_token'] = APP::Module('Crypt')->Encode($row['user_id']);
+            
+            $row['author_email'] = APP::Module('DB')->Select(
+                APP::Module('Users')->settings['module_users_db_connection'], 
+                ['fetch', PDO::FETCH_COLUMN], 
+                [
+                    'email'
+                ], 
+                'users', 
+                [
+                    ['id', '=', $row['author'], PDO::PARAM_INT]
+                ]
+            );
+            
             $row['invoice_author_token'] = APP::Module('Crypt')->Encode($row['author']);
             
             array_push($rows, $row);

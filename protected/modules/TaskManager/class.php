@@ -1,6 +1,5 @@
 <?
 class TaskManager {
-
     public $settings;
     private $search;
     
@@ -40,7 +39,6 @@ class TaskManager {
             return array_keys($out[0]);
         }
     }
-    
     
     public function Add($module, $method, $exec_date, $args = '[]', $token = false, $state = 'wait') {
         return APP::Module('DB')->Insert(

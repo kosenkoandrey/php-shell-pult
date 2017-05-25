@@ -114,6 +114,7 @@ class Analytics {
     
     public function Cohorts() {
         set_time_limit($this->settings['module_analytics_max_execution_time']);
+        
         // Установка часового пояса
         ini_set('date.timezone', 'Europe/Moscow');
         // Выходные данные
@@ -121,7 +122,7 @@ class Analytics {
         $out = [];
 
         // Фильтр для выборки пользователей      
-        if (isset($_POST['rules']) and $_POST['rules']){
+        if (isset($_POST['rules']) and $_POST['rules']) {
             $rules = json_decode($_POST['rules'], true);
             $users = APP::Module('Users')->UsersSearch($rules);
         }else{
@@ -172,6 +173,7 @@ class Analytics {
             'client_cost',                      // Расходы на покупателя (расходы / кол-во покупателей)
             'roi',                              // ROI ((доходы - расходы) / расходы)
         ];
+        
         // Сохранение целевых пользователей во временную таблицу
         APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_cohorts_tmp (user) VALUES (' . implode('),(', $users) . ')');
 
@@ -204,7 +206,11 @@ class Analytics {
         foreach ($out as $index => $values) {
             $out[$index]['users'] = APP::Module('DB')->Select(
                 APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
-                ['id'], 'users',[['id', 'IN', 'SELECT user FROM analytics_cohorts_tmp', PDO::PARAM_INT], ['UNIX_TIMESTAMP(reg_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR]]
+                ['id'], 'users',
+                [
+                    ['id', 'IN', 'SELECT user FROM analytics_cohorts_tmp', PDO::PARAM_INT], 
+                    ['UNIX_TIMESTAMP(reg_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR]
+                ]
             );
         }
 
@@ -239,9 +245,9 @@ class Analytics {
                                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                                 ['COUNT(DISTINCT user)'], 'users_about',
                                 [
+                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['item', '=', 'state', PDO::PARAM_STR],
                                     ['value', '=', 'unsubscribe', PDO::PARAM_STR],
-                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['UNIX_TIMESTAMP(up_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -261,9 +267,9 @@ class Analytics {
                                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                                 ['COUNT(DISTINCT user)'], 'users_about',
                                 [
+                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['item', '=', 'state', PDO::PARAM_STR],
                                     ['value', '=', 'dropped', PDO::PARAM_STR],
-                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['UNIX_TIMESTAMP(up_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -282,9 +288,9 @@ class Analytics {
                                 APP::Module('Users')->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
                                 ['COUNT(DISTINCT user)'], 'users_about',
                                 [
+                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['item', '=', 'state', PDO::PARAM_STR],
                                     ['value', '=', 'active', PDO::PARAM_STR],
-                                    ['user', 'IN', $l_values['users'], PDO::PARAM_INT],
                                     ['UNIX_TIMESTAMP(up_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -296,22 +302,16 @@ class Analytics {
                                 $cohorts_total_subscribers_active[] = isset($value['indicators'][$l_index]['subscribers_active']) ? (int) $value['indicators'][$l_index]['subscribers_active'] : 0;
                             }
 
-                            $cohorts_total_subscribers_unsubscribe = [];
-
-                            foreach ($out as $value) {
-                                $cohorts_total_subscribers_unsubscribe[] = isset($value['indicators'][$l_index]['subscribers_unsubscribe']) ? (int) $value['indicators'][$l_index]['subscribers_unsubscribe'] : 0;
-                            }
-
-                            $out[$index]['indicators'][$l_index]['total_subscribers_active'] = array_sum($cohorts_total_subscribers_active) - array_sum($cohorts_total_subscribers_unsubscribe);
+                            $out[$index]['indicators'][$l_index]['total_subscribers_active'] = array_sum($cohorts_total_subscribers_active);
                             break;
                         case 'clients':
                             $clients = APP::Module('DB')->Select(
-                                APP::Module('Billing')->settings['module_billing_db_connection'],
-                                ['fetchAll', PDO::FETCH_COLUMN], ['DISTINCT user_id'], 'billing_invoices',
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                                ['DISTINCT user_id'], 'billing_invoices',
                                 [
-                                    ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['amount', '!=', '0', PDO::PARAM_INT],
                                     ['user_id', 'IN', $l_values['users'], PDO::PARAM_INT],
+                                    ['amount', '!=', '0', PDO::PARAM_INT],
+                                    ['state', '=', 'success', PDO::PARAM_STR],
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -330,12 +330,12 @@ class Analytics {
                             break;
                         case 'orders':
                             $t_ord = APP::Module('DB')->Select(
-                                APP::Module('Billing')->settings['module_billing_db_connection'],
-                                ['fetchAll', PDO::FETCH_COLUMN], ['id'], 'billing_invoices',
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
+                                ['id'], 'billing_invoices',
                                 [
-                                    ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['amount', '!=', '0', PDO::PARAM_INT],
                                     ['user_id', 'IN', $l_values['users'], PDO::PARAM_INT],
+                                    ['amount', '!=', '0', PDO::PARAM_INT],
+                                    ['state', '=', 'success', PDO::PARAM_STR],
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -358,12 +358,12 @@ class Analytics {
                             APP::Module('DB')->Open(APP::Module('Analytics')->settings['module_analytics_db_connection'])->query('INSERT INTO analytics_cohorts_tmp (user) VALUES (' . implode('),(', $l_values['users']) . ')');
 
                             $out[(int) $index]['indicators'][(int) $l_index][$indicator] = (int) APP::Module('DB')->Select(
-                                APP::Module('Billing')->settings['module_billing_db_connection'],
-                                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'], 'billing_invoices',
+                                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                                ['SUM(amount)'], 'billing_invoices',
                                 [
-                                    ['state', '=', 'success', PDO::PARAM_STR],
-                                    ['amount', '!=', '0', PDO::PARAM_INT],
                                     ['user_id', 'IN', 'SELECT analytics_cohorts_tmp.user FROM analytics_cohorts_tmp', PDO::PARAM_INT],
+                                    ['amount', '!=', '0', PDO::PARAM_INT],
+                                    ['state', '=', 'success', PDO::PARAM_STR],
                                     ['UNIX_TIMESTAMP(cr_date)', 'BETWEEN', implode(' AND ', $values['date']), PDO::PARAM_STR],
                                 ]
                             );
@@ -384,7 +384,7 @@ class Analytics {
                             $cohorts_clients = 0;
 
                             foreach ($out as $value) {
-                                $cohorts_clients += isset($value['indicators'][$l_index]['clients']) ? $value['indicators'][$l_index]['clients']:0;
+                                $cohorts_clients += isset($value['indicators'][$l_index]['clients']) ? $value['indicators'][$l_index]['clients'] : 0;
                             }
 
                             $cohorts_revenue = 0;
@@ -408,7 +408,8 @@ class Analytics {
         }
 
         // Вычисление расхода
-       foreach ([
+        /*
+        foreach ([
             'source',
             'medium',
             'campaign',
@@ -416,8 +417,7 @@ class Analytics {
             'content'
         ] as $utm_key) {
             foreach (APP::Module('DB')->Select(
-                APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetchAll', PDO::FETCH_ASSOC], 
+                APP::Module('Costs')->settings['module_costs_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
                 [
                     'utm_source',
                     'utm_medium',
@@ -452,6 +452,7 @@ class Analytics {
                 if (($use_utm_alias) && (isset($utm_labels[$value['utm_label']]))) $utm_labels[$value['utm_label']] = $utm_alias_value;
             }
         }
+         */
         
         foreach ($utm_labels as $label => $value) {
             $cost_utm[] = ['utm_' . $label, '=', $value, PDO::PARAM_STR];
@@ -459,8 +460,14 @@ class Analytics {
 
         foreach ($out as $index => $values) {
             $cost = (float) round(APP::Module('DB')->Select(
-                APP::Module('Costs')->settings['module_costs_db_connection'],
-                ['fetch', PDO::FETCH_COLUMN], ['SUM(amount)'],'costs'
+                APP::Module('Costs')->settings['module_costs_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['SUM(amount)'] ,'costs',
+                array_merge(
+                    [
+                        ['cost_date', 'BETWEEN', '"' . date('Y-m-d', $values['date'][0]) . '" AND "' . date('Y-m-d', $values['date'][1]) . '"', PDO::PARAM_STR]
+                    ],
+                    $cost_utm
+                )
             ), 2);
  
             foreach (array_reverse($out) as $key => $date_value) {
@@ -3544,6 +3551,389 @@ class Analytics {
                     ]
                 );
                 break;
+        }
+    }
+    
+    public function UtmIndex() {
+        if (isset(APP::Module('Routing')->get['do'])) {
+            switch (APP::Module('Routing')->get['do']) {
+                case 'comments':
+                    header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+                    header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+                    header('Content-Type: application/json');
+
+                    echo json_encode(APP::Module('DB')->Select(
+                        APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                        ['comment', 'cr_date'], 'utm_index_comments', 
+                        [
+                            ['item_id', '=', $_POST['item'], PDO::PARAM_STR]
+                        ]
+                    ));
+                    exit;
+                    break;
+                case 'post-comment':
+                    APP::Module('DB')->Insert(
+                        APP::Module('Users')->settings['module_users_db_connection'], 'utm_index_comments', [
+                            'id' => 'NULL',
+                            'item_id' => [$_POST['item'], PDO::PARAM_INT],
+                            'comment' => [$_POST['comment'], PDO::PARAM_STR],
+                            'cr_date'  => 'NOW()'
+                        ]
+                    );
+                    
+                    header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+                    header('Access-Control-Allow-Origin: ' . APP::$conf['location'][1]);
+                    header('Content-Type: application/json');
+
+                    echo json_encode(Array(
+                        'full' => $_POST['comment'],
+                        'short' => APP::Module('Utils')->MbCutString($_POST['comment'], 50)
+                    ));
+                    exit;
+                    break;
+            }
+        }
+
+        $out = [];
+
+        foreach (APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            [
+                'utm_source',
+                'utm_campaign',
+                'utm_term'
+            ], 
+            'users_utm_index', 
+            [
+                ['utm_source', '=', 'direct', PDO::PARAM_STR]
+            ],
+            false,
+            [
+                'utm_source', 
+                'utm_campaign', 
+                'utm_term'
+            ]
+        ) as $label) {
+            $utm_cost = APP::Module('DB')->Select(
+                APP::Module('Costs')->settings['module_costs_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                ['SUM(amount)'], 'costs', 
+                [
+                    ['utm_source', '=', $label['utm_source'], PDO::PARAM_STR],
+                    ['utm_campaign', '=', $label['utm_campaign'], PDO::PARAM_STR],
+                    ['utm_term', '=', $label['utm_term'], PDO::PARAM_STR]
+                ]
+            );
+            
+            $utm_profit = APP::Module('DB')->Select(
+                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                ['SUM(billing_invoices.amount)'], 'billing_invoices', 
+                [
+                    ['billing_invoices.user_id', 'IN', 'SELECT users_utm_index_full.user_id FROM users_utm_index_full WHERE users_utm_index_full.utm_source = "' . $label['utm_source'] . '" && users_utm_index_full.utm_campaign = "' . $label['utm_campaign'] . '" && users_utm_index_full.utm_term = "' . $label['utm_term'] . '"', PDO::PARAM_STR],
+                    ['billing_invoices.state', '=', 'success', PDO::PARAM_STR],
+                    ['billing_invoices.amount', '!=', 0, PDO::PARAM_INT]
+                ]
+            );
+            
+            $comment_hash = md5($label['utm_source'] . $label['utm_campaign'] . $label['utm_term']);
+            
+            $comments_data = APP::Module('DB')->Select(
+                APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+                ['comment', 'cr_date'], 'utm_index_comments', 
+                [
+                    ['item_id', '=', $comment_hash, PDO::PARAM_STR]
+                ],
+                false, false, false,
+                ['id', 'DESC']
+            );
+
+            $out[] = Array(
+                'utm_source' => $label['utm_source'],
+                'utm_campaign' => $label['utm_campaign'],
+                'utm_term' => $label['utm_term'],
+                'cost' => (float) $utm_cost,
+                'profit' => (float) $utm_profit,
+                'roi' => (float) $utm_cost ? (($utm_profit - $utm_cost) / $utm_cost) * 100 : 0,
+                'comments' => Array(
+                    'list' => $comments_data,
+                    'hash' => $comment_hash
+                )
+            );
+        }
+        
+        foreach ($out as $key => $row) {
+            $utm_source[$key]  = $row['utm_source'];
+            $utm_campaign[$key] = $row['utm_campaign'];
+            $utm_term[$key] = $row['utm_term'];
+            $cost[$key] = $row['cost'];
+            $profit[$key] = $row['profit'];
+            $roi[$key] = $row['roi'];
+        }
+        
+        $sort_field = isset(APP::Module('Routing')->get['sort'][0]) ? APP::Module('Routing')->get['sort'][0] : 'roi';
+        $sort_mode = isset(APP::Module('Routing')->get['sort'][1]) ? APP::Module('Routing')->get['sort'][1] : 'SORT_DESC';
+
+        switch ($sort_field) {
+            case 'utm_source': 
+            case 'utm_campaign': 
+            case 'utm_term': 
+                $sort_type = 'SORT_REGULAR';
+                break;
+            case 'cost': 
+            case 'profit': 
+            case 'roi': 
+                $sort_type = 'SORT_NUMERIC';
+                break;
+        }
+        
+        array_multisort($$sort_field, constant($sort_mode), constant($sort_type), $out);
+        ?>
+        <!DOCTYPE html>
+        <html lang="ru">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <title>UTMIndex</title>
+
+            <!-- Bootstrap core CSS -->
+            <link href="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/ie10-viewport-bug-workaround.css" rel="stylesheet">
+            <link href="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/bootstrap-3.3.6-dist/css/non-responsive.css" rel="stylesheet">
+            <script src="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/ie-emulation-modes-warning.js"></script>
+
+            <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+            <!--[if lt IE 9]>
+              <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+              <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+            <![endif]-->
+
+            <style>
+                body {
+                    margin: 25px;
+                }
+                .user-comments{
+                    width: 400px;
+                    white-space: normal;
+                }
+            </style>
+          </head>
+
+          <body>
+
+            <!-- Begin page content -->
+            <div class="container">
+                <span class="label label-primary">v0.34</span>
+                <br><br>
+                <table class="table table-hover">
+                    <tr>
+                        <!--<td>source</td>-->
+                        <td><a href="?sort[0]=utm_campaign&sort[1]=<?= $sort_mode == 'SORT_ASC' ? 'SORT_DESC' : 'SORT_ASC' ?>" <? if ($sort_field == 'utm_campaign') { ?>style="font-weight: bold"<? } ?>>UTM-campaign</a> <? if ($sort_field == 'utm_campaign') { echo $sort_mode == 'SORT_DESC' ? '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'; } ?></td>
+                        <td><a href="?sort[0]=utm_term&sort[1]=<?= $sort_mode == 'SORT_ASC' ? 'SORT_DESC' : 'SORT_ASC' ?>" <? if ($sort_field == 'utm_term') { ?>style="font-weight: bold"<? } ?>>UTM-term</a> <? if ($sort_field == 'utm_term') { echo $sort_mode == 'SORT_DESC' ? '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'; } ?></td>
+                        <td><a href="?sort[0]=cost&sort[1]=<?= $sort_mode == 'SORT_ASC' ? 'SORT_DESC' : 'SORT_ASC' ?>" <? if ($sort_field == 'cost') { ?>style="font-weight: bold"<? } ?>>Расход</a> <? if ($sort_field == 'cost') { echo $sort_mode == 'SORT_DESC' ? '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'; } ?></td>
+                        <td><a href="?sort[0]=profit&sort[1]=<?= $sort_mode == 'SORT_ASC' ? 'SORT_DESC' : 'SORT_ASC' ?>" <? if ($sort_field == 'profit') { ?>style="font-weight: bold"<? } ?>>Доход</a> <? if ($sort_field == 'profit') { echo $sort_mode == 'SORT_DESC' ? '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'; } ?></td>
+                        <td><a href="?sort[0]=roi&sort[1]=<?= $sort_mode == 'SORT_ASC' ? 'SORT_DESC' : 'SORT_ASC' ?>" <? if ($sort_field == 'roi') { ?>style="font-weight: bold"<? } ?>>ROI</a> <? if ($sort_field == 'roi') { echo $sort_mode == 'SORT_DESC' ? '<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>'; } ?></td>
+                        <td>Когортный анализ</td>
+                        <td>Комментарии</td>
+                    </tr>
+                    <?
+                    foreach ($out as $value) {
+                        $comments_html = Array();
+                        
+                        foreach ($value['comments']['list'] as $comment_item) {
+                            $comments_html[] = APP::Module('Utils')->MbCutString($comment_item['comment'], 50) . ' (' . $comment_item['cr_date'] . ')';
+                        }
+                        
+                        $comments_html_out = count($comments_html) ? implode('<hr style="margin: 5px 0">', $comments_html) : 'Нет';
+                        ?>
+                        <tr>
+                            <!--<td><?= $value['utm_source'] ?></td>-->
+                            <td><?= $value['utm_campaign'] ?></td>
+                            <td><?= $value['utm_term'] ?></td>
+                            <td><?= number_format($value['cost'], 2, ',', ' ') ?></td>
+                            <td><?= number_format($value['profit'], 2, ',', ' ') ?></td>
+                            <td><?= number_format($value['roi'], 2, ',', ' ') ?>%</td>
+                            <td><a href="javascript:void(0)" class="cohorts btn btn-default btn-xs" data-source="<?= $value['utm_source'] ?>" data-campaign="<?= $value['utm_campaign'] ?>" data-term="<?= $value['utm_term'] ?>">Открыть</a></td>
+                            <td><div class="<?= $value['comments']['hash'] ?>"><?= count($comments_html) ? $comments_html_out . '<hr style="margin: 5px 0">' : '' ?></div><button data-item="<?= $value['comments']['hash'] ?>" class="item-comments btn btn-xs btn-default">Написать комментарий</button></td>
+                        </tr>
+                        <?
+                    }
+                    ?>
+                </table>
+            </div>
+            
+            <form id="do" target="_blank" method="post" action="<?= APP::Module('Routing')->root ?>admin/analytics/cohorts">
+                <input type="hidden" name="action" value="cohort">
+                <input type="hidden" name="group" value="month">
+                <input type="hidden" name="indicators[]" value="total_subscribers_active">
+                <input type="hidden" name="indicators[]" value="total_subscribers_unsubscribe">
+                <input type="hidden" name="indicators[]" value="total_subscribers_dropped">
+                <input type="hidden" name="indicators[]" value="total_clients">
+                <input type="hidden" name="indicators[]" value="total_orders">
+                <input type="hidden" name="indicators[]" value="total_revenue">
+                <input type="hidden" name="indicators[]" value="ltv_client">
+                <input type="hidden" name="indicators[]" value="cost">
+                <input type="hidden" name="indicators[]" value="subscriber_cost">
+                <input type="hidden" name="indicators[]" value="client_cost">
+                <input type="hidden" name="indicators[]" value="roi">
+                <input type="hidden" name="rules">
+            </form>
+            
+            <!-- Comments Modal -->
+            <div class="modal fade" id="comments-modal" tabindex="-1" role="dialog" aria-labelledby="comments-modal-label">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="comments-modal-label">Комментарии</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="comments-list"></div>
+                            <div class="form-comment">
+                                <textarea class="form-control" id="new-item-comment" style="width: 100%; height: 80px"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="submit-comment btn btn-primary" data-item="" type="button">Отправить комментарий</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script src="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/jquery.min.js"></script>
+            <script src="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+            <script src="https://pult.glamurnenko.ru/public/WebApp/resources/views/full/langs/ru_RU/types/extensions/EProcesses/admin/scheme/ie10-viewport-bug-workaround.js"></script>
+
+            <script>
+                $(document).on('click', '.cohorts', function(){
+                    var source = $(this).data('source');
+                    var campaign = $(this).data('campaign');
+                    var term = $(this).data('term');
+
+                    $('#do input[name="rules"]').val('{"logic":"intersect","rules":[{"method":"utm","settings":{"num":"1","item":"source","value":"' + source + '"}},{"method":"utm","settings":{"num":"1","item":"campaign","value":"' + campaign + '"}},{"method":"utm","settings":{"num":"1","item":"term","value":"' + term + '"}}]}');
+                    $('#do').submit();
+                });
+                
+                $('.item-comments').click(function(){
+                    var item = $(this).data('item');
+
+                    $('#comments-modal .comments-list').html('Загрузка...');
+                    $('#comments-modal .submit-comment').data('item', item);
+
+                    $('#comments-modal').modal('show');
+
+                    $.ajax({
+                        type: 'post',
+                        url: '<?= APP::Module('Routing')->root ?>admin/analytics/utm/index?do=comments',
+                        data: {
+                            item: item
+                        },
+                        success: function(data) {
+                            $('#comments-modal .comments-list').empty();
+
+                            if (data.length) {
+                                $.each(data, function() {
+                                    $('#comments-modal .comments-list').append('<div class="comment-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b>' + this.cr_date + '</b><br>' + this.comment + '</div>');
+                                });
+                            }
+                        }
+                    });
+                });
+
+                $('.submit-comment').click(function(){
+                    var item = $(this).data('item');
+                    var comment = $('#new-item-comment').val();
+
+                    if (comment) {
+                        $.ajax({
+                            type: 'post',
+                            url: '<?= APP::Module('Routing')->root ?>admin/analytics/utm/index?do=post-comment',
+                            data: {
+                                item: item,
+                                comment: comment
+                            },
+                            success: function(data) {
+                                $('.' + item).prepend(data.short + ' (только что)<hr style="margin: 5px 0">');
+                            }
+                        });
+
+                        $('#new-item-comment').val('');
+                        $('#comments-modal .comments-list').append('<div class="comment-item" style="border-bottom: 1px solid #e3e3e3; margin-bottom: 10px; padding-bottom: 10px;"><b>Только что</b><br>' + comment + '</div>');
+                    }
+                });
+            </script>
+          </body>
+        </html>
+        <?
+    }
+    
+    public function UpdateUtmIndex() {
+        ini_set('max_execution_time','1800'); 
+        ini_set('memory_limit','8192M');
+
+        $users_utm = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            ['users_utm.user','users_utm.item','users_utm.value'], 'users_utm', [['users_utm.num', '=', '1', PDO::PARAM_INT]]
+        );
+        
+        $users = [];
+
+        foreach ($users_utm as $item) $users[$item['user']][$item['item']] = $item['value'];
+        unset($users_utm);
+        
+        $exist = [];
+        
+        APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('TRUNCATE TABLE users_utm_index');
+        
+        foreach ($users as $utm) {
+            $utm_index['source'] = isset($utm['source']) ? $utm['source'] : '_';
+            $utm_index['medium'] = isset($utm['medium']) ? $utm['medium'] : '_';
+            $utm_index['campaign'] = isset($utm['campaign']) ? $utm['campaign'] : '_';
+            $utm_index['term'] = isset($utm['term']) ? $utm['term'] : '_';
+            $utm_index['content'] = isset($utm['content']) ? $utm['content'] : '_';
+
+            if (isset($exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])){
+                if (!array_key_exists($utm_index['content'], (array) $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])) {
+                    APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
+                    $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
+                }
+            } else {
+                APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
+                $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
+            }
+        }
+    }
+    
+    public function UpdateFullUtmIndex() {
+        ini_set('max_execution_time','1800'); 
+        ini_set('memory_limit','8192M');
+
+        $users_utm = APP::Module('DB')->Select(
+            APP::Module('Users')->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
+            ['users_utm.user','users_utm.item','users_utm.value'], 'users_utm', [['users_utm.num', '=', '1', PDO::PARAM_INT]]
+        );
+
+        $users = [];
+        
+        foreach ($users_utm as $item) $users[$item['user']][$item['item']] = $item['value'];
+        unset($users_utm);
+
+        APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('TRUNCATE TABLE users_utm_index_full');
+        
+        foreach ($users as $user_id => $utm) {
+            APP::Module('DB')->Insert(
+                APP::Module('Users')->settings['module_users_db_connection'], 'users_utm_index_full', [
+                    'id' => 'NULL',
+                    'user_id' => $user_id,
+                    'utm_source' => [$utm['source'], PDO::PARAM_STR],
+                    'utm_medium' => [$utm['medium'], PDO::PARAM_STR],
+                    'utm_campaign' => [$utm['campaign'], PDO::PARAM_STR],
+                    'utm_term' => [$utm['term'], PDO::PARAM_STR],
+                    'utm_content' => [$utm['content'], PDO::PARAM_STR],
+                    'cr_date'  => 'NOW()'
+                ]
+            );
         }
     }
     

@@ -222,7 +222,7 @@
                             ?>
                             <div class="tab-pane fade" id="group-<?= $value[0] ?>">
                                 <div class="row">
-                                    <div class="col-sm-7">
+                                    <div class="col-sm-6">
                                         <div class="blog-grid sm-margin-bottom-40">
                                             <img class="img-responsive" src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/482x305/<?= $value[3][0]['uri'] ?>.<?= $value[3][0]['image_type'] ?>">
                                             <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][0]['uri'] ?>"><?= $value[3][0]['page_title'] ?></a></h3>
@@ -233,6 +233,19 @@
                                             </ul>
                                             <p><?= $value[3][0]['annotation'] ?></p>
                                             <a class="r-more" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][0]['uri'] ?>">Читать</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="blog-grid sm-margin-bottom-40">
+                                            <img class="img-responsive" src="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri ?>images/articles/482x305/<?= $value[3][1]['uri'] ?>.<?= $value[3][1]['image_type'] ?>">
+                                            <h3><a href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][1]['uri'] ?>"><?= $value[3][1]['page_title'] ?></a></h3>
+                                            <ul class="blog-grid-info">
+                                                <li><?= date('F j, Y', $value[3][1]['up_date']) ?></li>
+                                                <li><i class="fa fa-comments"></i> <?= $value[3][1]['comments'] ?></li>
+                                                <li><i class="fa fa-heart"></i> <?= $value[3][1]['likes'] ?></li>
+                                            </ul>
+                                            <p><?= $value[3][1]['annotation'] ?></p>
+                                            <a class="r-more" href="<?= APP::Module('Routing')->root . APP::Module('Blog')->uri . $value[3][1]['uri'] ?>">Читать</a>
                                         </div>
                                     </div>
                                 </div><!--/end row-->

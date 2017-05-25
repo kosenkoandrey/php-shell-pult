@@ -8,7 +8,7 @@
 <div class="btn-group m-b-15">
     <button id="likes-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="likes-calendar-from">...</span> - <span id="likes-calendar-to">...</span></button>
 </div>
-<div id="likes-chart">
+<div id="likes-chart" class="m-b-20">
     <div class="text-center">
         <div class="preloader pl-xxl">
             <svg class="pl-circular" viewBox="25 25 50 50">
@@ -17,5 +17,6 @@
         </div>
     </div>
 </div>
+<div id="likes-chart-legend"></div>
 <input id="likes-date-from" type="hidden">
 <input id="likes-date-to" type="hidden">

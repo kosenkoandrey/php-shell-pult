@@ -37,6 +37,7 @@ return [
         ['admin\/users\/passwords(\?.*)?',                                      'Users', 'SetupPasswords'],             // Setup passwords
         ['admin\/users\/timeouts(\?.*)?',                                       'Users', 'SetupTimeouts'],              // Setup timeouts
         ['admin\/users\/settings(\?.*)?',                                       'Users', 'SetupOther'],                 // Setup other
+        ['admin\/users\/import(\?.*)?',                                         'Users', 'ImportUsers'],                // Import users
         ['admin\/users\/roles(\?.*)?',                                          'Users', 'ManageRoles'],                // Manage roles
         ['admin\/users\/roles\/add(\?.*)?',                                     'Users', 'AddRole'],                    // Add role
         ['admin\/users\/roles\/rules\/(?P<role_id_hash>.*)\/edit\/(?P<rule_id_hash>.*)(\?.*)?', 'Users', 'EditRule'],   // Edit rule
@@ -67,8 +68,6 @@ return [
         ['admin\/users\/api\/settings\/update\.json(\?.*)?',                    'Users', 'APIUpdateOtherSettings'],         // [API] Update other settings
         ['admin\/users\/api\/about\/update\.json(\?.*)?',                       'Users', 'APIAdminUpdateAbout'],            // [API] Update about any users
         ['admin\/users\/api\/about\/item\/list\.json(\?.*)?',                   'Users', 'APIAdminAboutItemList'],          // [API] About item list
-        
-        ['users\/update\/utm\-index',                                           'Users', 'UpdateUtmIndex'],                 // [CRON] Update user utm index
     ],
     'init' => true
 ];

@@ -39,6 +39,7 @@
                                     <li role="presentation"><a href="#settings-transport" role="tab" data-toggle="tab">Транспорт</a></li>
                                     <li role="presentation"><a href="#settings-copies" role="tab" data-toggle="tab">Копии писем</a></li>
                                     <li role="presentation"><a href="#settings-fbl" role="tab" data-toggle="tab">FBL-отчеты</a></li>
+                                    <li role="presentation"><a href="#settings-utm" role="tab" data-toggle="tab">UTM-метки</a></li>
                                 </ul>
 
                                 <div class="tab-content">
@@ -133,6 +134,33 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div role="tabpanel" class="tab-pane animated fadeIn" id="settings-utm">
+                                        <div class="form-group">
+                                            <label for="module_mail_utm_labels" class="col-sm-2 control-label">Добавлять к ссылкам</label>
+                                            <div class="col-sm-1">
+                                                <div class="toggle-switch m-t-10">
+                                                    <input id="module_mail_utm_labels" name="module_mail_utm_labels" type="checkbox" hidden="hidden">
+                                                    <label for="module_mail_utm_labels" class="ts-helper"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="module_mail_utm_labels_source" class="col-sm-2 control-label">UTM-source</label>
+                                            <div class="col-sm-3">
+                                                <div class="fg-line">
+                                                    <input type="text" class="form-control" name="module_mail_utm_labels_source" id="module_mail_utm_labels_source">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="module_mail_utm_labels_medium" class="col-sm-2 control-label">UTM-medium</label>
+                                            <div class="col-sm-3">
+                                                <div class="fg-line">
+                                                    <input type="text" class="form-control" name="module_mail_utm_labels_medium" id="module_mail_utm_labels_medium">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -174,6 +202,9 @@
                 $('#module_mail_fbl_login').val('<?= APP::Module('Mail')->settings['module_mail_fbl_login'] ?>');
                 $('#module_mail_fbl_password').val('<?= APP::Module('Mail')->settings['module_mail_fbl_password'] ?>');
                 $('#module_mail_fbl_prefix').val('<?= APP::Module('Mail')->settings['module_mail_fbl_prefix'] ?>');
+                $('#module_mail_utm_labels').prop('checked', <?= (int) APP::Module('Mail')->settings['module_mail_utm_labels'] ?>);
+                $('#module_mail_utm_labels_source').val('<?= APP::Module('Mail')->settings['module_mail_utm_labels_source'] ?>');
+                $('#module_mail_utm_labels_medium').val('<?= APP::Module('Mail')->settings['module_mail_utm_labels_medium'] ?>');
 
                 $('#update-settings').submit(function(event) {
                     event.preventDefault();
@@ -186,6 +217,8 @@
                     var module_mail_fbl_server = $(this).find('#module_mail_fbl_server');
                     var module_mail_fbl_login = $(this).find('#module_mail_fbl_login');
                     var module_mail_fbl_password = $(this).find('#module_mail_fbl_password');
+                    var module_mail_utm_labels_source = $(this).find('#module_mail_utm_labels_source');
+                    var module_mail_utm_labels_medium = $(this).find('#module_mail_utm_labels_medium');
 
                     module_mail_db_connection.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_mail_tmp_dir.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
@@ -195,6 +228,8 @@
                     module_mail_fbl_server.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_mail_fbl_login.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
                     module_mail_fbl_password.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
+                    module_mail_utm_labels_source.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
+                    module_mail_utm_labels_medium.closest('.form-group').removeClass('has-error has-feedback').find('.form-control-feedback, .help-block').remove();
 
                     if (module_mail_db_connection.val() === '') { module_mail_db_connection.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_tmp_dir.val() === '') { module_mail_tmp_dir.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-2').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
@@ -204,6 +239,8 @@
                     if (module_mail_fbl_server.val() === '') { module_mail_fbl_server.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_fbl_login.val() === '') { module_mail_fbl_login.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
                     if (module_mail_fbl_password.val() === '') { module_mail_fbl_password.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
+                    if (module_mail_utm_labels_source.val() === '') { module_mail_utm_labels_source.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
+                    if (module_mail_utm_labels_medium.val() === '') { module_mail_utm_labels_medium.closest('.form-group').addClass('has-error has-feedback').find('.col-sm-3').append('<span class="zmdi zmdi-close form-control-feedback"></span><small class="help-block">Not specified</small>'); return false; }
 
                     $(this).find('[type="submit"]').html('Processing...').attr('disabled', true);
 

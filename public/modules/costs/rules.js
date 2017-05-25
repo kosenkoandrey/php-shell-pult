@@ -7,8 +7,6 @@
  */
 
 (function($) {
-    var settings;
-    var objects = {};
     var methods = {
         init: function(options) { 
             $target_rules = $(this);
@@ -53,13 +51,13 @@
                             switch(method) {
                                 case 'date': 
                                     switch(id) {
-                                        case 'date_from': 
-                                            if (settings.date_from === undefined) settings.date_from = new Object();
-                                            settings.date_from = Math.round(objects['date_from'].date._d.setHours(0,0,0,0) / 1000); 
+                                        case 'from': 
+                                            if (settings.from === undefined) settings.from = new Object();
+                                            settings.from = param_value; 
                                             break;
-                                        case 'date_to': 
-                                            if (settings.date_to === undefined) settings.date_to = new Object();
-                                            settings.date_to = Math.round(objects['date_to'].date._d.setHours(0,0,0,0) / 1000 - 1); 
+                                        case 'to': 
+                                            if (settings.to === undefined) settings.to = new Object();
+                                            settings.to = param_value; 
                                             break;
                                         default: settings[id] = param_value;
                                     }
@@ -211,8 +209,8 @@
         },
         getRulesListByLogic: function(logic) {
             return [
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="date" href="javascript:void(0)">Дата</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="amount" href="javascript:void(0)">Сумма</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="date" href="javascript:void(0)">Date</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="amount" href="javascript:void(0)">Amount</a></li>',
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="utm_source" href="javascript:void(0)">UTM-source</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="utm_medium" href="javascript:void(0)">UTM-medium</a></li>',
@@ -235,8 +233,8 @@
                         '<td class="trigger_logic_holder" style="width: 100px; vertical-align: middle;">',
                             '<div class="trigger_logic">',
                                 '<select class="selectpicker" data-width="85px">',
-                                    '<option value="intersect">И</option>',
-                                    '<option value="merge">ИЛИ</option>',
+                                    '<option value="intersect">AND</option>',
+                                    '<option value="merge">OR</option>',
                                 '</select>',
                             '</div>',
                         '</td>', 
@@ -245,13 +243,13 @@
                             '<div class="trigger_children"></div>',
                             '<div class="btn-group trigger_holder_controls_several">',
                                 '<div class="btn-group">',
-                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">И</button>',
+                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">AND</button>',
                                     '<ul class="dropdown-menu scrollable-menu scrollbar" role="menu">',                                  
                                         self.getRulesListByLogic('intersect'),
                                     '</ul>',
                                 '</div>',
                                 '<div class="btn-group">',
-                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">ИЛИ</button>',
+                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">OR</button>',
                                     '<ul class="dropdown-menu scrollable-menu scrollbar" role="menu">',
                                         self.getRulesListByLogic('merge'),
                                     '</ul>',
@@ -259,7 +257,7 @@
                             '</div>',
                             '<div class="btn-group trigger_holder_controls_single">',
                                 '<div class="btn-group">',
-                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Добавить условие</button>',
+                                    '<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Add condition</button>',
                                     '<ul class="dropdown-menu scrollable-menu scrollbar" role="menu">',                                  
                                         self.getRulesListByLogic('intersect'),
                                     '</ul>',
@@ -329,29 +327,34 @@
                 case 'date':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Дата</tr>',
+                            '<tr>Date</tr>',
                             '<tr>',
-                                '<td style="width: 125px">',
-                                    '<input data-id="date_from" class="form-control m-l-5 date-picker-from" type="text" placeholder="Начало">',
-                                    '<input data-id="date_to" class="form-control m-l-5 date-picker-to" type="text" placeholder="Конец">',
+                                '<td>',
+                                    '<div class="input-group m-r-5"><input id="datepicfrom" data-id="from" class="form-control" type="text" style="width: 66px"></div>',
+                                '</td>',
+                                '<td>-</td>',
+                                '<td>',
+                                    '<div class="input-group m-l-5"><input id="datepicto" data-id="to" class="form-control" type="text" style="width: 66px"></div>',
                                 '</td>',
                             '</tr>',
                         '</table>'
                     ].join(''));
                     
-                    $('.date-picker-from', $trigger_rule_item).datetimepicker({
+                    $('#datepicfrom', $trigger_rule_item)
+                    .datetimepicker({
                         format: 'YYYY-MM-DD',
-                        defaultDate: 0
-                    }).on('dp.change', function(e) {
-                        objects['date_from'] = e;
+                        defaultDate: new Date()
+                    })
+                    .on('dp.change', function(e) {
                         $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
                     });
                     
-                    $('.date-picker-to', $trigger_rule_item).datetimepicker({
+                    $('#datepicto', $trigger_rule_item)
+                    .datetimepicker({
                         format: 'YYYY-MM-DD',
-                        defaultDate: 0
-                    }).on('dp.change', function(e) {
-                        objects['date_to'] = e;
+                        defaultDate: new Date()
+                    })
+                    .on('dp.change', function(e) {
                         $target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))));
                     });
                     
@@ -365,7 +368,7 @@
                 case 'amount':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Сумма</tr>',
+                            '<tr>Amount</tr>',
                             '<tr>',
                                 '<td style="width: 125px">',
                                     '<select data-id="logic" class="selectpicker">',

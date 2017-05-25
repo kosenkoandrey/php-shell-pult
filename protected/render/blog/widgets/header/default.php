@@ -83,8 +83,8 @@
                 </button>
 
                 <div class="navbar-brand">
-                    <a href="<?= APP::Module('Routing')->root . Blog::URI ?>">
-                        <img src="http://pult2.glamurnenko.ru/public/ui/img/logo.png">
+                    <a href="<?= APP::Module('Routing')->root . Blog::URI ?>" style="font-size: 40px; color: #111111;">
+                        Mail IQ
                     </a>
                 </div>
             </div><!--/end responsive container-->
@@ -93,7 +93,6 @@
             <div class="collapse navbar-collapse navbar-responsive-collapse">
                 <div class="res-container">
                     <ul class="nav navbar-nav">
-                        <li class="blog-nav"><a class="blog-nav-item" href="<?= APP::Module('Routing')->root . Blog::URI ?>">Главная</a></li>
                         <?
                         foreach ($data as $key => $value) {
                             ?>

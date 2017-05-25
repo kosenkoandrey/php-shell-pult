@@ -240,14 +240,14 @@ foreach ($tmp_roi_period as $index => $values) {
                                                             }
 
                                                             $total['orders'] = array_merge(isset($total['orders']) ? $total['orders'] : [], $l_values['indicators'][$index]['orders']);
-
                                                             ?>
                                                             <td>
                                                                 <?
                                                                 $indicators_values = [];
 
                                                                 foreach ($post['indicators'] as $key) {
-                                                                    $last_value = $total[$key] - (isset($last_indicators[$key]) ? $last_indicators[$key] : 0);
+                                                                    $last_indicators_key = isset($last_indicators[$key]) ? $last_indicators[$key] : 0;
+                                                                    $last_value = $total[$key] - $last_indicators_key;
                                                                     $sup_last_value = '';
 
                                                                     if (isset($last_indicators[$key]) && count($last_indicators)) {
@@ -360,6 +360,14 @@ foreach ($tmp_roi_period as $index => $values) {
                                     <tr>
                                         <?
                                         switch ($key) {
+                                            case 'client_cost':
+                                                ?><td style="width: 30%"><?= $indicators[$key] ?></td><td><?= number_format(to_bank_amount(array_sum($total_cohorts['cost']) / array_sum($total_cohorts['total_clients']), 2), 2, '.', ' ') ?> руб.</td><?
+                                                break;
+                                            case 'subscriber_cost':
+                                                ?><td style="width: 30%"><?= $indicators[$key] ?></td><td><?= number_format(to_bank_amount(array_sum($total_cohorts['cost']) / array_sum($total_cohorts['total_subscribers_active']), 2), 2, '.', ' ') ?> руб.</td><?
+                                                break;
+                                            
+                                            
                                             case 'total_subscribers_active':
                                             case 'total_subscribers_unsubscribe':
                                             case 'total_subscribers_dropped':
@@ -372,8 +380,6 @@ foreach ($tmp_roi_period as $index => $values) {
                                                 ?><td style="width: 30%"><?= $indicators[$key] ?></td><td><?= number_format(to_bank_amount(array_sum($values), 2), 2, '.', ' ') ?> руб.</td><?
                                                 break;
                                             case 'ltv_client':
-                                            case 'subscriber_cost':
-                                            case 'client_cost':
                                                 ?><td style="width: 30%"><?= $indicators[$key] ?></td><td><?= number_format(to_bank_amount(array_sum($values) / count($values), 2), 2, '.', ' ') ?> руб.</td><?
                                                 break;
                                             case 'roi':
@@ -393,6 +399,7 @@ foreach ($tmp_roi_period as $index => $values) {
                             $cost = 0;
                             $subscriber_cost = 0;
                             $client_cost = 0;
+                            
                             foreach ($data as $value) {
                                 $total_revenue = 0;
                                 $cost = 0;

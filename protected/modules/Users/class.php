@@ -791,6 +791,467 @@ class Users {
     public function SetupOther() {
         APP::Render('users/admin/settings');
     }
+    
+    public function ImportUsers() {
+        if (isset($_FILES['users'])) {
+            foreach (file($_FILES['users']['tmp_name']) as $string) {
+                $user = explode(';', trim($string));
+                
+                for ($i = 0; $i <= 16; $i ++) {
+                    if (!isset($user[$i])) {
+                        $user[$i] = false;
+                    } 
+                }
+
+                $user_id = APP::Module('DB')->Select(
+                    $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                    ['id'], 'users',
+                    [
+                        ['email', '=', $user[0], PDO::PARAM_STR]
+                    ]
+                );
+                
+                if ($user_id) {
+                    if ($user[4]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'source', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['source', PDO::PARAM_STR],
+                                    'value' => [$user[4], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[5]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'remote_addr', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['remote_addr', PDO::PARAM_STR],
+                                    'value' => [$user[5], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[6]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'country_name_ru', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['country_name_ru', PDO::PARAM_STR],
+                                    'value' => [$user[6], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[7]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'region_name_ru', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['region_name_ru', PDO::PARAM_STR],
+                                    'value' => [$user[7], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[8]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'city_name_ru', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['city_name_ru', PDO::PARAM_STR],
+                                    'value' => [$user[8], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[9]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'firstname', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['firstname', PDO::PARAM_STR],
+                                    'value' => [$user[9], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[10]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'lastname', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['lastname', PDO::PARAM_STR],
+                                    'value' => [$user[10], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ($user[11]) {
+                        if (!APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['id'], 'users_about',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR],
+                                ['item', '=', 'tel', PDO::PARAM_STR]
+                            ]
+                        )) {
+                            APP::Module('DB')->Insert(
+                                $this->settings['module_users_db_connection'], 'users_about',
+                                Array(
+                                    'id' => 'NULL',
+                                    'user' => [$user_id, PDO::PARAM_INT],
+                                    'item' => ['tel', PDO::PARAM_STR],
+                                    'value' => [$user[11], PDO::PARAM_STR],
+                                    'up_date' => 'NOW()'
+                                )
+                            );
+                        }
+                    }
+                    
+                    if ((((($user[12]) || ($user[13]) || ($user[14]) || ($user[15]) || ($user[16]))))) {
+                        $user_utm_num = (int) APP::Module('DB')->Select(
+                            $this->settings['module_users_db_connection'], ['fetch', PDO::FETCH_COLUMN],
+                            ['MAX(num)'], 'users_utm',
+                            [
+                                ['user', '=', $user_id, PDO::PARAM_STR]
+                            ]
+                        ) + 1;
+                        
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_utm',
+                            [
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'num' => [$user_utm_num, PDO::PARAM_INT],
+                                'item' => ['source', PDO::PARAM_STR],
+                                'value' => $user[12] ? [$user[12], PDO::PARAM_STR] : 'NULL',
+                                'cr_date' => 'NOW()'
+                            ]
+                        );
+
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_utm',
+                            [
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'num' => [$user_utm_num, PDO::PARAM_INT],
+                                'item' => ['medium', PDO::PARAM_STR],
+                                'value' => $user[13] ? [$user[13], PDO::PARAM_STR] : 'NULL',
+                                'cr_date' => 'NOW()'
+                            ]
+                        );
+
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_utm',
+                            [
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'num' => [$user_utm_num, PDO::PARAM_INT],
+                                'item' => ['campaign', PDO::PARAM_STR],
+                                'value' => $user[14] ? [$user[14], PDO::PARAM_STR] : 'NULL',
+                                'cr_date' => 'NOW()'
+                            ]
+                        );
+
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_utm',
+                            [
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'num' => [$user_utm_num, PDO::PARAM_INT],
+                                'item' => ['term', PDO::PARAM_STR],
+                                'value' => $user[15] ? [$user[15], PDO::PARAM_STR] : 'NULL',
+                                'cr_date' => 'NOW()'
+                            ]
+                        );
+
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_utm',
+                            [
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'num' => [$user_utm_num, PDO::PARAM_INT],
+                                'item' => ['content', PDO::PARAM_STR],
+                                'value' => $user[16] ? [$user[16], PDO::PARAM_STR] : 'NULL',
+                                'cr_date' => 'NOW()'
+                            ]
+                        );
+                    }
+                } else {
+                    $user_id = APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users',
+                        Array(
+                            'id'            => 'NULL',
+                            'email'         => [$user[0], PDO::PARAM_STR],
+                            'password'      => [APP::Module('Crypt')->Encode($user[1] ? $user[1] : $this->GeneratePassword((int) $this->settings['module_users_gen_pass_length'])), PDO::PARAM_STR],
+                            'role'          => [$user[2], PDO::PARAM_STR],
+                            'reg_date'      => 'NOW()',
+                            'last_visit'    => 'NOW()',
+                        )
+                    );
+                    
+                    APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users_about',
+                        Array(
+                            'id' => 'NULL',
+                            'user' => [$user_id, PDO::PARAM_INT],
+                            'item' => ['state', PDO::PARAM_STR],
+                            'value' => [$user[3], PDO::PARAM_STR],
+                            'up_date' => 'NOW()'
+                        )
+                    );
+                    
+                    if ($user[4]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['source', PDO::PARAM_STR],
+                                'value' => [$user[4], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[5]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['remote_addr', PDO::PARAM_STR],
+                                'value' => [$user[5], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[6]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['country_name_ru', PDO::PARAM_STR],
+                                'value' => [$user[6], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[7]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['region_name_ru', PDO::PARAM_STR],
+                                'value' => [$user[7], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[8]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['city_name_ru', PDO::PARAM_STR],
+                                'value' => [$user[8], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[9]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['firstname', PDO::PARAM_STR],
+                                'value' => [$user[9], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[10]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['lastname', PDO::PARAM_STR],
+                                'value' => [$user[10], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    if ($user[11]) {
+                        APP::Module('DB')->Insert(
+                            $this->settings['module_users_db_connection'], 'users_about',
+                            Array(
+                                'id' => 'NULL',
+                                'user' => [$user_id, PDO::PARAM_INT],
+                                'item' => ['tel', PDO::PARAM_STR],
+                                'value' => [$user[11], PDO::PARAM_STR],
+                                'up_date' => 'NOW()'
+                            )
+                        );
+                    }
+                    
+                    APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users_utm',
+                        [
+                            'id' => 'NULL',
+                            'user' => [$user_id, PDO::PARAM_INT],
+                            'num' => [1, PDO::PARAM_INT],
+                            'item' => ['source', PDO::PARAM_STR],
+                            'value' => $user[12] ? [$user[12], PDO::PARAM_STR] : 'NULL',
+                            'cr_date' => 'NOW()'
+                        ]
+                    );
+                    
+                    APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users_utm',
+                        [
+                            'id' => 'NULL',
+                            'user' => [$user_id, PDO::PARAM_INT],
+                            'num' => [1, PDO::PARAM_INT],
+                            'item' => ['medium', PDO::PARAM_STR],
+                            'value' => $user[13] ? [$user[13], PDO::PARAM_STR] : 'NULL',
+                            'cr_date' => 'NOW()'
+                        ]
+                    );
+                    
+                    APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users_utm',
+                        [
+                            'id' => 'NULL',
+                            'user' => [$user_id, PDO::PARAM_INT],
+                            'num' => [1, PDO::PARAM_INT],
+                            'item' => ['campaign', PDO::PARAM_STR],
+                            'value' => $user[14] ? [$user[14], PDO::PARAM_STR] : 'NULL',
+                            'cr_date' => 'NOW()'
+                        ]
+                    );
+                    
+                    APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users_utm',
+                        [
+                            'id' => 'NULL',
+                            'user' => [$user_id, PDO::PARAM_INT],
+                            'num' => [1, PDO::PARAM_INT],
+                            'item' => ['term', PDO::PARAM_STR],
+                            'value' => $user[15] ? [$user[15], PDO::PARAM_STR] : 'NULL',
+                            'cr_date' => 'NOW()'
+                        ]
+                    );
+                    
+                    APP::Module('DB')->Insert(
+                        $this->settings['module_users_db_connection'], 'users_utm',
+                        [
+                            'id' => 'NULL',
+                            'user' => [$user_id, PDO::PARAM_INT],
+                            'num' => [1, PDO::PARAM_INT],
+                            'item' => ['content', PDO::PARAM_STR],
+                            'value' => $user[16] ? [$user[16], PDO::PARAM_STR] : 'NULL',
+                            'cr_date' => 'NOW()'
+                        ]
+                    );
+                }
+            }
+
+            header('Location: ' . APP::Module('Routing')->root . 'admin/users/import?success');
+        } else {
+            APP::Render('users/admin/import', 'include', 'form');
+        }
+    }
 
 
     public function PublicProfile() {
@@ -1019,6 +1480,8 @@ class Users {
             false, false, false,
             ['id', 'DESC']
         ) as $value) {
+            $value['details'] = APP::Module('Utils')->IsSerialized($value['details']) ? json_encode(unserialize($value['details'])) : $value['details'];
+            
             $mail[$value['log']]['events'][] = $value;
             $mail[$value['log']]['tags'][] = $value['event'];
         }
@@ -1402,13 +1865,18 @@ class Users {
                 
                 'state.value as state',
                 'phone.value as tel',
-                'yaregion.value as yaregion'
+                'yaregion.value as yaregion',
+                'SUM(billing_invoices.amount) as amount'
             ], 
             'users',
             [
                 ['users.id', 'IN', $out, PDO::PARAM_INT]
             ],
             [
+                'left join/billing_invoices' => [
+                    ['billing_invoices.user_id', '=', 'users.id'],
+                    ['billing_invoices.state', '=', '"success"']
+                ],
                 'left join/users_about/state' => [
                     ['state.user', '=', 'users.id'],
                     ['state.item', '=', '"state"']
@@ -1422,7 +1890,7 @@ class Users {
                     ['yaregion.item', '=', '"yaregion"']
                 ]
             ], 
-            false, false,
+            ['users.id'], false, 
             [$request['sort_by'], $request['sort_direction']],
             $request['rows'] === -1 ? false : [($request['current'] - 1) * $request['rows'], $request['rows']]
         ) as $row) {
@@ -1432,12 +1900,6 @@ class Users {
                 $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC], 
                 ['extra', 'service'], 'users_accounts',
                 [['user_id', '=', $row['id'], PDO::PARAM_INT]]
-            );
-            
-            $row['amount'] = APP::Module('DB')->Select(
-                APP::Module('Billing')->settings['module_billing_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
-                ['SUM(amount)'], 'billing_invoices',
-                [['user_id', '=', $row['id'], PDO::PARAM_INT],['state', '=', 'success', PDO::PARAM_STR]]
             );
             
             foreach(APP::Module('DB')->Select(
@@ -1569,7 +2031,7 @@ class Users {
                     'password' => $_POST['password'],
                     'expire' => strtotime('+' . $this->settings['module_users_timeout_activation']),
                     'link' => APP::Module('Routing')->root . 'users/activate/' . APP::Module('Crypt')->Encode($user_id) . '/'
-                ]);
+                ], true, 'add_user');
             }
 
             $out['user_id'] = $user_id;
@@ -1671,7 +2133,7 @@ class Users {
                 'password' => $_POST['password'],
                 'expire' => strtotime('+' . $this->settings['module_users_timeout_activation']),
                 'link' => APP::Module('Routing')->root . 'users/activate/' . APP::Module('Crypt')->Encode($user_id) . '/'
-            ]);
+            ], true, 'register_user');
 
             $out['user_id'] = $user_id;
 
@@ -1719,7 +2181,7 @@ class Users {
                 'password' => $password,
                 'expire' => strtotime('+' . $this->settings['module_users_timeout_activation']),
                 'link' => APP::Module('Routing')->root . 'users/activate/' . APP::Module('Crypt')->Encode($user_id) . '/'
-            ]);
+            ], true, 'subscribe_user');
 
             $out['user_id'] = $user_id;
 
@@ -1765,7 +2227,7 @@ class Users {
                         $_POST['email'],
                         APP::Module('DB')->Select($this->settings['module_users_db_connection'], ['fetchColumn', 0], ['password'], 'users', [['email', '=', $_POST['email'], PDO::PARAM_STR]])
                     ]))
-                ])
+                ], true, 'reset_password_user')
             ];
 
             APP::Module('Triggers')->Exec('reset_user_password', ['email' => $_POST['email']]);
@@ -1823,7 +2285,7 @@ class Users {
                 'info' => APP::Module('Mail')->Send($this->user['email'], $this->settings['module_users_change_password_letter'], [
                     'email' => $this->user['email'],
                     'password' => $_POST['password']
-                ])
+                ], true, 'change_password_user')
             ];
         }
 
@@ -2491,7 +2953,7 @@ class Users {
                             APP::Module('Mail')->Send($vk_result['email'], $this->settings['module_users_register_letter'], [
                                 'email' => $vk_result['email'],
                                 'password' => $password
-                            ]);
+                            ], true, 'register_vk_user');
                         }
                     } else {
                         APP::Render('users/errors', 'include', 'auth_vk_email');
@@ -2583,7 +3045,7 @@ class Users {
                                 APP::Module('Mail')->Send($fb_user['email'], $this->settings['module_users_register_letter'], [
                                     'email' => $fb_user['email'],
                                     'password' => $password
-                                ]);
+                                ], true, 'register_fb_user');
                             }
                         } else {
                             APP::Render('users/errors', 'include', 'auth_fb_email');
@@ -2669,7 +3131,7 @@ class Users {
                                 APP::Module('Mail')->Send($google_user['email'], $this->settings['module_users_register_letter'], [
                                     'email' => $google_user['email'],
                                     'password' => $password
-                                ]);
+                                ], true, 'register_google_user');
                             }
                         } else {
                             APP::Render('users/errors', 'include', 'auth_google_email');
@@ -2755,7 +3217,7 @@ class Users {
                                 APP::Module('Mail')->Send($ya_user['default_email'], $this->settings['module_users_register_letter'], [
                                     'email' => $ya_user['default_email'],
                                     'password' => $password
-                                ]);
+                                ], true, 'register_yandex_user');
                             }
                         } else {
                             APP::Render('users/errors', 'include', 'auth_ya_email');
@@ -2912,7 +3374,10 @@ class Users {
                 ['email'], 'users',
                 [['id', '=', $mail['user'], PDO::PARAM_INT]]
             ),
-            $this->settings['module_users_subscription_restore_letter']
+            $this->settings['module_users_subscription_restore_letter'],
+            [], 
+            true, 
+            'unsubscribe_user'
         );
         
         APP::Module('Triggers')->Exec('user_unsubscribe', [
@@ -3021,7 +3486,10 @@ class Users {
                 ['email'], 'users',
                 [['id', '=', $mail['user'], PDO::PARAM_INT]]
             ),
-            $this->settings['module_users_subscription_restore_letter']
+            $this->settings['module_users_subscription_restore_letter'],
+            [], 
+            true, 
+            'pause_user'
         );
 
         APP::Module('Triggers')->Exec('user_pause', [
@@ -3140,44 +3608,7 @@ class Users {
             );
         }
     }
-    
-    public function UpdateUtmIndex() {
-        ini_set('max_execution_time','1800'); 
-        ini_set('memory_limit','8192M');
 
-        $users_utm = APP::Module('DB')->Select(
-            $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_ASSOC],
-            ['users_utm.user','users_utm.item','users_utm.value'], 'users_utm', [['users_utm.num', '=', '1', PDO::PARAM_INT]]
-        );
-        
-        $users = [];
-
-        foreach ($users_utm as $item) $users[$item['user']][$item['item']] = $item['value'];
-        unset($users_utm);
-        
-        $exist = [];
-        
-        APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('TRUNCATE TABLE users_utm_index');
-        
-        foreach ($users as $utm) {
-            $utm_index['source'] = isset($utm['source']) ? $utm['source'] : '_';
-            $utm_index['medium'] = isset($utm['medium']) ? $utm['medium'] : '_';
-            $utm_index['campaign'] = isset($utm['campaign']) ? $utm['campaign'] : '_';
-            $utm_index['term'] = isset($utm['term']) ? $utm['term'] : '_';
-            $utm_index['content'] = isset($utm['content']) ? $utm['content'] : '_';
-
-            if (isset($exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])){
-                if(!array_key_exists($utm_index['content'], (array) $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']])) {
-                    APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
-                    $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
-                }
-            }else{
-                APP::Module('DB')->Open(APP::Module('Users')->settings['module_users_db_connection'])->query('INSERT INTO users_utm_index VALUES (NULL, "' . (isset($utm['source']) ? $utm['source'] : '') . '", "' . (isset($utm['medium']) ? $utm['medium'] : '') . '", "' . (isset($utm['campaign']) ? $utm['campaign'] : '') . '", "' . (isset($utm['term']) ? $utm['term'] : '') . '", "' . (isset($utm['content']) ? $utm['content'] : '') . '", NOW())');
-                $exist[$utm_index['source']][$utm_index['medium']][$utm_index['campaign']][$utm_index['term']][$utm_index['content']] = true;
-            }
-        }
-    }
-    
     public function APIAdminAboutItemList(){
         $data = APP::Module('DB')->Select(
             $this->settings['module_users_db_connection'], ['fetchAll', PDO::FETCH_COLUMN], 
@@ -3190,7 +3621,6 @@ class Users {
         echo json_encode($data);
         exit;
     }
-    
 }
 
 class UsersSearch {
@@ -4237,7 +4667,7 @@ class UsersActions {
             ['email'], 'users',
             [['id', 'IN', $id, PDO::PARAM_INT]]
         ) as $email) {
-            APP::Module('Mail')->Send($email, $settings['letter'], false, isset($settings['save_copy']));
+            APP::Module('Mail')->Send($email, $settings['letter'], false, isset($settings['save_copy']), 'manage_users');
         }
         
         return $out;

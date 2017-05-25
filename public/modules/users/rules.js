@@ -680,8 +680,8 @@
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_buy" href="javascript:void(0)">Product buy</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_availability" href="javascript:void(0)">Product_availability</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order" href="javascript:void(0)">Product order</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order_sum" href="javascript:void(0)">Sum amount</a></li>',
                 */
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="product_order_sum" href="javascript:void(0)">Сумма выручки</a></li>',
                 '<li class="divider"></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="rfm_billing" href="javascript:void(0)">RFM анализ</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="rfm_mail" href="javascript:void(0)">RFM анализ (письма)</a></li>',                
@@ -883,12 +883,14 @@
                     ].join(''));
                     
                     $.post(settings.url+'admin/users/api/about/item/list.json', function(res){
+                        var html = '';
                         $.each(res, function(j, i){
-                            $('.trigger_settings select[data-id="item"]', $trigger_rule_item).append('<option value="'+i+'">'+i+'</option>');
+                            html += '<option value="'+i+'">'+i+'</option>';
                         });
+                        $('.trigger_settings select[data-id="item"]', $trigger_rule_item).html(html).selectpicker('refresh');
                     });
                     
-                    $('.trigger_settings select[data-id="item"]', $trigger_rule_item).selectpicker('refresh');
+                    
 
                     if (rule.settings.logic !== undefined) $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).val(rule.settings.logic);
                     $('.trigger_settings input[data-id="logic"]', $trigger_rule_item).on('input propertychange paste', function(){$target_rules.val($.toJSON(methods.render_value($('#trigger_rules_editor > .trigger_children > .trigger_rule'))))});
@@ -1765,7 +1767,7 @@
                 case 'product_order_sum':
                     $('.trigger_settings', $trigger_rule_item).append([
                         '<table>',
-                            '<tr>Product order sum</tr>',
+                            '<tr>Сумма выручки</tr>',
                             '<tr>',
                                 '<td style="width: 100px">',
                                     '<select class="form-control" data-id="mode" >',

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>PHP-shell - Mail</title>
+        <title>Почта - Журнал</title>
 
         <!-- Vendor CSS -->
         <link href="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/animate.css/animate.min.css" rel="stylesheet">
@@ -25,6 +25,18 @@
             #log-table-header .actionBar .actions > button {
                 display: none;
             }
+            #mail-list-legend{
+                background-color: #fff;
+                margin-bottom:8px;
+                margin:0 auto;
+                display:inline-block;
+                border-radius: 3px 3px 3px 3px;
+                border: 1px solid #E6E6E6;
+            }
+
+            #mail-list-legend td{
+                padding: 5px;
+            }
         </style>
         
         <? APP::Render('core/widgets/css') ?>
@@ -32,7 +44,7 @@
     <body data-ma-header="teal">
         <? 
         APP::Render('admin/widgets/header', 'include', [
-            'Mail log' => 'admin/mail/log',
+            'Почта' => 'admin/mail/log',
         ]);
         ?>
         <section id="main">
@@ -55,7 +67,7 @@
                             <div class="btn-group m-b-15">
                                 <button id="mail-log-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="mail-log-calendar-from">...</span> - <span id="mail-log-calendar-to">...</span></button>
                             </div>
-                            <div id="mail-list-chart">
+                            <div id="mail-list-chart" class="m-b-20">
                                 <div class="text-center">
                                     <div class="preloader pl-xxl">
                                         <svg class="pl-circular" viewBox="25 25 50 50">
@@ -64,6 +76,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="mail-list-legend"></div>
                             <input id="mail-list-date-from" type="hidden">
                             <input id="mail-list-date-to" type="hidden">
                         </div>
@@ -72,17 +85,17 @@
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-visible="false" data-type="numeric" data-order="desc">ID</th>
-                                        <th data-column-id="email" data-formatter="user">User</th>
-                                        <th data-column-id="letter" data-formatter="letter">Letter</th>
-                                        <th data-column-id="copies" data-formatter="copies" data-css-class="text-uppercase">Copies</th>
-                                        <th data-column-id="sender" data-formatter="sender">Sender</th>
-                                        <th data-column-id="transport" data-formatter="transport">Transport</th>
-                                        <th data-column-id="state" data-css-class="text-uppercase">State</th>
-                                        <th data-column-id="result" data-visible="false">Result</th>
-                                        <th data-column-id="retries" data-visible="false">Retries</th>
-                                        <th data-column-id="ping" data-visible="false">Ping</th>
-                                        <th data-column-id="cr_date">Date</th>
-                                        <th data-column-id="actions" data-formatter="actions">Actions</th>
+                                        <th data-column-id="email" data-formatter="user">Получатель</th>
+                                        <th data-column-id="letter" data-formatter="letter">Письмо</th>
+                                        <th data-column-id="copies" data-formatter="copies" data-css-class="text-uppercase">Копии</th>
+                                        <th data-column-id="sender" data-formatter="sender">Отправитель</th>
+                                        <th data-column-id="transport" data-formatter="transport" data-visible="false">Транспорт</th>
+                                        <th data-column-id="state" data-css-class="text-uppercase" data-formatter="state">Состояние</th>
+                                        <th data-column-id="result">Результат</th>
+                                        <th data-column-id="retries" data-visible="false">Попытки</th>
+                                        <th data-column-id="ping" data-visible="false">Время ответа</th>
+                                        <th data-column-id="cr_date">Дата</th>
+                                        <th data-column-id="actions" data-formatter="actions">Действия</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -98,11 +111,11 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Events associated with letter</h4>
+                        <h4 class="modal-title">События письма</h4>
                     </div>
                     <div class="modal-body" id="accordion"></div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
                     </div>
                 </div>
             </div>
@@ -118,11 +131,13 @@
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/Waves/dist/waves.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js"></script>
         <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bootgrid/jquery.bootgrid.updated.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/flot/jquery.flot.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/flot/jquery.flot.resize.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/flot/jquery.flot.time.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/moment/min/moment.min.js"></script>
-        <script src="<?= APP::Module('Routing')->root ?>public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+        <?php 
+            APP::$insert['js_flot']           = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.js'];
+            APP::$insert['js_flot_resize']    = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.resize.js'];
+            APP::$insert['js_flot_time']      = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/flot/jquery.flot.time.js'];
+            APP::$insert['js_moment']         = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/moment/min/moment.min.js'];
+            APP::$insert['js_datetimepicker'] = ['js', 'file', 'before', '</body>', APP::Module('Routing')->root . 'public/ui/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js'];
+        ?>
         
         <? APP::Render('core/widgets/js') ?>
         
@@ -428,6 +443,11 @@
                                     show: true
                                 }
                             },
+                            legend : {
+                                show : true,
+                                noColumns:0,
+                                container: $('#mail-list-legend')
+                            },
                             grid : {
                                 borderWidth: 1,
                                 borderColor: '#eee',
@@ -594,6 +614,13 @@
                         transport: function(column, row) {
                             return  '<a href="<?= APP::Module('Routing')->root ?>' + row.transport_settings + '" target="_blank">' + row.transport_module + ' / ' + row.transport_method + '</a>';
                         },
+                        state: function(column, row) {
+                            switch (row.state) {
+                                case 'wait': return 'В очереди';
+                                case 'success': return 'Отправлено';
+                                case 'error': return 'Ошибка';
+                            }
+                        },
                         actions: function(column, row) {
                             var events_icon = parseInt(row.events) ? 'notifications-active' : 'notifications-none';
                             
@@ -635,7 +662,7 @@
                                         ].join(''));
                                     });
                                 } else {
-                                    $('#mail-events-modal .modal-body').html('<div class="alert alert-warning" role="alert">Events not found</div>');
+                                    $('#mail-events-modal .modal-body').html('<div class="alert alert-warning" role="alert">События не найдены</div>');
                                 }
                             }
                         });

@@ -980,6 +980,8 @@
                             );
 
                             if (TunnelEditor.Objects.Actions[id].action == 'send_mail') {
+                                console.log('xxx');
+                                
                                 object
                                 .append(
                                     $('<div/>', {
@@ -3539,6 +3541,22 @@
                                     }
                                     object.find('.action_details').html(action_details);
                                     action.textDescription = action_details;
+                                    
+                                    object.find('.send_mail_info').html([
+                                        'Отправлено писем: ' + sendMailInfo.delivered,
+                                        '% открытия: ' + Math.ceil((sendMailInfo.open * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.open + ')',
+                                        '% кликов: ' + Math.ceil((sendMailInfo.click * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.click + ')',
+                                        '% спама: ' + Math.ceil((sendMailInfo.spamreport * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.spamreport + ')',
+                                        '% отписок: ' + Math.ceil((sendMailInfo.unsubscribe * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.unsubscribe + ')'
+                                    ].join('<br>'));
+                                    
+                                    object.find('.info-tooltip').html([
+                                        'Отправлено писем: ' + sendMailInfo.delivered,
+                                        '% открытия: ' + Math.ceil((sendMailInfo.open * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.open + ')',
+                                        '% кликов: ' + Math.ceil((sendMailInfo.click * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.click + ')',
+                                        '% спама: ' + Math.ceil((sendMailInfo.spamreport * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.spamreport + ')',
+                                        '% отписок: ' + Math.ceil((sendMailInfo.unsubscribe * 100)/sendMailInfo.delivered) + ' (' + sendMailInfo.unsubscribe + ')'
+                                    ].join('<br>'));
                                 })
                             }
                             break;
@@ -3683,17 +3701,26 @@
                 },
                 getSendMailInfo: function(letterId, cb) {
                     var sendMailInfo = {};
+                    
                     TunnelEditor.getLetterById(letterId, function (letterData) {
+                        console.log(letterId);
+                        //console.log(letterData);
+                        sendMailInfo.click = letterData[0].click;
+                        sendMailInfo.delivered = letterData[0].delivered;
+                        sendMailInfo.open = letterData[0].open;
+                        sendMailInfo.spamreport = letterData[0].spamreport;
+                        sendMailInfo.unsubscribe = letterData[0].unsubscribe;
                         sendMailInfo.subject = letterData[0].subject;
+                        
                         if (letterData[0].sender) {
                             TunnelEditor.getSenderById(letterData[0].sender, function (senderData) {
                                 sendMailInfo.sender = senderData[0].name;
                                 cb(sendMailInfo);
-                            })
+                            });
                         } else {
                             cb(sendMailInfo);
                         }
-                    })
+                    });
                 },
                 getLetterById: function (id, cb) {
                     $.ajax({

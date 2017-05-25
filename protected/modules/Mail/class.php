@@ -20,7 +20,10 @@ class Mail {
             'module_mail_fbl_server',
             'module_mail_fbl_login',
             'module_mail_fbl_password',
-            'module_mail_fbl_prefix'
+            'module_mail_fbl_prefix',
+            'module_mail_utm_labels',
+            'module_mail_utm_labels_source',
+            'module_mail_utm_labels_medium'
         ]);
     }
     
@@ -99,6 +102,58 @@ class Mail {
         $letter['html'] = str_replace('[spamreport-link]', $spamreport_link, $letter['html']);
         $letter['plaintext'] = str_replace('[spamreport-link]', $spamreport_link, $letter['plaintext']);
         //
+        
+        // [utm-labels]
+        if ((bool) $this->settings['module_mail_utm_labels']) {
+            preg_match_all('/<a[^>]*href=\"?([^\s\">]+?)\"?[^>]*>/ismU', $letter['html'], $links_matches);
+
+            foreach ($links_matches[1] as $key => $link) {
+                $url = parse_url($link);
+                
+                if ((!isset($url['scheme'])) || (!isset($url['host']))) {
+                    continue;
+                }
+
+                // exclude links
+                if (in_array($url['host'], [APP::$conf['location'][1]])) continue;
+
+                $query = [];
+
+                if (isset($url['query'])) {
+                    foreach (explode('&', $url['query']) as $param) {
+                        $param_data = explode('=', $param);
+
+                        if ((isset($param_data[0])) && (isset($param_data[1]))) {
+                            $query[$param_data[0]] = $param_data[1];
+                        }
+                    }
+                }
+
+                $utm_query = http_build_query(
+                    array_merge(
+                        $query,
+                        [
+                            'utm_source' => $this->settings['module_mail_utm_labels_source'],
+                            'utm_medium' => $this->settings['module_mail_utm_labels_medium'],
+                            'utm_campaign' => $letter['id'],
+                            'utm_content' => $key
+                        ]
+                    )
+                );
+
+                $out_link = $url['scheme'] . '://' . $url['host'];
+                $out_link .= isset($url['path']) ? $url['path'] : '/';
+                $out_link .= '?' . $utm_query;
+
+                if (isset($url['fragment'])) {
+                    $out_link .= '#' . $url['fragment'];
+                }
+
+                $html_link = str_replace($link, $out_link, $links_matches[0][$key]);
+                $letter['html'] = str_replace($links_matches[0][$key], $html_link, $letter['html']);
+            }
+        }
+        //
 
         extract(APP::Module('Triggers')->Exec('before_mail_send_letter', [
             'recepient' => $recepient,
@@ -109,7 +164,7 @@ class Mail {
         return $letter;
     }
     
-    public function Send($recepient, $letter, $params = [], $save_copy = true) {
+    public function Send($recepient, $letter, $params = [], $save_copy = true, $source = null) {
         if (!filter_var($recepient, FILTER_VALIDATE_EMAIL)) return ['error', 1];
         
         if (!APP::Module('DB')->Select(
@@ -128,7 +183,7 @@ class Mail {
             [['id', '=', $letter['transport'], PDO::PARAM_INT]]
         );
         
-        $result = APP::Module($transport['module'])->{$transport['method']}($recepient, $letter, $params, $save_copy);
+        $result = APP::Module($transport['module'])->{$transport['method']}($recepient, $letter, $params, $save_copy, $source);
 
         APP::Module('Triggers')->Exec('after_mail_send_letter', [
             'result' => $result,
@@ -140,7 +195,7 @@ class Mail {
         return $result;
     }
 
-    private function Transport($recepient, $letter, $params, $save_copy = true) {
+    private function Transport($recepient, $letter, $params, $save_copy = true, $source = null) {
         $id = false;
         
         if (isset(APP::$modules['Users'])) {
@@ -659,11 +714,88 @@ class Mail {
         ) as $value) {
             $list[] = ['letter', $value['id'], $value['subject']];
         }
+        
+        // LETTERS STAT ////////////////////////////////////////////////////////
+        
+        $stat_filters = [];
+        
+        if ((isset(APP::Module('Routing')->get['statfilter']['date']['from'])) && (isset(APP::Module('Routing')->get['statfilter']['date']['to']))) {
+            $stat_filters[] = ['mail_events.log', 'IN', 'SELECT mail_log.id FROM mail_log WHERE mail_log.cr_date BETWEEN "' . APP::Module('Routing')->get['statfilter']['date']['from'] . ' 00:00:00" AND "' . APP::Module('Routing')->get['statfilter']['date']['to'] . ' 23:59:59"', PDO::PARAM_STR];
+        }
+        
+        $letters_stat = [];
+
+        foreach ($list as $value) {
+            if ($value[0] == 'letter') {
+                $letters_stat[$value[1]] = [
+                    'delivered' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT mail_events.log)'], 'mail_events',
+                        array_merge(
+                            [
+                                ['mail_events.event', '=', 'delivered', PDO::PARAM_STR],
+                                ['mail_events.letter', '=', $value[1], PDO::PARAM_INT],
+                            ],
+                            $stat_filters
+                        )
+                    ),
+                    'open' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT mail_events.log)'], 'mail_events',
+                        array_merge(
+                            [
+                                ['mail_events.event', '=', 'open', PDO::PARAM_STR],
+                                ['mail_events.letter', '=', $value[1], PDO::PARAM_INT],
+                            ],
+                            $stat_filters
+                        )
+                    ),
+                    'click' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT mail_events.log)'], 'mail_events',
+                        array_merge(
+                            [
+                                ['mail_events.event', '=', 'click', PDO::PARAM_STR],
+                                ['mail_events.letter', '=', $value[1], PDO::PARAM_INT],
+                            ],
+                            $stat_filters
+                        )
+                    ),
+                    'unsubscribe' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT mail_events.log)'], 'mail_events',
+                        array_merge(
+                            [
+                                ['mail_events.event', '=', 'unsubscribe', PDO::PARAM_STR],
+                                ['mail_events.letter', '=', $value[1], PDO::PARAM_INT],
+                            ],
+                            $stat_filters
+                        )
+                    ),
+                    'spamreport' => APP::Module('DB')->Select(
+                        $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                        ['COUNT(DISTINCT mail_events.log)'], 'mail_events',
+                        array_merge(
+                            [
+                                ['mail_events.event', '=', 'spamreport', PDO::PARAM_STR],
+                                ['mail_events.letter', '=', $value[1], PDO::PARAM_INT],
+                            ],
+                            $stat_filters
+                        )
+                    )
+                ];
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////
 
         APP::Render('mail/admin/letters/index', 'include', [
             'group_sub_id' => $group_sub_id,
             'path' => $this->RenderLettersGroupsPath($group_sub_id),
-            'list' => $list
+            'list' => $list,
+            'stat' => [
+                'letters' => $letters_stat
+            ]
         ]);
     }
     
@@ -1635,6 +1767,9 @@ class Mail {
         APP::Module('Registry')->Update(['value' => $_POST['module_mail_fbl_login']], [['item', '=', 'module_mail_fbl_login', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_mail_fbl_password']], [['item', '=', 'module_mail_fbl_password', PDO::PARAM_STR]]);
         APP::Module('Registry')->Update(['value' => $_POST['module_mail_fbl_prefix']], [['item', '=', 'module_mail_fbl_prefix', PDO::PARAM_STR]]);
+        APP::Module('Registry')->Update(['value' => isset($_POST['module_mail_utm_labels'])], [['item', '=', 'module_mail_utm_labels', PDO::PARAM_STR]]);
+        APP::Module('Registry')->Update(['value' => $_POST['module_mail_utm_labels_source']], [['item', '=', 'module_mail_utm_labels_source', PDO::PARAM_STR]]);
+        APP::Module('Registry')->Update(['value' => $_POST['module_mail_utm_labels_medium']], [['item', '=', 'module_mail_utm_labels_medium', PDO::PARAM_STR]]);
         
         APP::Module('Triggers')->Exec('mail_update_settings', [
             'db_connection' => $_POST['module_mail_db_connection'],
@@ -1647,7 +1782,9 @@ class Mail {
             'fbl_login' => $_POST['module_mail_fbl_login'],
             'fbl_password' => $_POST['module_mail_fbl_password'],
             'fbl_prefix' => $_POST['module_mail_fbl_prefix'],
-            
+            'utm_labels' => isset($_POST['module_mail_utm_labels']),
+            'utm_labels_source' => $_POST['module_mail_utm_labels_source'],
+            'utm_labels_medium' => $_POST['module_mail_utm_labels_medium'],
         ]);
         
         header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
@@ -2205,6 +2342,51 @@ class Mail {
             $_POST['select'], 'mail_letters', 
             $_POST['where']
         ) as $value) {
+            $value['delivered'] = APP::Module('DB')->Select(
+                $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(DISTINCT log)'], 'mail_events',
+                [
+                    ['event', '=', 'delivered', PDO::PARAM_STR],
+                    ['letter', '=', $value['id'], PDO::PARAM_INT]
+                ]
+            );
+            
+            $value['open'] = APP::Module('DB')->Select(
+                $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(DISTINCT log)'], 'mail_events',
+                [
+                    ['event', '=', 'open', PDO::PARAM_STR],
+                    ['letter', '=', $value['id'], PDO::PARAM_INT]
+                ]
+            );
+            
+            $value['click'] = APP::Module('DB')->Select(
+                $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(DISTINCT log)'], 'mail_events',
+                [
+                    ['event', '=', 'click', PDO::PARAM_STR],
+                    ['letter', '=', $value['id'], PDO::PARAM_INT]
+                ]
+            );
+            
+            $value['spamreport'] = APP::Module('DB')->Select(
+                $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(DISTINCT log)'], 'mail_events',
+                [
+                    ['event', '=', 'spamreport', PDO::PARAM_STR],
+                    ['letter', '=', $value['id'], PDO::PARAM_INT]
+                ]
+            );
+            
+            $value['unsubscribe'] = APP::Module('DB')->Select(
+                $this->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_COLUMN], 
+                ['COUNT(DISTINCT log)'], 'mail_events',
+                [
+                    ['event', '=', 'unsubscribe', PDO::PARAM_STR],
+                    ['letter', '=', $value['id'], PDO::PARAM_INT]
+                ]
+            );
+            
             $value['token'] = APP::Module('Crypt')->Encode($value['id']);
             $out[] = $value;
         }

@@ -18,6 +18,7 @@
         </div>
     </div>
 </div>
+<div id="new-users-legend"></div>
 <div id="new-users-list"></div>
 <input id="new-user-date-from" type="hidden">
 <input id="new-user-date-to" type="hidden">

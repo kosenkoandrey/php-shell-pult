@@ -433,6 +433,11 @@ ob_end_clean();
                         hoverable: true,
                         clickable: true
                     },
+                    legend : {
+                        show : true,
+                        noColumns:0,
+                        container: $('#new-users-legend')
+                    },
 
                     yaxis: {
                         tickColor: '#eee',
@@ -444,7 +449,6 @@ ob_end_clean();
                         },
                         shadowSize: 0
                     },
-
                     xaxis: {
                         mode: "time",
                         tickColor: '#fff',
@@ -455,6 +459,11 @@ ob_end_clean();
                             color: "#9f9f9f"
                         },
                         shadowSize: 0
+                    },
+                    legend: {
+                        show: true,
+                        container: $('#new-users-legend'),
+                        noColumns: 0
                     }
                 });
 

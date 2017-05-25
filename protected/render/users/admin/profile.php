@@ -575,7 +575,7 @@
                                                         <td style="width: 60px;">
                                                             <span style="display: inline-block" class="avatar-char palette-<?= $mail_icon[0] ?> bg"><i class="zmdi zmdi-<?= $mail_icon[1] ?>"></i></span>
                                                         </td>
-                                                        <td style="font-size: 16px;">
+                                                        <td style="font-size: 16px;width: 600px;">
                                                             <a class="mail_events" data-id="<?= $item['log']['id'] ?>" style="color: #4C4C4C" href="javascript:void(0)"><?= $item['log']['letter_subject'] ?></a>
                                                             <div style="font-size: 11px;"><?= $item['log']['cr_date'] ?></div>
                                                             <div style="font-size: 12px; margin-top: 5px;">
@@ -620,7 +620,7 @@
                                                                 
                                                             </div>
                                                         </td>
-                                                        <td>
+                                                        <td style="width: 120px;">
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/html/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-code-setting"></span></a>
                                                             <a target="_blank" href="<?= APP::Module('Routing')->root ?>mail/plaintext/<?= APP::Module('Crypt')->Encode($item['log']['id']) ?>" class="btn btn-sm btn-default btn-icon waves-effect waves-circle"><span class="zmdi zmdi-text-format"></span></a>
                                                         </td>
@@ -1768,6 +1768,8 @@
                     
                     if (mail_events[id].events.length) {
                         $.each(mail_events[id].events, function(key, event) {
+                            console.log(event);
+                            
                             var details = event.details !== 'NULL' ? JSON.stringify(JSON.parse(event.details), undefined, 4) : 'Details not found';
 
                             $('#mail-events-modal .events').append([

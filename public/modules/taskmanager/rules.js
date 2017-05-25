@@ -1,11 +1,3 @@
-/**
- * @author Selivanov Max <max@evildevel.com>
- * 
- * Dependencies:
- * jquery.json (https://github.com/krinkle/jquery-json)
- * 
- */
-
 (function($) {
     var settings;
     var objects = {};
@@ -186,7 +178,7 @@
         getRulesListByLogic: function(logic) {
             return [
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="token" href="javascript:void(0)">Токен</a></li>',
-                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="module" href="javascript:void(0)">Моудль</a></li>',
+                '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="module" href="javascript:void(0)">Модуль</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="method" href="javascript:void(0)">Метод</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="args" href="javascript:void(0)">Параметры</a></li>',
                 '<li><a class="add_trigger_rule" data-logic="' + logic + '" data-method="state" href="javascript:void(0)">Статус</a></li>'

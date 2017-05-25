@@ -9,7 +9,7 @@
 <div class="btn-group m-b-15">
     <button id="analytics-calendar" type="button" class="btn btn-default waves-effect"><i class="zmdi zmdi-calendar"></i> <span id="analytics-calendar-from">...</span> - <span id="analytics-calendar-to">...</span></button>
 </div>
-<div id="analytics-chart">
+<div id="analytics-chart" class="m-b-20">
     <div class="text-center">
         <div class="preloader pl-xxl">
             <svg class="pl-circular" viewBox="25 25 50 50">
@@ -18,5 +18,6 @@
         </div>
     </div>
 </div>
+<div id="analytics-chart-legend"></div>
 <input id="analytics-date-from" type="hidden">
 <input id="analytics-date-to" type="hidden">
