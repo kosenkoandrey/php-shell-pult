@@ -848,18 +848,27 @@ class Mail {
         ) as $tunnel) {
             $tunnels[$tunnel['id']] = $tunnel;
         }
+
+        $letter = APP::Module('DB')->Select(
+            APP::Module('Mail')->settings['module_mail_db_connection'], ['fetch', PDO::FETCH_ASSOC], 
+            ['mail_copies.html', 'mail_copies.plaintext'], 'mail_log', [['mail_log.letter', '=', APP::Module('Crypt')->Decode(APP::Module('Routing')->get['letter_id_hash']), PDO::PARAM_INT], ['mail_log.user', '=', $user_id, PDO::PARAM_INT], ['mail_log.state', '=', 'success', PDO::PARAM_STR]],['join/mail_copies'=>[['mail_copies.log', '=', 'mail_log.id']]],false,false,['mail_copies.cr_date', 'DESC']
+        );
+
+        if(!$letter){
+            $letter = $this->PrepareSend(
+                $user_id, 
+                APP::Module('Crypt')->Decode(APP::Module('Routing')->get['letter_id_hash']), 
+                [
+                    'user_tunnel_id' => $user_tunnel_id,
+                    'tunnel_id' => $tunnel_id,
+                ]
+            );
+        }
         
         APP::Render(
             'mail/admin/letters/preview', 'include', 
             [
-                'letter' => $this->PrepareSend(
-                    $user_id, 
-                    APP::Module('Crypt')->Decode(APP::Module('Routing')->get['letter_id_hash']), 
-                    [
-                        'user_tunnel_id' => $user_tunnel_id,
-                        'tunnel_id' => $tunnel_id,
-                    ]
-                ),
+                'letter' => $letter,
                 'user_id' => $user_id,
                 'user_tunnel_id' => $user_tunnel_id,
                 'tunnels' => $tunnels,
